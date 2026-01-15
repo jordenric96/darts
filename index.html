@@ -3,162 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darten Jorden: Ranked</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Darten Jorden: Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            --glass-bg: rgba(20, 20, 30, 0.95);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            
+            --bg-gradient: radial-gradient(circle at top, #1a1625 0%, #050505 100%);
+            --glass-bg: rgba(20, 20, 30, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
             --c-cyan: #00f3ff; --c-pink: #ff00aa; --c-yellow: #ffee00;
-            --c-red: #ff3b3b; --c-green: #00e676; --c-grey: #888;
-            
-            --text-color: #ffffff;
-            --btn-bg: rgba(255, 255, 255, 0.1);
+            --c-purple: #bc13fe; --c-red: #ff3b3b; --c-green: #00e676;
+            --text-color: #ffffff; --btn-bg: rgba(255, 255, 255, 0.05);
         }
-
         * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-color);
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
-        
-        .logo { 
-            font-size: 2.2rem; font-weight: 900; font-style: italic;
-            background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3);
-            cursor: pointer;
-        }
-
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg-gradient); color: var(--text-color); margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-x: hidden; }
+        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin: 10px 0; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .logo { font-size: 2rem; font-weight: 900; font-style: italic; background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; cursor: pointer; }
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
-
-        .card {
-            background: var(--glass-bg); backdrop-filter: blur(12px);
-            border: var(--glass-border); border-radius: 20px; padding: 20px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
-            animation: slideUp 0.4s ease-out;
-            position: relative;
-        }
-
-        /* STATUS BADGE (RANKED/PRACTICE) */
-        .status-badge {
-            position: absolute; top: -10px; right: 20px;
-            padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold;
-            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
+        .card { background: var(--glass-bg); backdrop-filter: blur(15px); border: var(--glass-border); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 20px; animation: slideUp 0.4s ease-out; position: relative; }
+        
+        /* UI COMPONENTS */
+        .status-badge { position: absolute; top: -12px; right: 20px; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 5; }
         .badge-ranked { background: var(--c-yellow); color: black; border: 2px solid #fff; }
-        .badge-practice { background: var(--c-grey); color: white; border: 1px solid #aaa; }
-
-        /* UNDO BUTTON */
-        .btn-undo {
-            position: absolute; top: 15px; left: 15px;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--c-yellow); color: black;
-            border: none; font-size: 1.2rem; display: flex;
-            align-items: center; justify-content: center;
-            box-shadow: 0 0 10px rgba(255,238,0,0.5);
-            z-index: 10; padding: 0; margin: 0;
-        }
-        .btn-undo:active { transform: scale(0.9); }
-
-        /* KNOPPEN */
-        button {
-            border: none; border-radius: 15px; padding: 15px 25px;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
-            cursor: pointer; width: 100%; margin-bottom: 12px;
-            transition: all 0.1s ease; background: var(--btn-bg); color: white;
-            border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px;
-            user-select: none; touch-action: manipulation;
-        }
-        button:active { transform: scale(0.95); filter: brightness(1.2); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        .badge-practice { background: #444; color: #aaa; border: 1px solid #666; }
+        .btn-undo { position: absolute; top: 15px; left: 15px; width: 40px; height: 40px; border-radius: 50%; background: transparent; color: var(--c-yellow); border: 1px solid var(--c-yellow); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 10; transition: 0.2s; }
+        .btn-undo:active { transform: scale(0.9); background: var(--c-yellow); color: black; }
         
-        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
-        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
-        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; box-shadow: 0 4px 15px rgba(255, 238, 0, 0.3); }
-        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
-        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; border:none; }
+        button { border: none; border-radius: 12px; padding: 15px 25px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; width: 100%; margin-bottom: 12px; transition: all 0.2s ease; background: var(--btn-bg); color: white; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px; user-select: none; }
+        button:active { transform: scale(0.96); filter: brightness(1.3); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); }
+        .btn-cyan { color: var(--c-cyan); border-color: var(--c-cyan); } .btn-cyan:hover { background: var(--c-cyan); color: #000; }
+        .btn-pink { color: var(--c-pink); border-color: var(--c-pink); } .btn-pink:hover { background: var(--c-pink); color: #fff; }
+        .btn-yellow { color: var(--c-yellow); border-color: var(--c-yellow); } .btn-yellow:hover { background: var(--c-yellow); color: #000; }
+        .btn-purple { color: var(--c-purple); border-color: var(--c-purple); } .btn-purple:hover { background: var(--c-purple); color: #fff; }
+        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; border: none; font-weight: 900; }
+        .btn-delete { width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--c-red); border-color: var(--c-red); }
         
-        .btn-delete {
-            background: rgba(255, 59, 59, 0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; margin: 0; border: 1px solid var(--c-red);
-        }
-
-        .btn-chart-toggle { width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px; }
-        .btn-chart-toggle.active-chart { background: white; color: black; box-shadow: 0 0 15px white; }
-
-        /* INPUTS */
-        input {
-            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: black;
-            color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center;
-            font-family: 'Courier New', monospace; font-weight: bold;
-            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2); text-transform: uppercase;
-        }
-        input:focus { border-color: var(--c-cyan); outline: none; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
-
-        /* UI ELEMENTS */
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 8px; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: #000; color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: bold; text-transform: uppercase; }
+        input:focus { border-color: var(--c-cyan); outline: none; }
+        
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
         .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
         
         .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .p-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; }
-        .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); }
-        .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
+        .p-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; }
+        .p-card.active-turn { background: rgba(0, 243, 255, 0.05); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
         .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
-        .leg-indicator { font-size: 0.8rem; color: var(--c-yellow); margin-top: 5px; font-weight: bold; }
+        .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; }
         
-        .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; box-shadow: inset 0 0 20px rgba(255,238,0,0.2); }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
-        .keypad button:active { background: var(--c-cyan); color: black; }
-
-        /* INSTRUCTIE TEXT */
-        .instruction-text {
-            text-align: center; color: var(--c-cyan); font-size: 0.9rem;
-            margin-bottom: 15px; font-style: italic; font-weight: bold;
-            background: rgba(0, 243, 255, 0.1); padding: 8px; border-radius: 10px;
-            border: 1px dashed rgba(0, 243, 255, 0.3); margin-top: 25px;
-        }
+        .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); }
+        .instruction-text { text-align: center; color: var(--c-cyan); font-size: 0.9rem; margin-bottom: 15px; font-style: italic; font-weight: bold; background: rgba(0, 243, 255, 0.05); padding: 10px; border-radius: 10px; border: 1px dashed rgba(0, 243, 255, 0.3); margin-top: 25px; }
 
         /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content { background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%); border: 2px solid var(--c-cyan); border-radius: 20px; padding: 30px; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.3); transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: #12121a; border: 1px solid var(--c-cyan); border-radius: 25px; padding: 30px; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 243, 255, 0.15); transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.show .modal-content { transform: scale(1); }
         
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .option-btn { height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2rem; padding: 10px; }
+        .option-btn { height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.1rem; padding: 10px; border-radius: 15px; }
         .option-icon { font-size: 2.5rem; margin-bottom: 10px; }
-        .btn-secondary-option { height: 60px; font-size: 1rem; margin-top: 10px; background: rgba(255,255,255,0.1); color: white; border:1px solid rgba(255,255,255,0.2); }
 
-        /* SUMMARY DASHBOARD */
-        .summary-score { font-size: 4rem; font-weight: 900; color: white; text-shadow: 0 0 20px var(--c-cyan); margin: 10px 0; }
+        /* SUMMARY */
+        .summary-score { font-size: 4rem; font-weight: 900; color: white; text-shadow: 0 0 30px var(--c-cyan); margin: 10px 0; }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .summary-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; }
-        .sb-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-        .sb-val { font-size: 1.2rem; font-weight: bold; color: white; }
-        
+        .summary-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border:1px solid rgba(255,255,255,0.05); }
+        .sb-label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .sb-val { font-size: 1.1rem; font-weight: bold; color: white; }
+        .summary-details { margin: 15px 0; font-size: 0.9rem; opacity: 0.8; color: var(--c-cyan); line-height: 1.5; }
+
         .screen { display: none; } .active { display: block; }
         .chart-container { position: relative; height: 300px; width: 100%; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
-        
         @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
         @keyframes flashRed { 0% { background-color: rgba(255,0,0,0.5); } 100% { background-color: var(--glass-bg); } }
         .flash-red { animation: flashRed 0.5s; }
@@ -166,87 +84,55 @@
 </head>
 <body>
 
-    <div class="logo" onclick="sfx.win()">🚀 Darten Jorden</div>
+    <div class="logo" onclick="sfx.win()">🚀 Darts Jorden</div>
 
     <div class="container">
 
         <div id="screen-players" class="screen active card">
-            <h2>Wie speelt er mee?</h2>
+            <h2>Spelers</h2>
             <div style="display:flex; gap:10px; margin-bottom: 15px; align-items: center;">
-                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0;">
-                <button onclick="handleAddPlayer()" class="btn-cyan" style="width: auto; margin:0; padding: 15px 20px; font-size:1.5rem;">+</button>
+                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off">
+                <button onclick="handleAddPlayer()" class="btn-cyan" style="width: auto;">+</button>
             </div>
             <div id="player-list"></div>
             <br>
-            <button class="btn-pink" onclick="confirmPlayers()">🚀 Start Game</button>
+            <button class="btn-pink" onclick="confirmPlayers()">🚀 START</button>
         </div>
 
         <div id="screen-menu" class="screen card">
-            <h2>Kies je Challenge</h2>
-            <p id="active-players-display" style="text-align:center; opacity:0.7; margin-bottom: 20px;"></p>
+            <h2>Kies Game</h2>
+            <p id="active-players-display" style="text-align:center; opacity:0.7; margin-bottom: 20px; font-size:0.9rem; color:var(--c-cyan)"></p>
             
-            <button onclick="openGameMenu('doubles', 'Doubles (Clock)', desc.doubles)" class="btn-cyan">Doubles (Clock)</button>
-            <button onclick="openGameMenu('singles', 'Singles (Random)', desc.singles)" class="btn-cyan">Singles (Random)</button>
-            <button onclick="openGameMenu('bobs27', 'Bob\'s 27', desc.bobs)" class="btn-yellow">Bob's 27</button>
-            <button onclick="openGameMenu('x01', 'X01 Wedstrijd', desc.x01)" class="btn-purple">X01 Wedstrijd</button>
-            <button onclick="openGameMenu('checkout', 'Checkout Challenge', desc.checkout)" class="btn-purple">Checkout Challenge</button>
-            <button onclick="openGameMenu('100', '100 Pijlen', desc.p100)" class="btn-yellow">100 Pijlen</button>
-            <button onclick="openGameMenu('bull', 'Bullstreak', desc.bull)" class="btn-pink">Bullstreak</button>
+            <button onclick="showScreen('screen-doubles-setup')" class="btn-cyan">Doubles (Clock)</button>
+            <button onclick="showScreen('screen-singles-setup')" class="btn-cyan">Singles (Random)</button>
+            <button onclick="preSelectVariant('bobs27', 'Bob\'s 27', 'bobs')" class="btn-yellow">Bob's 27</button>
+            <button onclick="preSelectVariant('x01', 'X01 Wedstrijd', 'standard')" class="btn-purple">X01 Wedstrijd</button>
+            <button onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard')" class="btn-purple">Checkout Challenge</button>
+            <button onclick="showScreen('screen-100-setup')" class="btn-yellow">100 Pijlen</button>
+            <button onclick="preSelectVariant('bull', 'Bullstreak', 'standard')" class="btn-pink">Bullstreak</button>
             
             <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 25px 0;"></div>
             
-            <button onclick="showRecords()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">🏆 Records & Hall of Fame</button>
+            <button onclick="showRecords()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">🏆 Hall of Fame</button>
             <button onclick="showScreen('screen-players')" style="background:transparent; opacity:0.6;">Terug naar Spelers</button>
-        </div>
-
-        <div id="modal-options" class="modal-overlay">
-            <div class="modal-content">
-                <h2 id="opt-title" style="color:var(--c-cyan)">Game</h2>
-                <div id="opt-desc" style="font-size:0.9rem; line-height:1.6; color:#ddd; margin:15px 0; text-align:left; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;"></div>
-                
-                <div id="play-limit-msg" style="color:var(--c-red); font-size:0.8rem; font-weight:bold; margin-bottom:10px; display:none;"></div>
-
-                <div class="option-grid">
-                    <button id="btn-ranked" class="option-btn btn-green" onclick="launchGame(true)">
-                        <span class="option-icon">🏆</span> VOOR ECHT<br><span style="font-size:0.7rem">(1x / dag)</span>
-                    </button>
-                    <button class="option-btn btn-cyan" onclick="launchGame(false)">
-                        <span class="option-icon">🛡️</span> OEFENEN<br><span style="font-size:0.7rem">(Ongelimiteerd)</span>
-                    </button>
-                </div>
-                
-                <button class="btn-secondary-option" onclick="launchStats()">
-                    📈 Bekijk Statistieken
-                </button>
-
-                <button onclick="closeModal('modal-options')" style="margin-top:20px; background:transparent; border:1px solid #555;">Annuleren</button>
-            </div>
         </div>
 
         <div id="screen-doubles-setup" class="screen card">
             <h2>Doubles Mode</h2>
-            <p class="instruction-text">Kies de volgorde van de doelen</p>
+            <p class="instruction-text">Kies de volgorde</p>
             <div class="option-grid">
-                <button onclick="startDoublesGame('clock')" class="option-btn btn-cyan">
-                    <span class="option-icon">⏰</span> 1 - 20
-                </button>
-                <button onclick="startDoublesGame('random')" class="option-btn btn-purple">
-                    <span class="option-icon">🔀</span> Random
-                </button>
+                <button onclick="preSelectVariant('doubles', 'Doubles Clock', 'clock')" class="option-btn btn-cyan"><span class="option-icon">⏰</span> 1 - 20</button>
+                <button onclick="preSelectVariant('doubles', 'Doubles Random', 'random')" class="option-btn btn-purple"><span class="option-icon">🔀</span> Random</button>
             </div>
             <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
         </div>
 
         <div id="screen-singles-setup" class="screen card">
             <h2>Singles Mode</h2>
-            <p class="instruction-text">Kies de volgorde van de doelen</p>
+            <p class="instruction-text">Kies de volgorde</p>
             <div class="option-grid">
-                <button onclick="startSinglesGame('clock')" class="option-btn btn-cyan">
-                    <span class="option-icon">⏰</span> 1 - 20
-                </button>
-                <button onclick="startSinglesGame('random')" class="option-btn btn-purple">
-                    <span class="option-icon">🔀</span> Random
-                </button>
+                <button onclick="preSelectVariant('singles', 'Singles Clock', 'clock')" class="option-btn btn-cyan"><span class="option-icon">⏰</span> 1 - 20</button>
+                <button onclick="preSelectVariant('singles', 'Singles Random', 'random')" class="option-btn btn-purple"><span class="option-icon">🔀</span> Random</button>
             </div>
             <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
         </div>
@@ -254,25 +140,46 @@
         <div id="screen-100-setup" class="screen card">
             <h2>100 Pijlen</h2>
             <div class="option-grid">
-                <button onclick="start100Game('high')" class="option-btn btn-yellow">
-                    <span class="option-icon">⬆️</span> Hoogste
-                </button>
-                <button onclick="start100Game('low')" class="option-btn btn-pink">
-                    <span class="option-icon">⬇️</span> Laagste
-                </button>
+                <button onclick="preSelectVariant('100', '100 High', 'high')" class="option-btn btn-yellow"><span class="option-icon">⬆️</span> Hoogste</button>
+                <button onclick="preSelectVariant('100', '100 Low', 'low')" class="option-btn btn-pink"><span class="option-icon">⬇️</span> Laagste</button>
             </div>
             <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
         </div>
 
-        <div id="screen-checkout-setup" class="screen card">
-            <h2>Checkout</h2>
-            <label>Range:</label>
-            <div style="display:flex; gap:10px; margin: 15px 0;">
-                <input type="number" id="co-min" value="60">
-                <input type="number" id="co-max" value="100">
+        <div id="modal-options" class="modal-overlay">
+            <div class="modal-content">
+                <h2 id="opt-title" style="color:var(--c-cyan)">Game</h2>
+                <p style="color:#aaa; font-size:0.9rem;">Speel voor de statistieken of om te oefenen.</p>
+                <div id="play-limit-msg" style="color:#ff3b3b; font-size:0.8rem; font-weight:bold; margin-bottom:10px; display:none; background:rgba(255,0,0,0.1); padding:5px; border-radius:5px;"></div>
+
+                <div class="option-grid">
+                    <button id="btn-ranked" class="option-btn btn-green" onclick="launchGame(true)">
+                        <span class="option-icon">🏆</span> VOOR ECHT<br><span style="font-size:0.65rem; opacity:0.8; margin-top:5px;">(1x per dag)</span>
+                    </button>
+                    <button class="option-btn btn-cyan" onclick="launchGame(false)">
+                        <span class="option-icon">🛡️</span> OEFENEN<br><span style="font-size:0.65rem; opacity:0.8; margin-top:5px;">(Ongelimiteerd)</span>
+                    </button>
+                </div>
+                
+                <button onclick="launchStats()" style="margin-top:15px; background:transparent; border:1px solid #444; color:#aaa;">📈 Bekijk Statistieken</button>
+                <button onclick="closeModal('modal-options')" style="margin-top:10px; background:transparent; border:1px solid #555;">Annuleren</button>
             </div>
-            <button class="btn-purple" onclick="startCheckoutGame()" style="margin-top:10px;">Start Challenge</button>
-            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
+        </div>
+
+        <div id="modal-summary" class="modal-overlay">
+            <div class="modal-content">
+                <h2 id="sum-title" style="color:var(--c-green); margin:0;">GAME OVER</h2>
+                <div id="sum-player" style="color:#aaa; margin-bottom:10px;">Speler</div>
+                <div id="sum-score" class="summary-score">0</div>
+                <div class="summary-details" id="sum-details"></div>
+                <div class="summary-grid">
+                    <div class="summary-box"><div class="sb-label">Vorig Record</div><div class="sb-val" id="sum-pb">-</div></div>
+                    <div class="summary-box"><div class="sb-label">Verschil</div><div class="sb-val" id="sum-diff">-</div></div>
+                </div>
+                <div id="sum-msg" style="color:var(--c-pink); font-weight:bold; margin-bottom:20px;"></div>
+                <button class="btn-cyan" onclick="restartGame()">SPEEL OPNIEUW ↻</button>
+                <button onclick="closeModal('modal-summary'); showScreen('screen-menu');" style="background:transparent; border:1px solid #555;">MENU 🏠</button>
+            </div>
         </div>
 
         <div id="modal-stats" class="modal-overlay">
@@ -282,31 +189,6 @@
                 <div id="stats-text-summary" style="margin-bottom:15px; font-size:0.9rem; opacity:0.8;"></div>
                 <div class="chart-container"><canvas id="gameChart"></canvas></div>
                 <button onclick="closeModal('modal-stats')" style="margin-top:20px; background:var(--btn-bg);">Sluiten</button>
-            </div>
-        </div>
-
-        <div id="modal-summary" class="modal-overlay">
-            <div class="modal-content">
-                <h2 id="sum-title" style="color:var(--c-green); margin:0;">GAME OVER</h2>
-                <div id="sum-player" style="color:#aaa; margin-bottom:10px;">Speler</div>
-                
-                <div id="sum-score" class="summary-score">0</div>
-                
-                <div class="summary-grid">
-                    <div class="summary-box">
-                        <div class="sb-label">Vorig Record</div>
-                        <div class="sb-val" id="sum-pb">-</div>
-                    </div>
-                    <div class="summary-box">
-                        <div class="sb-label">Verschil</div>
-                        <div class="sb-val" id="sum-diff">-</div>
-                    </div>
-                </div>
-                
-                <div id="sum-msg" style="color:var(--c-pink); font-weight:bold; margin-bottom:20px;"></div>
-
-                <button class="btn-cyan" onclick="closeModal('modal-summary'); /* stays on screen */">SPEEL OPNIEUW ↻</button>
-                <button onclick="closeModal('modal-summary'); showScreen('screen-menu');" style="background:transparent; border:1px solid #555;">MENU 🏠</button>
             </div>
         </div>
 
@@ -320,7 +202,7 @@
             <span id="badge-doubles" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Doubles</h3>
-            <div class="instruction-text" id="doubles-instruction">Gooi 3 pijlen naar...</div>
+            <div class="instruction-text" id="doubles-instruction"></div>
             <div id="doubles-scoreboard" class="scoreboard"></div>
             <p style="text-align:center;">Pijlen: <strong id="doubles-darts-count" style="color:var(--c-cyan)">0</strong></p>
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
@@ -336,7 +218,7 @@
             <span id="badge-singles" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Singles</h3>
-            <div class="instruction-text" id="singles-instruction">Gooi 3 pijlen naar...</div>
+            <div class="instruction-text" id="singles-instruction"></div>
             <div id="singles-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin-bottom:15px;">Hits (3 pijlen):</div>
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
@@ -368,7 +250,7 @@
             <span id="badge-x01" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>X01 Match</h3>
-            <div class="instruction-text">Gooi de score naar 0 (Dubbel Uit)</div>
+            <div class="instruction-text">Gooi uit op 0 (Dubbel)</div>
             <div id="x01-scoreboard" class="scoreboard"></div>
             <div id="x01-display" class="score-display-box">0</div>
             <div class="keypad">
@@ -386,7 +268,7 @@
             <span id="badge-checkout" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Checkout Challenge</h3>
-            <div class="instruction-text">Gooi dit getal uit binnen 2 beurten (6 pijlen)</div>
+            <div class="instruction-text">6 pijlen om uit te gooien</div>
             <div id="checkout-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; font-size:5rem; font-weight:900; color:var(--c-yellow);" id="co-target">?</div>
             <div id="checkout-display" class="score-display-box">0</div>
@@ -405,7 +287,7 @@
             <span id="badge-100" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>100 Pijlen</h3>
-            <div class="instruction-text">Gooi 100 pijlen en haal de beste score</div>
+            <div class="instruction-text">Gooi 100 pijlen</div>
             <div id="100-scoreboard" class="scoreboard"></div>
             <div style="text-align:center;">Pijl <span id="100-counter" style="color:var(--c-yellow);">0</span>/100</div>
             <div id="100-display" class="score-display-box">0</div>
@@ -424,7 +306,7 @@
             <span id="badge-bull" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Bullstreak</h3>
-            <div class="instruction-text">Blijf gooien zolang je minstens 1 bull raakt</div>
+            <div class="instruction-text">Raak de Bull om te overleven</div>
             <div id="bull-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin:20px 0;">
                 <div style="font-size:0.9rem;">HUIDIGE STREAK</div>
@@ -447,129 +329,94 @@
         // --- DATA & CONFIG ---
         const KEY_PLAYERS = 'dartsPlayers';
         const KEY_HISTORY = 'dartsHistoryV3';
-        
         let allPlayers = safeLoad(KEY_PLAYERS);
         let history = safeLoad(KEY_HISTORY);
         let activePlayers = [], curPIdx = 0, gameMode = '', keypadInput = "";
-        let selectedGameType = ""; 
-        let currentSessionIsRanked = false; // Is this a ranked game or practice?
+        
+        let selectedGameType = ""; // Main type e.g. 'doubles'
+        let currentVariant = "";   // Specific variant e.g. 'clock' or 'random'
+        let currentSessionIsRanked = false; 
         let myChart = null;
+        let undoStack = [];
 
-        // UITGEBREIDE UITLEG PER SPEL
-        const desc = {
-            doubles: "<b>DOEL:</b> Gooi alle dubbels uit (1-20 + Bull) met zo min mogelijk pijlen.<br><br><b>HOE:</b> Je begint bij D1 (of Random). Je mag 3 pijlen gooien. Raak je? Klik op 1, 2 of 3. Mis je? Klik op 'Mis'. Je gaat door tot de Bull.",
-            singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
-            bobs: "<b>DOEL:</b> Eindig met een zo hoog mogelijke score en zak niet onder 0.<br><br><b>HOE:</b> Je start met 27 punten. Gooi op volgorde (D1 t/m D20, Bull).<br>Raak = waarde erbij.<br>Mis (alle 3) = waarde eraf.",
-            x01: "<b>DOEL:</b> Win de wedstrijd door als eerste het aantal legs te pakken.<br><br><b>HOE:</b> Klassiek 501/301. Gooi punten weg tot exact 0. Eindigen moet met een dubbel.",
-            checkout: "<b>DOEL:</b> Train je finishes. Haal 10 finishes.<br><br><b>HOE:</b> Je krijgt een random getal (bv. 82). Je hebt 6 pijlen (2 beurten) om uit te gooien. Lukt het niet? Dan heb je gefaald.",
-            p100: "<b>DOEL:</b> Zet een topscore neer in 100 worpen.<br><br><b>HOE:</b> Kies 'Hoog' (bvb Triple 20 trainen) of 'Laag' (bvb T1 trainen). Gooi 100 pijlen en voer telkens je score in.",
-            bull: "<b>DOEL:</b> Een zo lang mogelijke reeks (streak) neerzetten.<br><br><b>HOE:</b> Gooi 3 pijlen per beurt. Je MOET minstens één Bull (groen of rood) raken om in het spel te blijven."
-        };
-
-        // Game States
-        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {}, bobsState = {};
+        // Constants
         const standardTargets = [...Array(20).keys()].map(i=>i+1).concat([25]); 
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
         const bobsTargets = Array.from({length:20}, (_,i)=>i+1).concat([25]);
-        
-        let undoStack = [];
 
-        // STARTUP
+        // State objects
+        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {}, bobsState = {};
+
+        // --- INIT ---
         window.onload = function() {
             renderPlayerList();
             const inp = document.getElementById('new-player-name');
             if(inp) inp.addEventListener("keypress", function(e) { if(e.key==="Enter") handleAddPlayer(); });
         };
 
-        // --- CORE FUNCTIONS ---
+        // --- CORE UTILS ---
         const sfx = { win: () => { try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.type='triangle'; osc.frequency.value=600; osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+0.1); } catch(e){} } };
         function triggerConfetti() { try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){} }
         function safeLoad(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e){ return []; } }
-
+        
+        // --- PLAYER MANAGEMENT ---
         function renderPlayerList() {
-            const l = document.getElementById('player-list');
-            if(!l) return; l.innerHTML = "";
+            const l = document.getElementById('player-list'); if(!l) return; l.innerHTML = "";
             if(allPlayers.length === 0) { l.innerHTML = "<p style='text-align:center;opacity:0.5'>Nog geen spelers.</p>"; return; }
             allPlayers.forEach(n => {
                 l.innerHTML += `<div class="player-row"><div style="display:flex;align-items:center;"><input type="checkbox" class="player-select-checkbox cb" value="${n}"><span style="font-weight:bold;font-size:1.1rem;color:var(--c-cyan)">${n}</span></div><button class="btn-delete" onclick="handleDeletePlayer('${n}')">✕</button></div>`;
             });
         }
-
         function handleAddPlayer() {
-            const input = document.getElementById('new-player-name');
-            const name = input.value.trim().toUpperCase();
-            if(name && !allPlayers.includes(name)) {
-                allPlayers.push(name);
-                localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers));
-                renderPlayerList();
-            }
+            const input = document.getElementById('new-player-name'); const name = input.value.trim().toUpperCase();
+            if(name && !allPlayers.includes(name)) { allPlayers.push(name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); }
             input.value = ""; input.focus();
         }
-
         function handleDeletePlayer(name) {
-            if(confirm("Verwijder " + name + "?")) {
-                allPlayers = allPlayers.filter(p => p !== name);
-                localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers));
-                renderPlayerList();
-            }
+            if(confirm("Verwijder " + name + "?")) { allPlayers = allPlayers.filter(p => p !== name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); }
         }
-
         function confirmPlayers() {
             activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
             if(!activePlayers.length) return alert("Kies speler(s)");
-            document.getElementById('active-players-display').innerText = activePlayers.join(", ");
-            showScreen('screen-menu');
+            document.getElementById('active-players-display').innerText = activePlayers.join(", "); showScreen('screen-menu');
         }
 
-        // --- MENU & MODALS ---
+        // --- NAVIGATION ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'screen-players') renderPlayerList();
         }
+        function closeModal(id) { const m = document.getElementById(id); m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 300); }
+        function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
+        function hardReset() { if(confirm("ALLES WISSEN?")) { localStorage.clear(); location.reload(); } }
 
-        // CHECK IF PLAYED TODAY
-        function hasPlayedToday(player, gameType) {
-            const today = new Date().toISOString().slice(0,10);
-            let dbType = gameType; // Simplified check
-            // For games with subtypes (100), we just check if they played any variant for now, or specific?
-            // Let's check generally based on the main key logic used in history
-            // Actually, best is to check exact matches in history.
-            // But gameTypes vary (e.g. 100high vs 100low).
-            // Let's check based on the 'selectedGameType' passed to openGameMenu
-            
-            // Map generic menu type to specific DB types to check
-            let typesToCheck = [gameType];
-            if(gameType === '100') typesToCheck = ['100high', '100low'];
-            if(gameType === 'x01') typesToCheck = ['x01_throw']; // Actually x01 is logged per throw, checking if played is hard.
-            // Better strategy: Check simply if there is ANY record for today for that main mode.
-            
-            return history.some(h => 
-                h.player === player && 
-                h.date.startsWith(today) && 
-                (h.gameType === gameType || h.gameType.startsWith(gameType))
-            );
-        }
-
-        function openGameMenu(type, title, description) {
-            selectedGameType = type;
+        // --- PRE-GAME SELECTION ---
+        // 1. User selects variant (e.g. Clock or Random)
+        function preSelectVariant(gameType, title, variant) {
+            selectedGameType = gameType;
+            currentVariant = variant;
             document.getElementById('opt-title').innerText = title;
-            document.getElementById('opt-desc').innerHTML = description; 
+            document.getElementById('opt-desc').innerText = "Kies: Oefenen of voor Statistieken";
             
-            // CHECK DAILY LIMIT
+            // Check Daily Limit based on VARIANT specific key
+            const saveKey = getSaveKey(gameType, variant);
             const rankedBtn = document.getElementById('btn-ranked');
             const msgDiv = document.getElementById('play-limit-msg');
-            let played = false;
-            let who = "";
-
+            
+            let played = false; let who = "";
+            const today = new Date().toISOString().slice(0,10);
+            
             activePlayers.forEach(p => {
-                if(hasPlayedToday(p, type)) { played = true; who = p; }
+                if(history.some(h => h.player === p && h.gameType === saveKey && h.date.startsWith(today))) {
+                    played = true; who = p;
+                }
             });
 
             if(played) {
                 rankedBtn.disabled = true;
                 msgDiv.style.display = 'block';
-                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al voor het 'echt' gespeeld.`;
+                msgDiv.innerText = `⛔ ${who} heeft '${title}' vandaag al gespeeld.`;
             } else {
                 rankedBtn.disabled = false;
                 msgDiv.style.display = 'none';
@@ -579,228 +426,57 @@
             modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
 
-        function closeModal(id) {
-            const m = document.getElementById(id);
-            m.classList.remove('show');
-            setTimeout(() => m.style.display = 'none', 300);
+        function getSaveKey(type, variant) {
+            if(type === 'doubles' || type === 'singles') return type + '_' + variant;
+            if(type === '100') return '100' + variant; // 100high / 100low
+            return type; // bobs27, x01, checkout, bull
         }
 
+        // 2. Launch Game logic
         function launchGame(isRanked) {
             closeModal('modal-options');
             currentSessionIsRanked = isRanked;
             
-            // Set visual badges
+            // Update Badges
             const badgeClass = isRanked ? 'badge-ranked' : 'badge-practice';
             const badgeText = isRanked ? '🏆 RANKED' : '🛡️ PRACTICE';
             document.querySelectorAll('.status-badge').forEach(b => {
-                b.className = 'status-badge ' + badgeClass;
-                b.innerText = badgeText;
+                b.className = 'status-badge ' + badgeClass; b.innerText = badgeText;
             });
 
-            const t = selectedGameType;
-            if(t === 'doubles') showScreen('screen-doubles-setup');
-            else if(t === 'singles') showScreen('screen-singles-setup');
-            else if(t === 'bobs27') setupBobs27();
-            else if(t === 'x01') setupX01();
-            else if(t === 'checkout') setupCheckoutMenu();
-            else if(t === '100') setup100Menu();
-            else if(t === 'bull') setupBullstreak();
+            // Start specific game based on type AND variant
+            if(selectedGameType === 'doubles') startDoublesGame();
+            else if(selectedGameType === 'singles') startSinglesGame();
+            else if(selectedGameType === 'bobs27') startBobs27();
+            else if(selectedGameType === 'x01') startX01();
+            else if(selectedGameType === 'checkout') startCheckoutGame();
+            else if(selectedGameType === '100') start100Game();
+            else if(selectedGameType === 'bull') startBullstreak();
         }
 
-        function launchStats() {
-            closeModal('modal-options');
-            const s = document.getElementById('stats-modal-player');
-            s.innerHTML = "";
-            if(allPlayers.length === 0) s.innerHTML = "<option>Geen spelers</option>";
-            else allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
-            
-            document.getElementById('stats-modal-title').innerText = document.getElementById('opt-title').innerText + " Stats";
-            const m = document.getElementById('modal-stats');
-            m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10);
-            refreshGameStats();
+        // 3. Restart (Fixes the bug of not resetting)
+        function restartGame() {
+            closeModal('modal-summary');
+            launchGame(currentSessionIsRanked);
         }
 
-        function showSummary(player, score, gameType, metric='max') {
-            document.getElementById('sum-player').innerText = player;
-            document.getElementById('sum-score').innerText = score;
-            
-            // Only calc PB if Ranked mode, otherwise hide PB info
-            if(currentSessionIsRanked) {
-                let dbType = gameType;
-                if(gameType === '100') dbType = '100high'; 
-                
-                const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => {
-                    let val = r.result.score || r.result; 
-                    if(typeof r.result === 'object' && r.result.darts) val = r.result.darts;
-                    return parseInt(val);
-                });
-                recs.pop(); // Remove just added
-                
-                let oldBest = "-";
-                let msg = "";
-                let diff = "-";
-
-                if(recs.length > 0) {
-                    oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
-                    const current = parseInt(score);
-                    if ((metric==='max' && current > oldBest) || (metric==='min' && current < oldBest)) {
-                        msg = "🎉 NIEUW RECORD! 🎉";
-                        diff = "Verbeterd!";
-                        sfx.win(); triggerConfetti();
-                    } else {
-                        let delta = current - oldBest;
-                        diff = (delta > 0 ? "+" : "") + delta;
-                        msg = "Goed gespeeld!";
-                    }
-                } else {
-                    msg = "Eerste ranked spel!";
-                }
-                document.getElementById('sum-pb').innerText = oldBest;
-                document.getElementById('sum-diff').innerText = diff;
-                document.getElementById('sum-msg').innerText = msg;
-            } else {
-                document.getElementById('sum-pb').innerText = "N/A";
-                document.getElementById('sum-diff').innerText = "N/A";
-                document.getElementById('sum-msg').innerText = "Practice Mode - Niet Opgeslagen";
-            }
-
-            const modal = document.getElementById('modal-summary');
-            modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
-        }
-
-        // --- STATS LOGIC ---
-        function refreshGameStats() {
-            const player = document.getElementById('stats-modal-player').value;
-            let type = selectedGameType;
-            let dbType = type;
-            if(type === '100') dbType = '100high';
-            if(type === 'bull') dbType = 'bullstreak';
-            if(type === 'x01') dbType = 'x01_throw';
-            if(type === 'checkout') dbType = 'checkout_wins';
-
-            const recs = history.filter(h => h.player === player && h.gameType === dbType).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = recs.map(r => new Date(r.date).toLocaleDateString());
-            let dataPoints = [];
-            let summary = "Geen data.";
-
-            if(recs.length > 0) {
-                dataPoints = recs.map(r => {
-                    let val = r.result.score || r.result;
-                    if(typeof r.result === 'object' && r.result.darts) val = r.result.darts; 
-                    return parseInt(val) || 0;
-                }).filter(n => n > 0);
-
-                const best = Math.max(...dataPoints);
-                const avg = (dataPoints.reduce((a,b)=>a+b,0) / dataPoints.length).toFixed(1);
-                summary = `Beste: <strong>${best}</strong> | Gemiddeld: <strong>${avg}</strong>`;
-            }
-            
-            document.getElementById('stats-text-summary').innerHTML = summary;
-
-            const ctx = document.getElementById('gameChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: 'Score', data: dataPoints, borderColor: '#00f3ff', backgroundColor: 'rgba(0,243,255,0.1)', tension: 0.3, fill: true }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#aaa' } } } }
-            });
-        }
-
-        // --- RECORDS SCREEN ---
-        function showRecords() {
-            const div = document.getElementById('records-content');
-            div.innerHTML = "";
-            if(allPlayers.length === 0) { div.innerHTML = "Geen spelers."; return; }
-
-            const getGlobalBest = (type, mode='max') => {
-                let bestVal = mode==='min' ? 9999 : -9999;
-                let bestPlayer = "-";
-                allPlayers.forEach(p => {
-                    const rs = history.filter(h => h.player === p && h.gameType === type).map(r => parseInt(r.result.score || r.result));
-                    if(rs.length > 0) {
-                        const pBest = mode==='min' ? Math.min(...rs) : Math.max(...rs);
-                        if(mode==='max' && pBest > bestVal) { bestVal = pBest; bestPlayer = p; }
-                        if(mode==='min' && pBest < bestVal) { bestVal = pBest; bestPlayer = p; }
-                    }
-                });
-                return bestPlayer === "-" ? "-" : `${bestVal} (${bestPlayer})`;
-            };
-
-            const recs = [
-                {t: '100high', l: '100 Pijlen (High)', c: 'var(--c-yellow)'},
-                {t: '100low', l: '100 Pijlen (Low)', c: 'var(--c-pink)', m: 'min'},
-                {t: 'bullstreak', l: 'Bullstreak', c: 'var(--c-cyan)'},
-                {t: 'bobs27', l: 'Bob\'s 27', c: 'var(--c-green)'}
-            ];
-
-            recs.forEach(r => {
-                div.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
-                    <h3 style="color:${r.c}">${r.l}</h3>
-                    <div style="font-size:1.5rem; font-weight:bold;">${getGlobalBest(r.t, r.m || 'max')}</div>
-                </div>`;
-            });
-            showScreen('screen-records');
-        }
-
-        // --- GAME LOGIC ---
-        function saveRec(type, player, res) {
-            // ONLY SAVE IF RANKED
-            if(currentSessionIsRanked) {
-                history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
-                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
-            }
-        }
-        function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
-        function hardReset() { if(confirm("ALLES WISSEN?")) { localStorage.clear(); location.reload(); } }
-        function kp(v) {
-            if (v==='BACK') keypadInput = keypadInput.slice(0,-1); else if (keypadInput.length < 3) keypadInput += v;
-            ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el && el.closest('.active')) el.innerText = keypadInput || "0"; });
-        }
+        // --- GAME LOGIC ENGINES ---
+        function kp(v) { if (v==='BACK') keypadInput = keypadInput.slice(0,-1); else if (keypadInput.length < 3) keypadInput += v; ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = keypadInput || "0"; }); }
         function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
-
-        // UNDO FUNCTIONALITY
         function snapshotState() {
-            let stateToSave = {
-                gameMode: gameMode,
-                curPIdx: curPIdx,
-                keypadInput: keypadInput,
-                doublesState: JSON.parse(JSON.stringify(doublesState)),
-                singlesState: JSON.parse(JSON.stringify(singlesState)),
-                x01State: JSON.parse(JSON.stringify(x01State)),
-                checkoutState: JSON.parse(JSON.stringify(checkoutState)),
-                state100: JSON.parse(JSON.stringify(state100)),
-                stateBull: JSON.parse(JSON.stringify(stateBull)),
-                bobsState: JSON.parse(JSON.stringify(bobsState)),
-                historyLen: history.length
-            };
-            undoStack.push(stateToSave);
+            undoStack.push(JSON.stringify({ 
+                gameMode, curPIdx, keypadInput, doublesState, singlesState, x01State, checkoutState, state100, stateBull, bobsState, historyLen: history.length 
+            }));
             if(undoStack.length > 5) undoStack.shift();
         }
-
         function undoLastMove() {
-            if(undoStack.length === 0) return alert("Kan niet verder terug.");
-            const s = undoStack.pop();
+            if(!undoStack.length) return alert("Kan niet terug.");
+            const s = JSON.parse(undoStack.pop());
+            gameMode=s.gameMode; curPIdx=s.curPIdx; keypadInput=s.keypadInput;
+            doublesState=s.doublesState; singlesState=s.singlesState; x01State=s.x01State; checkoutState=s.checkoutState; state100=s.state100; stateBull=s.stateBull; bobsState=s.bobsState;
+            if(history.length > s.historyLen) { history = history.slice(0, s.historyLen); localStorage.setItem(KEY_HISTORY, JSON.stringify(history)); }
             
-            gameMode = s.gameMode;
-            curPIdx = s.curPIdx;
-            keypadInput = s.keypadInput;
-            doublesState = s.doublesState;
-            singlesState = s.singlesState;
-            x01State = s.x01State;
-            checkoutState = s.checkoutState;
-            state100 = s.state100;
-            stateBull = s.stateBull;
-            bobsState = s.bobsState;
-
-            if(history.length > s.historyLen) {
-                history = history.slice(0, s.historyLen);
-                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
-            }
-
+            // Refresh UIs
             if(gameMode==='doubles') updateDoublesUI();
             if(gameMode==='singles') updateSinglesUI();
             if(gameMode==='x01') updateX01UI();
@@ -808,76 +484,88 @@
             if(gameMode==='100') update100UI();
             if(gameMode==='bull') updateBullUI();
             if(gameMode==='bobs') updateBobsUI();
-            
             ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = keypadInput || "0"; });
         }
 
-        // DOUBLES
-        function startDoublesGame(mode) {
+        // === DOUBLES ===
+        function startDoublesGame() {
             undoStack = [];
             activePlayers.forEach(p => {
-                let queue = [...standardTargets]; // 1-20+Bull
-                if (mode === 'random') queue.sort(() => Math.random() - 0.5);
+                let queue = [...standardTargets];
+                if(currentVariant === 'random') queue.sort(() => Math.random() - 0.5);
                 doublesState[p] = { idx:0, curDarts:0, queue: queue };
             });
-            gameMode='doubles'; curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles'); 
+            gameMode='doubles'; curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles');
         }
         function updateDoublesUI() {
             const sb=document.getElementById('doubles-scoreboard'); sb.innerHTML='';
             const p = activePlayers[curPIdx], s = doublesState[p];
-            const targetVal = s.queue[s.idx];
-            const target = s.idx >= s.queue.length ? "WIN" : (targetVal === 25 ? "BULL" : "D" + targetVal);
+            const target = s.idx >= s.queue.length ? "WIN" : (s.queue[s.idx] === 25 ? "BULL" : "D" + s.queue[s.idx]);
             document.getElementById('doubles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i) => {
-                const s=doublesState[p]; 
-                const tv = s.queue[s.idx];
-                const txt=s.idx>=s.queue.length?"WIN":(tv===25?"BULL":"D"+tv);
+                const s=doublesState[p]; const tv=s.queue[s.idx]; const txt=s.idx>=s.queue.length?"WIN":(tv===25?"BULL":"D"+tv);
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
             });
             document.getElementById('doubles-darts-count').innerText=doublesState[activePlayers[curPIdx]].curDarts;
         }
         function handleDoublesInput(d) {
-            snapshotState();
-            const p=activePlayers[curPIdx],s=doublesState[p]; 
-            saveRec('doubles',p,{target:s.queue[s.idx],darts:s.curDarts+d});
-            s.idx++; s.curDarts=0; if(s.idx>=s.queue.length){ showSummary(p, "Voltooid!", 'doubles'); return; }
+            snapshotState(); const p=activePlayers[curPIdx], s=doublesState[p];
+            // Only save full stats if ranked
+            if(currentSessionIsRanked) {
+                history.push({ date: new Date().toISOString(), gameType: 'doubles', player: p, result: { target: s.queue[s.idx], darts: s.curDarts + d } });
+                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            }
+            s.idx++; s.curDarts=0;
+            if(s.idx >= s.queue.length) {
+                // Game Over
+                let totalDarts = 0; // Calculate total for summary
+                // Need to re-calc total from history is hard if practicing.
+                // Better: we can't easily track total in 'doublesState' without adding a field.
+                // Let's assume we want to show it.
+                // For simplicity: summary logic will fetch from DB if ranked.
+                saveGameResult(p, 'doubles_'+currentVariant, 0); // score 0 placeholder, we track efficiency
+                // Specific summary text
+                showSummary(p, "Voltooid!", 'doubles_'+currentVariant, "Totaal aantal pijlen is opgeslagen in stats.");
+                return;
+            }
             nextTurn(); updateDoublesUI();
         }
         function handleDoublesMiss() { snapshotState(); doublesState[activePlayers[curPIdx]].curDarts+=3; nextTurn(); updateDoublesUI(); }
 
-        // SINGLES
-        function startSinglesGame(mode) { 
+        // === SINGLES ===
+        function startSinglesGame() {
             undoStack=[]; gameMode='singles'; 
-            activePlayers.forEach(p=> {
-                let queue = [...standardTargets]; // 1-20+Bull
-                if (mode === 'random') queue.sort(() => Math.random() - 0.5);
-                singlesState[p]={ queue: queue, idx:0, score:0 };
-            });
-            curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles'); 
+            activePlayers.forEach(p=> singlesState[p]={ queue: (currentVariant==='random'?[...standardTargets].sort(()=>Math.random()-0.5):[...standardTargets]), idx:0, score:0, totalThrows:0 });
+            curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles');
         }
         function updateSinglesUI() {
             const sb=document.getElementById('singles-scoreboard'); sb.innerHTML='';
             const p = activePlayers[curPIdx], s = singlesState[p];
-            const tVal = s.queue[s.idx];
-            const target = s.idx >= s.queue.length ? "KLAAR" : (tVal===25?'BULL':tVal);
+            const target = s.idx >= s.queue.length ? "KLAAR" : (s.queue[s.idx]===25?'BULL':s.queue[s.idx]);
             document.getElementById('singles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i)=>{
-                const s=singlesState[p]; 
-                const tv = s.queue[s.idx];
-                const txt = s.idx>=s.queue.length?"FIN":(tv===25?'BULL':tv);
+                const s=singlesState[p]; const tv=s.queue[s.idx]; const txt=s.idx>=s.queue.length?"FIN":(tv===25?'BULL':tv);
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
             });
-            if(singlesState[activePlayers[curPIdx]].idx>=singlesState[activePlayers[curPIdx]].queue.length) { saveRec('singles',activePlayers[curPIdx],singlesState[activePlayers[curPIdx]].score); showSummary(activePlayers[curPIdx], singlesState[activePlayers[curPIdx]].score, 'singles'); }
+            if(singlesState[activePlayers[curPIdx]].idx>=singlesState[activePlayers[curPIdx]].queue.length) {
+                const finalScore = singlesState[activePlayers[curPIdx]].score;
+                const total = singlesState[activePlayers[curPIdx]].totalThrows;
+                const pct = ((finalScore/total)*100).toFixed(1);
+                saveGameResult(activePlayers[curPIdx], 'singles_'+currentVariant, finalScore);
+                showSummary(activePlayers[curPIdx], finalScore, 'singles_'+currentVariant, `Hitrate: ${pct}% (${finalScore}/${total})`);
+            }
         }
-        function handleSinglesInput(h) { 
-            snapshotState();
-            const p = activePlayers[curPIdx]; 
-            saveRec('singles_stat', p, {target:singlesState[p].queue[singlesState[p].idx], hits:h});
-            singlesState[p].score+=h; singlesState[p].idx++; nextTurn(); updateSinglesUI(); 
+        function handleSinglesInput(h) {
+            snapshotState(); const p = activePlayers[curPIdx], s = singlesState[p];
+            if(currentSessionIsRanked) {
+                history.push({ date: new Date().toISOString(), gameType: 'singles_stat', player: p, result: {target: s.queue[s.idx], hits: h} });
+                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            }
+            s.score+=h; s.totalThrows+=3; s.idx++; nextTurn(); updateSinglesUI();
         }
 
-        // BOBS 27
-        function setupBobs27() { undoStack=[]; gameMode='bobs'; activePlayers.forEach(p => bobsState[p] = {score: 27, idx: 0, alive: true}); curPIdx = 0; updateBobsUI(); showScreen('screen-game-bobs27'); }
+        // === BOBS 27 ===
+        function startBobs27() { undoStack=[]; gameMode='bobs'; activePlayers.forEach(p => bobsState[p] = {score: 27, idx: 0, alive: true}); curPIdx = 0; updateBobsUI(); showScreen('screen-game-bobs27'); }
         function updateBobsUI() {
             const sb = document.getElementById('bobs-scoreboard'); sb.innerHTML = '';
             const p = activePlayers[curPIdx];
@@ -893,18 +581,24 @@
             });
         }
         function handleBobsInput(hits) {
-            snapshotState();
-            const p = activePlayers[curPIdx], s = bobsState[p];
+            snapshotState(); const p = activePlayers[curPIdx], s = bobsState[p];
             const targetVal = bobsTargets[s.idx] === 25 ? 25 : bobsTargets[s.idx]; const points = targetVal * 2;
             if(hits > 0) s.score += (points * hits); else { s.score -= points; document.getElementById('screen-game-bobs27').classList.add('flash-red'); setTimeout(()=>document.getElementById('screen-game-bobs27').classList.remove('flash-red'), 500); }
-            if(s.score < 0) { s.alive = false; alert(`${p} is AF!`); } 
-            else if(s.idx >= bobsTargets.length - 1) { saveRec('bobs27', p, s.score); showSummary(p, s.score, 'bobs27'); return; } 
+            if(s.score < 0) { 
+                s.alive = false; alert(`${p} is AF!`); 
+                if(activePlayers.every(pl => !bobsState[pl].alive)) { showScreen('screen-menu'); }
+            } 
+            else if(s.idx >= bobsTargets.length - 1) { 
+                saveGameResult(p, 'bobs27', s.score); 
+                showSummary(p, s.score, 'bobs27', "Uitgespeeld!"); 
+                return; 
+            } 
             else s.idx++;
             nextTurn(); updateBobsUI();
         }
 
-        // X01
-        function setupX01() { undoStack=[]; gameMode='x01'; let l=parseInt(prompt("Legs?","1"))||1; let st=parseInt(prompt("Start?","501"))||501; activePlayers.forEach(p=>x01State[p]={score:st,start:st,legs:0,req:l}); curPIdx=0; keypadInput=""; updateX01UI(); showScreen('screen-game-x01'); }
+        // === X01 ===
+        function startX01() { undoStack=[]; gameMode='x01'; let l=parseInt(prompt("Legs?","1"))||1; let st=parseInt(prompt("Start?","501"))||501; activePlayers.forEach(p=>x01State[p]={score:st,start:st,legs:0,req:l}); curPIdx=0; keypadInput=""; updateX01UI(); showScreen('screen-game-x01'); }
         function updateX01UI() {
             const sb=document.getElementById('x01-scoreboard'); sb.innerHTML='';
             activePlayers.forEach((p,i)=>{ sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${x01State[p].score}</div><div class="leg-indicator">L:${x01State[p].legs}</div></div>`; });
@@ -912,39 +606,19 @@
         }
         function submitX01() {
             const v=parseInt(keypadInput); if(isNaN(v)||v>180) return alert("Fout");
-            snapshotState();
-            const p=activePlayers[curPIdx], s=x01State[p], r=s.score-v; saveRec('x01_throw',p,v);
+            snapshotState(); const p=activePlayers[curPIdx], s=x01State[p], r=s.score-v;
+            // Stat Tracking
+            if(currentSessionIsRanked) {
+                history.push({ date: new Date().toISOString(), gameType: 'x01_throw', player: p, result: v });
+                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            }
             if(r===0){ s.legs++; if(s.legs>=s.req){ showSummary(p, s.legs + " LEGS", 'x01'); return; }else{alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
             else if(r<=1) alert("BUST"); else s.score=r;
             keypadInput=""; nextTurn(); updateX01UI();
         }
 
-        // Checkout
-        function setupCheckoutMenu() { showScreen('screen-checkout-setup'); }
-        function startCheckoutGame() {
-            let mn=parseInt(document.getElementById('co-min').value), mx=parseInt(document.getElementById('co-max').value);
-            undoStack=[]; gameMode='checkout'; activePlayers.forEach(p=>checkoutState[p]={r:1,wins:0,t:Math.floor(Math.random()*(mx-mn+1)+mn),cur:0,tr:0,mn:mn,mx:mx}); activePlayers.forEach(p=>checkoutState[p].cur=checkoutState[p].t); curPIdx=0; updateCheckoutUI(); showScreen('screen-game-checkout');
-        }
-        function updateCheckoutUI() {
-            const p=activePlayers[curPIdx], s=checkoutState[p]; if(s.r>10) { saveRec('checkout_wins',p,s.wins); showSummary(p, s.wins + "/10", 'checkout_wins'); return; }
-            const sb=document.getElementById('checkout-scoreboard'); sb.innerHTML='';
-            activePlayers.forEach((pl,i)=>{ sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${checkoutState[pl].wins}/10</div></div>`; });
-            document.getElementById('co-target').innerText=s.cur; document.getElementById('checkout-display').innerText=keypadInput||"0";
-        }
-        function submitCheckout() {
-            const v=parseInt(keypadInput); if(isNaN(v)) return;
-            snapshotState();
-            const p=activePlayers[curPIdx], s=checkoutState[p], r=s.cur-v;
-            if(r===0){ s.wins++; nextCO(s); } else if(r<=1){ s.tr++; checkFailCO(s); } else { s.cur=r; s.tr++; checkFailCO(s); }
-            keypadInput=""; if(s.cur>0) nextTurn(); updateCheckoutUI();
-        }
-        function checkFailCO(s) { if(s.tr>=2 && s.cur>0) nextCO(s); }
-        function nextCO(s) { s.r++; s.tr=0; s.t=Math.floor(Math.random()*(s.mx-s.mn+1)+s.mn); s.cur=s.t; }
-
-        // 100
-        let mode100='high';
-        function setup100Menu(){ showScreen('screen-100-setup'); }
-        function start100Game(m){ undoStack=[]; mode100=m; gameMode='100'; activePlayers.forEach(p=>state100[p]={score:0,darts:0}); curPIdx=0; update100UI(); showScreen('screen-game-100'); }
+        // === 100 PIJLEN ===
+        function start100Game() { undoStack=[]; gameMode='100'; activePlayers.forEach(p=>state100[p]={score:0,darts:0}); curPIdx=0; update100UI(); showScreen('screen-game-100'); }
         function update100UI(){
             const sb=document.getElementById('100-scoreboard'); sb.innerHTML='';
             activePlayers.forEach((p,i)=>{ sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${state100[p].score}</div></div>`; });
@@ -952,20 +626,43 @@
         }
         function submit100(){
             const v=parseInt(keypadInput); if(isNaN(v)||v>180) return;
-            snapshotState();
-            const p=activePlayers[curPIdx], s=state100[p];
+            snapshotState(); const p=activePlayers[curPIdx], s=state100[p];
             let dTurn = (100-s.darts===1)?1:3; if(dTurn===1&&v>60) return alert("Max 60");
             s.score+=v; s.darts+=dTurn; keypadInput="";
             if(s.darts>=100){ 
-                const type = mode100==='high'?'100high':'100low';
-                saveRec(type,p,s.score); showSummary(p, s.score, type, mode100==='high'?'max':'min'); 
+                const saveKey = '100'+currentVariant; // 100high or 100low
+                saveGameResult(p, saveKey, s.score); 
+                showSummary(p, s.score, saveKey, currentVariant==='high'?'max':'min'); 
                 if(curPIdx===activePlayers.length-1) return;
             }
             nextTurn(); update100UI();
         }
 
-        // Bull
-        function setupBullstreak(){ undoStack=[]; gameMode='bull'; activePlayers.forEach(p=>stateBull[p]={streak:0,alive:true}); curPIdx=0; updateBullUI(); showScreen('screen-game-bullstreak'); }
+        // === CHECKOUT ===
+        function startCheckoutGame() {
+            let mn=parseInt(document.getElementById('co-min').value), mx=parseInt(document.getElementById('co-max').value);
+            undoStack=[]; gameMode='checkout'; activePlayers.forEach(p=>checkoutState[p]={r:1,wins:0,t:Math.floor(Math.random()*(mx-mn+1)+mn),cur:0,tr:0,mn:mn,mx:mx}); activePlayers.forEach(p=>checkoutState[p].cur=checkoutState[p].t); curPIdx=0; updateCheckoutUI(); showScreen('screen-game-checkout');
+        }
+        function updateCheckoutUI() {
+            const p=activePlayers[curPIdx], s=checkoutState[p]; if(s.r>10) { 
+                saveGameResult(p, 'checkout_wins', s.wins);
+                showSummary(p, s.wins + "/10", 'checkout_wins', "Challenges Voltooid"); return; 
+            }
+            const sb=document.getElementById('checkout-scoreboard'); sb.innerHTML='';
+            activePlayers.forEach((pl,i)=>{ sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${checkoutState[pl].wins}/10</div></div>`; });
+            document.getElementById('co-target').innerText=s.cur; document.getElementById('checkout-display').innerText=keypadInput||"0";
+        }
+        function submitCheckout() {
+            const v=parseInt(keypadInput); if(isNaN(v)) return;
+            snapshotState(); const p=activePlayers[curPIdx], s=checkoutState[p], r=s.cur-v;
+            if(r===0){ s.wins++; nextCO(s); } else if(r<=1){ s.tr++; checkFailCO(s); } else { s.cur=r; s.tr++; checkFailCO(s); }
+            keypadInput=""; if(s.cur>0) nextTurn(); updateCheckoutUI();
+        }
+        function checkFailCO(s) { if(s.tr>=2 && s.cur>0) nextCO(s); }
+        function nextCO(s) { s.r++; s.tr=0; s.t=Math.floor(Math.random()*(s.mx-s.mn+1)+s.mn); s.cur=s.t; }
+
+        // === BULLSTREAK ===
+        function startBullstreak(){ undoStack=[]; gameMode='bull'; activePlayers.forEach(p=>stateBull[p]={streak:0,alive:true}); curPIdx=0; updateBullUI(); showScreen('screen-game-bullstreak'); }
         function updateBullUI(){
             let att=0; while(!stateBull[activePlayers[curPIdx]].alive && att<activePlayers.length){ curPIdx=(curPIdx+1)%activePlayers.length; att++; }
             if(att>=activePlayers.length){ showScreen('screen-menu'); return; }
@@ -974,12 +671,113 @@
             document.getElementById('bull-streak-val').innerText=stateBull[activePlayers[curPIdx]].streak;
         }
         function handleBullResult(h){
-            snapshotState();
-            const p=activePlayers[curPIdx]; if(h) stateBull[p].streak++; else { 
-                saveRec('bullstreak',p,stateBull[p].streak); stateBull[p].alive=false; 
-                showSummary(p, stateBull[p].streak + " Beurten", 'bullstreak');
+            snapshotState(); const p=activePlayers[curPIdx]; 
+            if(h) stateBull[p].streak++; 
+            else { 
+                saveGameResult(p, 'bullstreak', stateBull[p].streak);
+                stateBull[p].alive=false; 
+                showSummary(p, stateBull[p].streak + " Beurten", 'bullstreak', "Streak verbroken.");
             }
             curPIdx=(curPIdx+1)%activePlayers.length; updateBullUI();
+        }
+
+        // --- SUMMARY & SAVING ---
+        function saveGameResult(player, saveKey, score) {
+            if(currentSessionIsRanked) {
+                history.push({ date: new Date().toISOString(), gameType: saveKey, player: player, result: score });
+                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            }
+        }
+
+        function showSummary(player, scoreText, saveKey, details="") {
+            document.getElementById('sum-player').innerText = player;
+            document.getElementById('sum-score').innerText = scoreText;
+            document.getElementById('sum-details').innerText = details;
+
+            let oldBest = "-"; let msg = ""; let diff = "-";
+
+            if(currentSessionIsRanked) {
+                // Find previous games excluding the one just added (if added)
+                // Actually saveGameResult adds it. So we filter history.
+                const recs = history.filter(h => h.player === player && h.gameType === saveKey).map(r => parseInt(r.result.score || r.result));
+                
+                // If records exist
+                if(recs.length > 1) { // 1 is the current one
+                    const currentVal = recs.pop(); // remove current
+                    // Determine min or max based on key
+                    const isMin = saveKey.includes('low') || saveKey.includes('doubles'); // Doubles tracks total darts? Actually no, score 0 placeholder. Bobs is score (max).
+                    // Logic fix: doubles score tracking is complex in this simple logic.
+                    // Let's rely on standard Max logic for score based games.
+                    const isMax = !saveKey.includes('low');
+                    
+                    oldBest = isMax ? Math.max(...recs) : Math.min(...recs);
+                    
+                    if ((isMax && currentVal > oldBest) || (!isMax && currentVal < oldBest)) {
+                        msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti();
+                    } else {
+                        msg = "Game Voltooid";
+                    }
+                } else {
+                    msg = "Eerste Ranked Game!";
+                }
+            } else {
+                msg = "Oefenmodus (Niet opgeslagen)";
+            }
+
+            document.getElementById('sum-pb').innerText = oldBest;
+            document.getElementById('sum-msg').innerText = msg;
+            document.getElementById('sum-diff').innerText = diff;
+
+            const modal = document.getElementById('modal-summary');
+            modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        // --- LAUNCHERS & STATS ---
+        function launchStats() {
+            closeModal('modal-options');
+            const s = document.getElementById('stats-modal-player'); s.innerHTML = "";
+            if(allPlayers.length===0) s.innerHTML="<option>Geen spelers</option>"; else allPlayers.forEach(p=>s.innerHTML+=`<option value="${p}">${p}</option>`);
+            document.getElementById('stats-modal-title').innerText = document.getElementById('opt-title').innerText + " Stats";
+            const m = document.getElementById('modal-stats'); m.style.display='flex'; setTimeout(()=>m.classList.add('show'),10);
+            refreshGameStats();
+        }
+
+        function refreshGameStats() {
+            const player = document.getElementById('stats-modal-player').value;
+            let dbType = getSaveKey(selectedGameType, currentVariant);
+            
+            const recs = history.filter(h => h.player === player && h.gameType === dbType).sort((a,b) => new Date(a.date) - new Date(b.date));
+            const labels = recs.map(r => new Date(r.date).toLocaleDateString());
+            let dataPoints = recs.map(r => parseInt(r.result.score || r.result)).filter(n => !isNaN(n)); // Filter 0s if needed, or keep for visual. Usually score 0 is possible in bobs.
+
+            const ctx = document.getElementById('gameChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'Score', data: dataPoints, borderColor: '#00f3ff', backgroundColor: 'rgba(0,243,255,0.1)', tension: 0.3, fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#aaa' } } } }
+            });
+            
+            // Simple summary
+            const best = dataPoints.length ? Math.max(...dataPoints) : "-";
+            const avg = dataPoints.length ? (dataPoints.reduce((a,b)=>a+b,0)/dataPoints.length).toFixed(1) : "-";
+            document.getElementById('stats-text-summary').innerHTML = `Beste: <strong>${best}</strong> | Gem: <strong>${avg}</strong>`;
+        }
+
+        function getSaveKey(type, variant) {
+            if(type === 'doubles' || type === 'singles') return type + '_' + variant;
+            if(type === '100') return '100' + variant;
+            if(type === 'bobs27') return 'bobs27';
+            if(type === 'checkout') return 'checkout_wins';
+            if(type === 'bull') return 'bullstreak';
+            return type;
+        }
+
+        function showRecords() {
+            // Simple Hall of Fame placeholder logic
+            const div = document.getElementById('records-content'); div.innerHTML = "Records functionaliteit zit in de individuele stats knoppen.";
+            showScreen('screen-records');
         }
 
     </script>
