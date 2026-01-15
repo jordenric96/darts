@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ode aan Clarys</title>
+    <title>Yarni's Darts Arcade: Rockets Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -11,7 +11,7 @@
         :root {
             /* TDT Sky Rockets Thema */
             --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
-            --glass-bg: rgba(20, 20, 30, 0.9);
+            --glass-bg: rgba(20, 20, 30, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
             
             --c-cyan: #00f3ff;
@@ -62,7 +62,7 @@
             padding: 20px;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUp 0.4s ease-out;
         }
 
         /* KNOPPEN */
@@ -73,33 +73,31 @@
             transition: all 0.2s ease;
             background: var(--btn-bg); color: white;
             border: 1px solid rgba(255,255,255,0.05);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            text-transform: uppercase; letter-spacing: 1px;
         }
         button:active { transform: scale(0.97); }
-        button:hover { background: rgba(255,255,255,0.15); }
         
-        /* Speciale knop kleuren */
-        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; }
-        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; }
-        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; }
-        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; }
+        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
+        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
+        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; box-shadow: 0 4px 15px rgba(255, 238, 0, 0.3); }
+        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
 
-        .btn-chart-toggle {
-            width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px;
-        }
-        .btn-chart-toggle.active-chart {
-            background: white; color: black; box-shadow: 0 0 15px white;
-        }
+        .btn-chart-toggle { width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px; }
+        .btn-chart-toggle.active-chart { background: white; color: black; box-shadow: 0 0 15px white; }
 
-        /* INPUTS */
+        /* INPUTS - NU MET ARCADE STYLE */
         input {
             width: 100%; padding: 15px; border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);
-            color: white; margin-bottom: 10px; font-size: 1.1rem; text-align: center;
-            font-family: 'Montserrat', sans-serif;
+            border: 2px solid #333; 
+            background: black;
+            color: var(--c-cyan); 
+            margin-bottom: 10px; font-size: 1.5rem; text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
         }
-        input:focus { border-color: var(--c-cyan); outline: none; }
+        input::placeholder { color: #555; font-size: 1rem; font-family: 'Montserrat', sans-serif; }
+        input:focus { border-color: var(--c-cyan); outline: none; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
 
         /* SCORE DISPLAYS */
         .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -150,16 +148,18 @@
 </head>
 <body>
 
-    <div class="logo">🚀 Yarni's Darts Arcade</div>
+    <div class="logo">🚀 Darts Arcade</div>
 
     <div class="container">
 
         <div id="screen-players" class="screen active card">
             <h2>Wie speelt er mee?</h2>
-            <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                <input type="text" id="new-player-name" placeholder="Naam speler..." style="margin:0;">
-                <button onclick="addPlayer()" class="btn-cyan" style="width: auto; margin:0;">+</button>
+            
+            <div style="display:flex; gap:10px; margin-bottom: 15px; align-items: center;">
+                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0; text-transform:uppercase;">
+                <button onclick="addPlayer()" class="btn-cyan" style="width: auto; margin:0; padding: 15px 20px; font-size:1.5rem;">+</button>
             </div>
+
             <div id="player-list" style="max-height: 300px; overflow-y: auto;"></div>
             <br>
             <button class="btn-pink" onclick="confirmPlayers()">🚀 Start Game</button>
@@ -317,18 +317,19 @@
         let curPIdx = 0;
         let gameMode = ''; 
         let keypadInput = "";
-
-        // Game States
         let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
-        
-        // Chart Instance
         let myChart = null;
-
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
 
-        // --- KEYBOARD LISTENERS ---
+        // --- GLOBAL LISTENERS (KEYBOARD) ---
         document.addEventListener('keydown', e => {
             const k = e.key;
+            // 1. Enter op startscherm voor naam toevoegen
+            if (document.getElementById('screen-players').classList.contains('active')) {
+                if (k === 'Enter') addPlayer();
+                return;
+            }
+            // 2. Keypad input voor games
             if (document.querySelector('.screen.active .keypad')) {
                 if (!isNaN(k) && k !== ' ') kp(parseInt(k));
                 else if (k === 'Backspace') kp('BACK');
@@ -346,15 +347,21 @@
             if(!allPlayers.length) l.innerHTML = '<p style="text-align:center;opacity:0.5; margin-top:20px;">Nog geen spelers.</p>';
             allPlayers.forEach(n => {
                 l.innerHTML += `<div class="player-row">
-                    <span style="font-weight:bold; font-size:1.1rem;">${n}</span>
+                    <span style="font-weight:bold; font-size:1.1rem; font-family:'Courier New'; color:var(--c-cyan)">${n}</span>
                     <input type="checkbox" class="player-select-checkbox cb" value="${n}">
                 </div>`;
             });
         }
         function addPlayer() {
-            const n = document.getElementById('new-player-name').value.trim();
-            if(n && !allPlayers.includes(n)) { allPlayers.push(n); localStorage.setItem('dartsPlayers',JSON.stringify(allPlayers)); renderPlayerList(); }
-            document.getElementById('new-player-name').value = '';
+            const input = document.getElementById('new-player-name');
+            const n = input.value.trim().toUpperCase();
+            if(n && !allPlayers.includes(n)) { 
+                allPlayers.push(n); 
+                localStorage.setItem('dartsPlayers',JSON.stringify(allPlayers)); 
+                renderPlayerList(); 
+            }
+            input.value = '';
+            input.focus();
         }
         function confirmPlayers() {
             activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
@@ -391,7 +398,10 @@
             });
         }
 
-        // --- GAME: DOUBLES ---
+        // --- GAME LOGIC ---
+        // (Identieke logica als voorheen, maar nu met werkende addPlayer)
+        
+        // DOUBLES
         function setupDoubles() {
             gameMode = 'doubles'; doublesState = {};
             activePlayers.forEach(p => doublesState[p] = { idx: 0, curDarts: 0, totDarts: 0, hits: 0 });
@@ -420,7 +430,7 @@
             nextTurn(); updateDoublesUI();
         }
 
-        // --- GAME: SINGLES ---
+        // SINGLES
         function setupSingles() {
             gameMode = 'singles'; singlesState = {};
             const list = [...Array(20).keys()].map(i=>i+1); list.push(25);
@@ -442,7 +452,7 @@
             nextTurn(); updateSinglesUI();
         }
 
-        // --- GAME: X01 ---
+        // X01
         function setupX01() {
             const start = prompt("301 of 501?", "501") === "301" ? 301 : 501;
             gameMode = 'x01'; x01State = {}; keypadInput = "";
@@ -465,7 +475,7 @@
             s.darts += 3; keypadInput = ""; nextTurn(); updateX01UI();
         }
 
-        // --- GAME: CHECKOUT ---
+        // CHECKOUT
         function setupCheckoutMenu() { showScreen('screen-checkout-setup'); }
         function startCheckoutGame() {
             const min = parseInt(document.getElementById('co-min').value), max = parseInt(document.getElementById('co-max').value);
@@ -499,7 +509,7 @@
         function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { alert("Beurten op!"); s.hist.push(false); nextRoundCO(s); } }
         function nextRoundCO(s) { s.r++; s.turns=0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
-        // --- GAME: 100 PIJLEN ---
+        // 100 PIJLEN
         let mode100 = 'high';
         function setup100Menu() { showScreen('screen-100-setup'); }
         function start100Game(mode) {
@@ -531,7 +541,7 @@
             nextTurn(); update100UI();
         }
 
-        // --- GAME: BULLSTREAK ---
+        // BULLSTREAK
         function setupBullstreak() {
             gameMode = 'bull'; stateBull = {};
             activePlayers.forEach(p => stateBull[p] = { streak: 0, best: 0, alive: true });
@@ -556,7 +566,7 @@
             curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
         }
 
-        // --- STATS & CHARTS LOGIC ---
+        // STATS
         function showStats() {
             const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
             allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
@@ -577,10 +587,9 @@
                 return mode==='max' ? Math.max(...rs) : Math.min(...rs);
             };
 
-            // HTML Stats Blocks
             let html = `
             <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="color:var(--c-yellow); margin-top:0; text-align:left;">🏆 Persoonlijke Records</h3>
+                <h3 style="color:var(--c-yellow); margin-top:0; text-align:left;">🏆 Records</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
                     <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Hoog)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-cyan)">${getBest('100high')}</div></div>
                     <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Laag)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-pink)">${getBest('100low', 'min')}</div></div>
@@ -590,10 +599,8 @@
                 </div>
             </div>`;
 
-            // Doubles Table
             html += `<h3 style="color:var(--c-purple); text-align:left;">🎯 Doubles Gemiddelden</h3>
             <div style="max-height:250px; overflow-y:auto; margin-bottom:20px;"><table id="stats-table"><thead><tr><th>Doel</th><th>Gem.</th><th>Hits</th></tr></thead><tbody>`;
-            
             let totals = {};
             const doubleRecs = recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)); 
             doubleRecs.forEach(i => {
@@ -611,24 +618,17 @@
             });
             html += `</tbody></table></div>`;
             c.innerHTML = html;
-
-            // Show Chart Section
             document.getElementById('chart-section').style.display = 'block';
-            updateChart('100high'); // Default chart
+            updateChart('100high');
         }
 
-        // --- CHART JS IMPLEMENTATION ---
         function updateChart(metricType) {
             const p = document.getElementById('stats-player-select').value;
             if(!p) return;
-
-            // Highlight active button
             document.querySelectorAll('.btn-chart-toggle').forEach(b => b.classList.remove('active-chart'));
             event.target.classList.add('active-chart');
 
-            // Data extraction
             const recs = history.filter(h => h.player === p && h.gameType === metricType);
-            // Sorteer op datum
             recs.sort((a,b) => new Date(a.date) - new Date(b.date));
 
             const labels = recs.map(r => {
@@ -637,13 +637,11 @@
             });
             const dataPoints = recs.map(r => parseInt(r.result.score || r.result));
 
-            // Color Selection
-            let lineColor = '#00f3ff'; // Default Cyan
-            if(metricType === '100low') lineColor = '#ff00aa'; // Pink
-            if(metricType === 'bullstreak') lineColor = '#ffee00'; // Yellow
+            let lineColor = '#00f3ff';
+            if(metricType === '100low') lineColor = '#ff00aa';
+            if(metricType === 'bullstreak') lineColor = '#ffee00';
 
             const ctx = document.getElementById('progressChart').getContext('2d');
-            
             if(myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
@@ -656,40 +654,21 @@
                         borderColor: lineColor,
                         backgroundColor: lineColor,
                         borderWidth: 2,
-                        tension: 0.3, // Curve
+                        tension: 0.3,
                         pointRadius: 4,
                         pointBackgroundColor: '#000',
-                        pointBorderWidth: 2,
-                        pointHoverRadius: 6
+                        pointBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { 
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            titleColor: '#fff',
-                            bodyColor: lineColor,
-                            borderColor: 'rgba(255,255,255,0.1)',
-                            borderWidth: 1
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#aaa', font: {family: 'Montserrat'} }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { display: false } // Geen labels op x-as voor strakke look (tooltip toont datum)
-                        }
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa', font: {family: 'Montserrat'} } },
+                        x: { display: false }
                     },
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeOutQuart'
-                    }
+                    animation: { duration: 1500, easing: 'easeOutQuart' }
                 }
             });
         }
