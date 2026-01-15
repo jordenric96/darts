@@ -184,7 +184,7 @@
             <button onclick="showScreen('screen-singles-setup')" class="btn-cyan">Singles (Random)</button>
             <button onclick="preSelectVariant('bobs27', 'Bob\'s 27', 'bobs', desc.bobs)" class="btn-yellow">Bob's 27</button>
             <button onclick="preSelectVariant('x01', 'X01 Wedstrijd', 'standard', desc.x01)" class="btn-purple">X01 Wedstrijd</button>
-            <button onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" class="btn-purple">Checkout Challenge</button>
+            <button onclick="showScreen('screen-checkout-setup')" class="btn-purple">Checkout Challenge</button>
             <button onclick="showScreen('screen-100-setup')" class="btn-yellow">100 Pijlen</button>
             <button onclick="preSelectVariant('bull', 'Bullstreak', 'standard', desc.bull)" class="btn-pink">Bullstreak</button>
             
@@ -221,6 +221,17 @@
                 <button onclick="preSelectVariant('100', '100 Low', 'low', desc.p100)" class="option-btn btn-pink"><span class="option-icon">⬇️</span> Laagste</button>
             </div>
             <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+        </div>
+
+        <div id="screen-checkout-setup" class="screen card">
+            <h2>Checkout</h2>
+            <label>Range:</label>
+            <div style="display:flex; gap:10px; margin: 15px 0;">
+                <input type="number" id="co-min" value="60">
+                <input type="number" id="co-max" value="100">
+            </div>
+            <button class="btn-purple" onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" style="margin-top:10px;">Start Challenge</button>
+            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
         </div>
 
         <div id="modal-options" class="modal-overlay">
@@ -491,16 +502,25 @@
             if(id === 'screen-players') renderPlayerList();
         }
 
+        // CHECK IF PLAYED TODAY
         function hasPlayedToday(player, gameType) {
             const today = new Date().toISOString().slice(0,10);
             const key = getSaveKey(selectedGameType, currentVariant); 
-            return history.some(h => h.player === player && h.date.startsWith(today) && h.gameType === key);
+            return history.some(h => 
+                h.player === player && 
+                h.date.startsWith(today) && 
+                (h.gameType === key)
+            );
         }
 
+        // CORRECT SAVE KEY MAPPER
         function getSaveKey(type, variant) {
             if(type === 'doubles' || type === 'singles') return type + '_' + variant;
             if(type === '100') return '100' + variant;
-            return type; 
+            if(type === 'bull') return 'bullstreak';
+            if(type === 'checkout') return 'checkout_wins';
+            if(type === 'x01') return 'x01_throw';
+            return type; // bobs27
         }
 
         function preSelectVariant(gameType, title, variant, description) {
@@ -609,11 +629,13 @@
                 // If ranked, you CANNOT replay. Only menu.
                 controlsDiv.innerHTML = `<button onclick="closeModal('modal-summary'); showScreen('screen-menu');" style="background:transparent; border:1px solid #555;">MENU 🏠</button>`;
                 
-                const recs = history.filter(h => h.player === player && h.gameType === gameType).map(r => parseInt(r.result.score || r.result));
-                // The current score is already in history (saved before calling summary).
-                // So recs includes the current score as the last item.
+                // Get correct DB key for lookup
+                const dbType = getSaveKey(selectedGameType, currentVariant);
+                const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => parseInt(r.result.score || r.result));
+                
+                // recs includes the current score as the last item because it was just saved.
                 if(recs.length > 1) {
-                    const currentVal = recs.pop(); // Remove current to compare with previous best
+                    const currentVal = recs.pop(); // Remove current to compare
                     oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
                     
                     if ((metric==='max' && currentVal > oldBest) || (metric==='min' && currentVal < oldBest)) {
