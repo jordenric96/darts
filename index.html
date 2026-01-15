@@ -3,26 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Ode aan Clarys</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            /* Theme Variables */
-            --bg-gradient: linear-gradient(135deg, #b721ff 0%, #21d4fd 100%);
-            --glass-bg: rgba(20, 20, 20, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.15);
+            /* TDT Sky Rockets Thema */
+            --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
+            --glass-bg: rgba(20, 20, 30, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            --c-cyan: #00f3ff;
+            --c-pink: #ff00aa;
+            --c-yellow: #ffee00;
+            --c-purple: #bc13fe;
+            
             --text-color: #ffffff;
-            --accent: #00e676; 
-            --danger: #ff1744;
-            --highlight: #21d4fd;
-            --gold: #ffd700;
+            --btn-bg: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background: var(--bg-gradient);
             background-attachment: fixed;
             color: var(--text-color);
@@ -31,108 +35,117 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
         }
 
-        h1, h2 { text-align: center; margin: 5px 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
         
         .logo { 
-            font-size: 1.8rem; 
-            font-weight: 800; 
-            border-bottom: 3px solid white; 
-            margin-bottom: 20px; 
-            padding-bottom: 5px; 
-            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            font-size: 2rem; 
+            font-weight: 900; 
+            font-style: italic;
+            background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px; 
+            text-shadow: 0 0 30px rgba(255,0,170,0.3);
         }
 
-        .container { width: 100%; max-width: 600px; padding-bottom: 60px; }
+        .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
 
         .card {
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: var(--glass-border);
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            margin-bottom: 15px;
-            animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* BUTTONS */
+        /* KNOPPEN */
         button {
-            border: none; border-radius: 12px; padding: 15px;
-            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem;
-            cursor: pointer; width: 100%; margin-bottom: 10px;
-            transition: transform 0.1s;
-            background: rgba(255, 255, 255, 0.1); color: white;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: none; border-radius: 50px; padding: 15px 25px;
+            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
+            cursor: pointer; width: 100%; margin-bottom: 12px;
+            transition: all 0.2s ease;
+            background: var(--btn-bg); color: white;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        button:active { transform: scale(0.96); }
+        button:active { transform: scale(0.97); }
+        button:hover { background: rgba(255,255,255,0.15); }
         
-        .btn-primary { background: var(--highlight); color: #000; border: none; }
-        .btn-success { background: var(--accent); color: #000; border: none; }
-        .btn-danger { background: var(--danger); color: white; border: none; }
-        .btn-gold { background: var(--gold); color: #000; border: none; }
-        
-        /* INPUTS */
-        input[type="text"], input[type="number"] {
-            width: 100%; padding: 15px; border-radius: 10px;
-            border: none; background: rgba(255,255,255,0.9);
-            margin-bottom: 10px; font-size: 1rem;
+        /* Speciale knop kleuren */
+        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; }
+        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; }
+        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; }
+        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; }
+
+        .btn-chart-toggle {
+            width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px;
+        }
+        .btn-chart-toggle.active-chart {
+            background: white; color: black; box-shadow: 0 0 15px white;
         }
 
-        /* SCOREBOARD */
-        .scoreboard {
-            display: flex; justify-content: center; gap: 8px;
-            margin-bottom: 20px; flex-wrap: wrap;
+        /* INPUTS */
+        input {
+            width: 100%; padding: 15px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);
+            color: white; margin-bottom: 10px; font-size: 1.1rem; text-align: center;
+            font-family: 'Montserrat', sans-serif;
         }
+        input:focus { border-color: var(--c-cyan); outline: none; }
+
+        /* SCORE DISPLAYS */
+        .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         .p-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; padding: 10px;
-            min-width: 90px; text-align: center;
-            opacity: 0.6; transform: scale(0.95); transition: 0.3s;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px; padding: 15px; min-width: 100px; text-align: center;
+            transition: 0.3s;
         }
         .p-card.active-turn {
-            background: rgba(33, 212, 253, 0.15);
-            border: 2px solid var(--highlight);
-            box-shadow: 0 0 25px rgba(33, 212, 253, 0.6);
-            opacity: 1; transform: scale(1.05); z-index: 10;
+            background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan);
+            transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
         }
-        .p-name { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; }
-        .p-score { font-size: 2.5rem; font-weight: 800; color: white; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        .p-avg { font-size: 0.8rem; color: var(--accent); }
-
-        /* DISPLAYS & KEYPADS */
-        .score-display-box {
-            background: black; color: var(--accent);
-            font-family: 'Courier New', monospace;
-            font-size: 3rem; font-weight: bold;
-            padding: 10px; text-align: center;
-            border-radius: 10px; margin-bottom: 15px;
-            border: 2px solid #333;
-        }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .keypad button { padding: 20px; font-size: 1.4rem; background: rgba(255,255,255,0.1); margin: 0; }
-
-        /* GAME SPECIFIC */
-        .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .input-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
+        .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
         
-        .big-icon { font-size: 4rem; display: block; margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .score-display-box {
+            background: black; color: var(--c-yellow); font-family: 'Courier New', monospace;
+            font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center;
+            border-radius: 15px; margin-bottom: 20px; border: 2px solid #333;
+            box-shadow: inset 0 0 20px rgba(255,238,0,0.2);
+        }
+
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
+        .keypad button:active { background: var(--c-cyan); color: black; }
+
+        /* CHART AREA */
+        .chart-container {
+            position: relative; height: 350px; width: 100%;
+            background: rgba(0,0,0,0.4); border-radius: 15px; padding: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
+        }
 
         /* TABLES */
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th { text-align: left; color: var(--highlight); padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        th { text-align: left; color: var(--c-pink); padding: 12px 8px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* UTILS */
+        /* UI UTILS */
         .screen { display: none; }
         .active { display: block; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
-        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--accent); }
-        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 8px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); }
+        
+        @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
 </head>
 <body>
@@ -143,79 +156,81 @@
 
         <div id="screen-players" class="screen active card">
             <h2>Wie speelt er mee?</h2>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="new-player-name" placeholder="Naam...">
-                <button onclick="addPlayer()" style="width: auto; background: var(--accent);">+</button>
+            <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                <input type="text" id="new-player-name" placeholder="Naam speler..." style="margin:0;">
+                <button onclick="addPlayer()" class="btn-cyan" style="width: auto; margin:0;">+</button>
             </div>
-            <div id="player-list" style="max-height: 250px; overflow-y: auto; margin: 15px 0;"></div>
-            <button class="btn-primary" onclick="confirmPlayers()">Naar Spelkeuze ➔</button>
+            <div id="player-list" style="max-height: 300px; overflow-y: auto;"></div>
+            <br>
+            <button class="btn-pink" onclick="confirmPlayers()">🚀 Start Game</button>
         </div>
 
         <div id="screen-menu" class="screen card">
-            <h2>Kies een spel</h2>
-            <p style="text-align:center; opacity:0.7; font-size:0.9rem" id="active-players-display"></p>
+            <h2>Kies je Challenge</h2>
+            <p style="text-align:center; opacity:0.7; font-size:0.9rem; margin-bottom: 20px;" id="active-players-display"></p>
             
-            <button onclick="setupDoubles()">Doubles (Clock)</button>
-            <button onclick="setupSingles()">Singles (Random 1-20)</button>
-            <button onclick="setupX01()">X01 (301 / 501)</button>
-            <button onclick="setupCheckoutMenu()">Checkout Challenge (6p)</button>
-            <button onclick="setup100Menu()" class="btn-gold">100 Pijlen Challenge</button>
-            <button onclick="setupBullstreak()">Bullstreak (Beurten)</button>
+            <button onclick="setupDoubles()" class="btn-cyan">Doubles (Clock)</button>
+            <button onclick="setupSingles()" class="btn-cyan">Singles (Random 1-20)</button>
+            <button onclick="setupX01()" class="btn-purple">X01 (301 / 501)</button>
+            <button onclick="setupCheckoutMenu()" class="btn-purple">Checkout Challenge (6p)</button>
+            <button onclick="setup100Menu()" class="btn-yellow">100 Pijlen Challenge</button>
+            <button onclick="setupBullstreak()" class="btn-pink">Bullstreak (Beurten)</button>
             
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:20px 0;">
-            <button onclick="showStats()">📊 Statistieken</button>
-            <button onclick="showScreen('screen-players')" style="background:transparent; border:1px solid rgba(255,255,255,0.3);">Terug</button>
+            <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 25px 0;"></div>
+            
+            <button onclick="showStats()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">📈 Statistieken & Grafieken</button>
+            <button onclick="showScreen('screen-players')" style="background:transparent; opacity: 0.6;">Terug naar Spelers</button>
         </div>
 
         <div id="screen-game-doubles" class="screen card">
             <div id="doubles-scoreboard" class="scoreboard"></div>
-            <p style="text-align:center; opacity:0.8;">Pijlen verbruikt: <strong id="doubles-darts-count">0</strong></p>
-            <div class="input-grid">
-                <button class="btn-success" onclick="handleDoublesInput(1)">1e Pijl</button>
-                <button class="btn-success" onclick="handleDoublesInput(2)">2e Pijl</button>
-                <button class="btn-success" onclick="handleDoublesInput(3)">3e Pijl</button>
+            <p style="text-align:center; opacity:0.8;">Pijlen verbruikt: <strong id="doubles-darts-count" style="color:var(--c-cyan)">0</strong></p>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+                <button class="btn-cyan" onclick="handleDoublesInput(1)">1e Pijl</button>
+                <button class="btn-cyan" onclick="handleDoublesInput(2)">2e Pijl</button>
+                <button class="btn-cyan" onclick="handleDoublesInput(3)">3e Pijl</button>
             </div>
-            <button class="btn-danger" onclick="handleDoublesMiss()">Alles Gemist (0)</button>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <button class="btn-pink" onclick="handleDoublesMiss()">Alles Gemist (0)</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-game-singles" class="screen card">
             <div id="singles-scoreboard" class="scoreboard"></div>
-            <div style="text-align:center; margin-bottom:10px;">Hits (3 pijlen)?</div>
-            <div class="input-grid-4">
-                <button class="btn-danger" onclick="handleSinglesInput(0)">0</button>
-                <button class="btn-success" onclick="handleSinglesInput(1)">1</button>
-                <button class="btn-success" onclick="handleSinglesInput(2)">2</button>
-                <button class="btn-success" onclick="handleSinglesInput(3)">3</button>
+            <div style="text-align:center; margin-bottom:15px;">Aantal hits (3 pijlen):</div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+                <button class="btn-pink" onclick="handleSinglesInput(0)">0</button>
+                <button class="btn-cyan" onclick="handleSinglesInput(1)">1</button>
+                <button class="btn-cyan" onclick="handleSinglesInput(2)">2</button>
+                <button class="btn-cyan" onclick="handleSinglesInput(3)">3</button>
             </div>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-checkout-setup" class="screen card">
             <h2>Checkout Setup</h2>
             <label>Getal tussen:</label>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; margin: 15px 0;">
                 <input type="number" id="co-min" value="60">
                 <input type="number" id="co-max" value="100">
             </div>
-            <button class="btn-primary" onclick="startCheckoutGame()">Start Challenge</button>
+            <button class="btn-purple" onclick="startCheckoutGame()">Start Challenge</button>
             <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
         </div>
         <div id="screen-game-checkout" class="screen card">
             <div id="checkout-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin-bottom:5px; color:#aaa;">Ronde <span id="co-round">1</span>/10 | Beurt <span id="co-turn">1</span>/2</div>
-            <div style="text-align:center; font-size:4rem; font-weight:800; color:var(--highlight); text-shadow:0 0 20px rgba(33,212,253,0.5);" id="co-target">?</div>
+            <div style="text-align:center; font-size:5rem; font-weight:900; color:var(--c-yellow); text-shadow:0 0 40px rgba(255,238,0,0.4);" id="co-target">?</div>
             <div id="checkout-display" class="score-display-box">0</div>
             <div class="keypad">
                 <button onclick="kp(7)">7</button><button onclick="kp(8)">8</button><button onclick="kp(9)">9</button>
                 <button onclick="kp(4)">4</button><button onclick="kp(5)">5</button><button onclick="kp(6)">6</button>
                 <button onclick="kp(1)">1</button><button onclick="kp(2)">2</button><button onclick="kp(3)">3</button>
-                <button onclick="kp('BACK')" style="color:var(--danger)">⌫</button>
+                <button onclick="kp('BACK')" style="color:var(--c-pink)">⌫</button>
                 <button onclick="kp(0)">0</button>
-                <button onclick="submitCheckout()" class="btn-success">OK</button>
+                <button onclick="submitCheckout()" class="btn-cyan">OK</button>
             </div>
-            <div id="checkout-history-container" style="display:flex; justify-content:center; gap:5px; margin-top:10px;"></div>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <div id="checkout-history-container" style="display:flex; justify-content:center; gap:5px; margin-top:15px; flex-wrap:wrap;"></div>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-game-x01" class="screen card">
@@ -225,59 +240,70 @@
                 <button onclick="kp(7)">7</button><button onclick="kp(8)">8</button><button onclick="kp(9)">9</button>
                 <button onclick="kp(4)">4</button><button onclick="kp(5)">5</button><button onclick="kp(6)">6</button>
                 <button onclick="kp(1)">1</button><button onclick="kp(2)">2</button><button onclick="kp(3)">3</button>
-                <button onclick="kp('BACK')" style="color:var(--danger)">⌫</button>
+                <button onclick="kp('BACK')" style="color:var(--c-pink)">⌫</button>
                 <button onclick="kp(0)">0</button>
-                <button onclick="submitX01()" class="btn-success">OK</button>
+                <button onclick="submitX01()" class="btn-cyan">OK</button>
             </div>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-100-setup" class="screen card">
             <h2>100 Pijlen Mode</h2>
-            <button onclick="start100Game('high')">🔼 Hoogste Score</button>
-            <button onclick="start100Game('low')">🔽 Laagste Score</button>
+            <button onclick="start100Game('high')" class="btn-yellow">🔼 Hoogste Score</button>
+            <button onclick="start100Game('low')" class="btn-pink">🔽 Laagste Score</button>
             <button onclick="showScreen('screen-menu')" style="background:transparent;">Terug</button>
         </div>
         <div id="screen-game-100" class="screen card">
             <div id="100-scoreboard" class="scoreboard"></div>
-            <div style="text-align:center; font-size:1.2rem; margin-bottom:10px;">Pijlen: <span id="100-counter" style="color:var(--highlight); font-weight:bold;">0</span>/100</div>
+            <div style="text-align:center; font-size:1.2rem; margin-bottom:10px;">Pijl <span id="100-counter" style="color:var(--c-yellow); font-weight:bold; font-size:1.5rem">0</span>/100</div>
             <div id="100-display" class="score-display-box">0</div>
             <div class="keypad">
                 <button onclick="kp(7)">7</button><button onclick="kp(8)">8</button><button onclick="kp(9)">9</button>
                 <button onclick="kp(4)">4</button><button onclick="kp(5)">5</button><button onclick="kp(6)">6</button>
                 <button onclick="kp(1)">1</button><button onclick="kp(2)">2</button><button onclick="kp(3)">3</button>
-                <button onclick="kp('BACK')" style="color:var(--danger)">⌫</button>
+                <button onclick="kp('BACK')" style="color:var(--c-pink)">⌫</button>
                 <button onclick="kp(0)">0</button>
-                <button onclick="submit100()" class="btn-success">OK</button>
+                <button onclick="submit100()" class="btn-yellow">OK</button>
             </div>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-game-bullstreak" class="screen card">
             <div id="bull-scoreboard" class="scoreboard"></div>
-            
             <div style="text-align:center; margin-top:20px;">
-                <div style="font-size:0.9rem; opacity:0.8;">HUIDIGE STREAK (Beurten)</div>
-                <div id="bull-streak-val" style="font-size:6rem; font-weight:800; color:var(--gold); text-shadow:0 0 30px rgba(255,215,0,0.5);">0</div>
+                <div style="font-size:0.9rem; opacity:0.8;">HUIDIGE STREAK (BEURTEN)</div>
+                <div id="bull-streak-val" style="font-size:7rem; font-weight:900; color:var(--c-pink); text-shadow:0 0 50px rgba(255,0,170,0.6); line-height:1;">0</div>
             </div>
-
-            <div style="text-align:center; margin:20px 0;">
-                <p>Gooi 3 pijlen. Minstens 1 Bull?</p>
+            <div style="text-align:center; margin:30px 0;">
+                <p style="margin-bottom:15px">Gooi 3 pijlen. Minstens 1 Bull?</p>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                    <button class="btn-success" style="height:100px; font-size:1.5rem;" onclick="handleBullResult(true)">✅ RAAK</button>
-                    <button class="btn-danger" style="height:100px; font-size:1.5rem;" onclick="handleBullResult(false)">❌ MIS</button>
+                    <button class="btn-cyan" style="height:100px; font-size:1.5rem;" onclick="handleBullResult(true)">✅ RAAK</button>
+                    <button class="btn-pink" style="height:100px; font-size:1.5rem;" onclick="handleBullResult(false)">❌ MIS</button>
                 </div>
             </div>
-            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
         <div id="screen-stats" class="screen card">
-            <h2>Statistieken</h2>
-            <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:10px; border-radius:10px; margin-bottom:15px; background:white; color:black;"></select>
+            <h2>Jouw Progressie</h2>
+            <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:15px; border-radius:15px; margin-bottom:20px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--c-cyan);">
+            </select>
             
-            <div id="stats-content">
+            <div id="stats-content"></div>
+            
+            <div id="chart-section" style="display:none; margin-top:30px;">
+                <h3 style="color:var(--c-cyan); text-align:left;">📈 Evolutie</h3>
+                <div style="display:flex; flex-wrap:wrap;">
+                    <button class="btn-chart-toggle" onclick="updateChart('100high')">100 High</button>
+                    <button class="btn-chart-toggle" onclick="updateChart('100low')">100 Low</button>
+                    <button class="btn-chart-toggle" onclick="updateChart('bullstreak')">Bullstreak</button>
                 </div>
-            <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+
+            <button onclick="showScreen('screen-menu')" style="margin-top:25px; background:transparent; border:1px solid rgba(255,255,255,0.2)">Terug naar Menu</button>
         </div>
 
     </div>
@@ -285,25 +311,24 @@
     <script>
         // --- DATA ---
         let allPlayers = JSON.parse(localStorage.getItem('dartsPlayers')) || [];
-        // Structure V3: { date, gameType ('doubles','x01','100high','100low','bullstreak'), player, result (score, count, or obj) }
         let history = JSON.parse(localStorage.getItem('dartsHistoryV3')) || [];
         
         let activePlayers = [];
         let curPIdx = 0;
         let gameMode = ''; 
-        
-        // GAME STATES
-        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {};
-        let state100 = {}, stateBull = {};
-
-        // Helper Vars
-        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
         let keypadInput = "";
 
-        // --- KEYBOARD ---
+        // Game States
+        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
+        
+        // Chart Instance
+        let myChart = null;
+
+        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
+
+        // --- KEYBOARD LISTENERS ---
         document.addEventListener('keydown', e => {
             const k = e.key;
-            // Detect Active Screen for Keypad
             if (document.querySelector('.screen.active .keypad')) {
                 if (!isNaN(k) && k !== ' ') kp(parseInt(k));
                 else if (k === 'Backspace') kp('BACK');
@@ -315,12 +340,15 @@
             }
         });
 
-        // --- PLAYER MGT ---
+        // --- PLAYER UI ---
         function renderPlayerList() {
             const l = document.getElementById('player-list'); l.innerHTML = '';
-            if(!allPlayers.length) l.innerHTML = '<p style="text-align:center;opacity:0.5">Geen spelers</p>';
+            if(!allPlayers.length) l.innerHTML = '<p style="text-align:center;opacity:0.5; margin-top:20px;">Nog geen spelers.</p>';
             allPlayers.forEach(n => {
-                l.innerHTML += `<div class="player-row"><span>${n}</span><input type="checkbox" class="cb" value="${n}"></div>`;
+                l.innerHTML += `<div class="player-row">
+                    <span style="font-weight:bold; font-size:1.1rem;">${n}</span>
+                    <input type="checkbox" class="player-select-checkbox cb" value="${n}">
+                </div>`;
             });
         }
         function addPlayer() {
@@ -330,7 +358,7 @@
         }
         function confirmPlayers() {
             activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
-            if(!activePlayers.length) return alert("Kies speler(s)");
+            if(!activePlayers.length) return alert("Selecteer minstens 1 speler!");
             document.getElementById('active-players-display').innerText = activePlayers.join(", ");
             showScreen('screen-menu');
         }
@@ -342,13 +370,14 @@
             if(id === 'screen-players') renderPlayerList();
         }
         function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
-
-        // --- COMMON LOGIC ---
         function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
+        
         function saveRec(type, player, res) {
             history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
             localStorage.setItem('dartsHistoryV3', JSON.stringify(history));
         }
+
+        // --- KEYPAD & DISPLAY ---
         function kp(v) {
             if (v==='BACK') keypadInput = keypadInput.slice(0,-1);
             else if (keypadInput.length < 3) keypadInput += v;
@@ -374,8 +403,7 @@
                 const s = doublesState[p];
                 const fin = s.idx >= boardOrder.length;
                 const txt = fin ? "WIN" : (boardOrder[s.idx]===25?"BULL":"D"+boardOrder[s.idx]);
-                const avg = s.hits>0 ? (s.totDarts/s.hits).toFixed(1) : "-";
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div><div class="p-avg">Gem: ${avg}</div></div>`;
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
             });
             document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[curPIdx]].curDarts;
         }
@@ -425,14 +453,12 @@
             const sb = document.getElementById('x01-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((p,i) => {
                 const s = x01State[p];
-                const avg = s.darts>0 ? ((s.start-s.score)/(s.darts/3)).toFixed(1) : "-";
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.score}</div><div class="p-avg">Gem: ${avg}</div></div>`;
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.score}</div></div>`;
             });
             updateDisplay();
         }
         function submitX01() {
-            const v = parseInt(keypadInput);
-            if(isNaN(v) || v > 180) return alert("Ongeldig");
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return alert("Ongeldig");
             const p = activePlayers[curPIdx], s = x01State[p], n = s.score - v;
             if (n === 0) { alert(p + " WINT!"); showScreen('screen-menu'); return; }
             if (n > 1) s.score = n; else alert("BUST");
@@ -444,49 +470,37 @@
         function startCheckoutGame() {
             const min = parseInt(document.getElementById('co-min').value), max = parseInt(document.getElementById('co-max').value);
             gameMode = 'checkout'; checkoutState = {}; keypadInput = "";
-            activePlayers.forEach(p => checkoutState[p] = { r:1, hist:[], tStart: rInt(min,max), cur:0, turns:0, min:min, max:max });
+            activePlayers.forEach(p => checkoutState[p] = { r:1, hist:[], tStart: Math.floor(Math.random()*(max-min+1)+min), cur:0, turns:0, min:min, max:max });
             activePlayers.forEach(p => checkoutState[p].cur = checkoutState[p].tStart);
             curPIdx = 0; updateCheckoutUI(); showScreen('screen-game-checkout');
         }
         function updateCheckoutUI() {
             const p = activePlayers[curPIdx], s = checkoutState[p];
             if(s.r > 10) { alert("Klaar!"); showScreen('screen-menu'); return; }
-            
-            // Scoreboard
             const sb = document.getElementById('checkout-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((pl,i) => {
                 const w = checkoutState[pl].hist.filter(x=>x).length;
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score" style="font-size:1.5rem">${w}/10</div></div>`;
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${w}/10</div></div>`;
             });
-
             document.getElementById('co-round').innerText = s.r; document.getElementById('co-turn').innerText = s.turns+1;
             document.getElementById('co-target').innerText = s.cur;
-            
             const hc = document.getElementById('checkout-history-container'); hc.innerHTML = '';
             s.hist.forEach(h => hc.innerHTML += `<span style="font-size:1.5rem;background:#333;padding:5px;border-radius:5px;">${h?"🎯":"🤡"}</span>`);
             updateDisplay();
         }
         function submitCheckout() {
             const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
-            const p = activePlayers[curPIdx], s = checkoutState[p];
-            const n = s.cur - v;
-            
-            if (n === 0) { // Success
-                alert("UIT!"); s.hist.push(true); nextRoundCO(s);
-            } else if (n <= 1) { // Bust
-                alert("BUST"); s.turns++; checkFailCO(s);
-            } else { // Continue
-                s.cur = n; s.turns++; checkFailCO(s);
-            }
-            keypadInput = ""; 
-            if(s.cur > 0) nextTurn(); // Wissel speler als niet uitgegooid
-            updateCheckoutUI();
+            const p = activePlayers[curPIdx], s = checkoutState[p], n = s.cur - v;
+            if (n === 0) { alert("UIT!"); s.hist.push(true); nextRoundCO(s); }
+            else if (n <= 1) { alert("BUST"); s.turns++; checkFailCO(s); }
+            else { s.cur = n; s.turns++; checkFailCO(s); }
+            keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
         }
         function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { alert("Beurten op!"); s.hist.push(false); nextRoundCO(s); } }
-        function nextRoundCO(s) { s.r++; s.turns=0; s.tStart = rInt(s.min, s.max); s.cur = s.tStart; }
+        function nextRoundCO(s) { s.r++; s.turns=0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
         // --- GAME: 100 PIJLEN ---
-        let mode100 = 'high'; // 'high' or 'low'
+        let mode100 = 'high';
         function setup100Menu() { showScreen('screen-100-setup'); }
         function start100Game(mode) {
             mode100 = mode; gameMode = '100'; state100 = {}; keypadInput = "";
@@ -505,31 +519,15 @@
         function submit100() {
             const v = parseInt(keypadInput);
             const p = activePlayers[curPIdx], s = state100[p];
-            const dartsLeft = 100 - s.dartsThrown;
-            
-            // Logic for last dart (single dart input) vs normal (3 darts)
-            let dartsThisTurn = 3;
-            let maxScore = 180;
-
-            if (dartsLeft === 1) {
-                dartsThisTurn = 1;
-                maxScore = 60; // Max single dart score is T20
-                if (v > 60) return alert("Max 60 voor 1 pijl!");
-            } else if (isNaN(v) || v > 180) return alert("Ongeldig");
-
-            s.score += v;
-            s.dartsThrown += dartsThisTurn;
-            keypadInput = "";
-
+            let dartsThisTurn = (100 - s.dartsThrown === 1) ? 1 : 3;
+            if (dartsThisTurn === 1 && v > 60) return alert("Max 60 voor 1 pijl!");
+            if (isNaN(v) || v > 180) return alert("Ongeldig");
+            s.score += v; s.dartsThrown += dartsThisTurn; keypadInput = "";
             if (s.dartsThrown >= 100) {
-                alert(`${p} Klaar! Eindscore: ${s.score}`);
+                alert(`${p} Klaar! Score: ${s.score}`);
                 saveRec(mode100 === 'high' ? '100high' : '100low', p, s.score);
-                // Mark finished logic conceptually needed if multiplayer, but simple alert + reset for now
-                if(curPIdx === activePlayers.length -1) {
-                    showScreen('screen-menu'); return;
-                }
+                if(curPIdx === activePlayers.length -1) { showScreen('screen-menu'); return; }
             }
-            
             nextTurn(); update100UI();
         }
 
@@ -540,80 +538,66 @@
             curPIdx = 0; updateBullUI(); showScreen('screen-game-bullstreak');
         }
         function updateBullUI() {
-            // Find next alive player
             let attempts = 0;
-            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) {
-                curPIdx = (curPIdx + 1) % activePlayers.length;
-                attempts++;
-            }
+            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
             if(attempts >= activePlayers.length) { alert("Iedereen af!"); showScreen('screen-menu'); return; }
-
             const sb = document.getElementById('bull-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((p,i) => {
                 const s = stateBull[p];
-                const cls = !s.alive ? 'opacity:0.3' : (i===curPIdx?'background:var(--highlight);color:black':'');
-                sb.innerHTML += `<div class="p-card" style="${cls}"><div class="p-name">${p}</div><div class="p-score" style="font-size:1.5rem">${s.streak}</div></div>`;
+                const cls = !s.alive ? 'opacity:0.3' : (i===curPIdx?'active-turn':'');
+                sb.innerHTML += `<div class="p-card ${cls}"><div class="p-name">${p}</div><div class="p-score">${s.streak}</div></div>`;
             });
-            
             document.getElementById('bull-streak-val').innerText = stateBull[activePlayers[curPIdx]].streak;
         }
         function handleBullResult(hit) {
             const p = activePlayers[curPIdx], s = stateBull[p];
-            if(hit) {
-                s.streak++;
-                if(s.streak > s.best) s.best = s.streak;
-            } else {
-                alert(`Helaas! Streak: ${s.streak}`);
-                saveRec('bullstreak', p, s.streak);
-                s.alive = false;
-            }
-            curPIdx = (curPIdx + 1) % activePlayers.length;
-            updateBullUI();
+            if(hit) { s.streak++; if(s.streak > s.best) s.best = s.streak; }
+            else { alert(`Helaas! Streak: ${s.streak}`); saveRec('bullstreak', p, s.streak); s.alive = false; }
+            curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
         }
 
-        // --- STATS ---
+        // --- STATS & CHARTS LOGIC ---
         function showStats() {
-            const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies --</option>';
+            const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
             allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
             document.getElementById('stats-content').innerHTML = '';
+            document.getElementById('chart-section').style.display = 'none';
             showScreen('screen-stats');
         }
+
         function renderStats() {
             const p = document.getElementById('stats-player-select').value;
             if(!p) return;
             const c = document.getElementById('stats-content'); c.innerHTML = '';
             const recs = history.filter(h => h.player === p);
 
-            // Helper to find best
             const getBest = (type, mode='max') => {
                 const rs = recs.filter(r => r.gameType === type).map(r => parseInt(r.result.score || r.result));
                 if(!rs.length) return '-';
                 return mode==='max' ? Math.max(...rs) : Math.min(...rs);
             };
 
-            // 1. Records Card
+            // HTML Stats Blocks
             let html = `
-            <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; margin-bottom:15px;">
-                <h3 style="color:var(--gold); margin-top:0;">🏆 Persoonlijke Records</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center;">
-                    <div><div style="font-size:0.8rem">100 Pijlen (Hoog)</div><div style="font-size:1.5rem; font-weight:bold;">${getBest('100high')}</div></div>
-                    <div><div style="font-size:0.8rem">100 Pijlen (Laag)</div><div style="font-size:1.5rem; font-weight:bold;">${getBest('100low', 'min')}</div></div>
-                    <div style="grid-column:span 2; border-top:1px solid rgba(255,255,255,0.1); margin-top:5px; padding-top:5px;">
-                        <div style="font-size:0.8rem">Langste Bullstreak (Beurten)</div><div style="font-size:2rem; color:var(--accent); font-weight:bold;">${getBest('bullstreak')}</div>
+            <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
+                <h3 style="color:var(--c-yellow); margin-top:0; text-align:left;">🏆 Persoonlijke Records</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
+                    <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Hoog)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-cyan)">${getBest('100high')}</div></div>
+                    <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Laag)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-pink)">${getBest('100low', 'min')}</div></div>
+                    <div style="grid-column:span 2; border-top:1px solid rgba(255,255,255,0.1); margin-top:5px; padding-top:10px;">
+                        <div style="font-size:0.8rem; color:#aaa;">Langste Bullstreak (Beurten)</div><div style="font-size:3rem; color:var(--c-yellow); font-weight:900; line-height:1;">${getBest('bullstreak')}</div>
                     </div>
                 </div>
             </div>`;
 
-            // 2. Doubles Table
-            html += `<h3 style="color:var(--highlight)">Doubles Gemiddelden</h3>
-            <div style="max-height:250px; overflow-y:auto;"><table id="stats-table"><thead><tr><th>Doel</th><th>Gem.</th><th>Hits</th></tr></thead><tbody>`;
+            // Doubles Table
+            html += `<h3 style="color:var(--c-purple); text-align:left;">🎯 Doubles Gemiddelden</h3>
+            <div style="max-height:250px; overflow-y:auto; margin-bottom:20px;"><table id="stats-table"><thead><tr><th>Doel</th><th>Gem.</th><th>Hits</th></tr></thead><tbody>`;
             
-            // Calc doubles logic (same as before)
             let totals = {};
-            // Filter oude data structuur (als die er nog is) en nieuwe 'doubles' type
             const doubleRecs = recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)); 
             doubleRecs.forEach(i => {
-                const t = i.result ? i.result.target : i.target; // support V2/V3
+                const t = i.result ? i.result.target : i.target;
                 const d = i.result ? i.result.darts : i.darts;
                 if(!totals[t]) totals[t] = {sum:0, c:0};
                 totals[t].sum += d; totals[t].c++;
@@ -621,18 +605,94 @@
             boardOrder.forEach(n => {
                 const l = n===25?"Bull":"D"+n;
                 const s = totals[n];
-                let avg="-", h=0, col="";
-                if(s) { h=s.c; const v=s.sum/h; avg=v.toFixed(1); if(v<=3) col="color:var(--accent)"; else if(v>=9) col="color:var(--danger)"; }
+                let avg="-", h=0, col="color:white";
+                if(s) { h=s.c; const v=s.sum/h; avg=v.toFixed(1); if(v<=3) col="color:var(--c-cyan)"; else if(v>=9) col="color:var(--c-pink)"; }
                 html += `<tr><td>${l}</td><td style="${col}">${avg}</td><td>${h}</td></tr>`;
             });
             html += `</tbody></table></div>`;
-
             c.innerHTML = html;
+
+            // Show Chart Section
+            document.getElementById('chart-section').style.display = 'block';
+            updateChart('100high'); // Default chart
         }
 
-        function rInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        // --- CHART JS IMPLEMENTATION ---
+        function updateChart(metricType) {
+            const p = document.getElementById('stats-player-select').value;
+            if(!p) return;
 
-        renderPlayerList();
+            // Highlight active button
+            document.querySelectorAll('.btn-chart-toggle').forEach(b => b.classList.remove('active-chart'));
+            event.target.classList.add('active-chart');
+
+            // Data extraction
+            const recs = history.filter(h => h.player === p && h.gameType === metricType);
+            // Sorteer op datum
+            recs.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            const labels = recs.map(r => {
+                const d = new Date(r.date);
+                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            });
+            const dataPoints = recs.map(r => parseInt(r.result.score || r.result));
+
+            // Color Selection
+            let lineColor = '#00f3ff'; // Default Cyan
+            if(metricType === '100low') lineColor = '#ff00aa'; // Pink
+            if(metricType === 'bullstreak') lineColor = '#ffee00'; // Yellow
+
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            if(myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: metricType.toUpperCase(),
+                        data: dataPoints,
+                        borderColor: lineColor,
+                        backgroundColor: lineColor,
+                        borderWidth: 2,
+                        tension: 0.3, // Curve
+                        pointRadius: 4,
+                        pointBackgroundColor: '#000',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: lineColor,
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#aaa', font: {family: 'Montserrat'} }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { display: false } // Geen labels op x-as voor strakke look (tooltip toont datum)
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
