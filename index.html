@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darts Master Ultimate</title>
+    <title>Yarni's Darts Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Flashy Thema (Kleuren behouden zoals gevraagd) */
+            /* Flashy Thema (Kleuren behouden) */
             --bg-gradient: linear-gradient(135deg, #b721ff 0%, #21d4fd 100%);
             --glass-bg: rgba(20, 20, 20, 0.85);
             --glass-border: 1px solid rgba(255, 255, 255, 0.15);
@@ -35,7 +35,15 @@
         }
 
         h1, h2 { text-align: center; margin: 5px 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
-        .logo { font-size: 1.5rem; font-weight: 800; border-bottom: 3px solid white; margin-bottom: 20px; padding-bottom: 5px; }
+        
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            border-bottom: 3px solid white; 
+            margin-bottom: 20px; 
+            padding-bottom: 5px; 
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
 
         .container { width: 100%; max-width: 600px; padding-bottom: 50px; }
 
@@ -103,7 +111,6 @@
         }
 
         .p-name { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-        /* AANGEPAST: Veel grotere score */
         .p-score { font-size: 2.8rem; font-weight: 800; color: white; line-height: 1.1; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
         .p-avg { font-size: 0.8rem; color: var(--accent); font-weight: bold; margin-top: 5px; }
 
@@ -111,8 +118,8 @@
         .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .input-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 
-        /* Keypad X01 */
-        .x01-display {
+        /* Keypads & Displays */
+        .score-display-box {
             background: black; color: var(--accent);
             font-family: 'Courier New', monospace;
             font-size: 3rem; font-weight: bold;
@@ -142,7 +149,7 @@
 </head>
 <body>
 
-    <div class="logo">🎯 Darts Ultimate</div>
+    <div class="logo">🚀 Yarni's Darts Arcade</div>
 
     <div class="container">
 
@@ -196,7 +203,7 @@
 
         <div id="screen-checkout-setup" class="screen card">
             <h2>Checkout Setup</h2>
-            <p>10 beurten. Finish binnen 6 pijlen.</p>
+            <p>10 beurten. Uitgooien binnen 6 pijlen (2 beurten).</p>
             <label>Getal tussen:</label>
             <div style="display:flex; gap:10px;">
                 <input type="number" id="co-min" value="60">
@@ -209,27 +216,32 @@
         <div id="screen-game-checkout" class="screen card">
             <div id="checkout-scoreboard" class="scoreboard"></div>
             
-            <div style="text-align:center; font-size:1.2rem; margin-bottom:10px; color:#aaa;">
-                Ronde <span id="co-round">1</span>/10
+            <div style="text-align:center; font-size:1.1rem; margin-bottom:5px; color:#aaa;">
+                Ronde <span id="co-round">1</span>/10 | Beurt <span id="co-turn">1</span>/2
             </div>
 
-            <div style="text-align:center; font-size:5rem; font-weight:800; color:var(--highlight); margin:20px 0; text-shadow:0 0 20px rgba(33,212,253,0.5);" id="co-target">
+            <div style="text-align:center; font-size:4.5rem; font-weight:800; color:var(--highlight); margin:10px 0; text-shadow:0 0 20px rgba(33,212,253,0.5);" id="co-target">
                 ?
             </div>
             
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button class="btn-success" style="height:80px; font-size:1.5rem;" onclick="handleCheckoutInput(true)">✅ Gelukt!</button>
-                <button class="btn-danger" style="height:80px; font-size:1.5rem;" onclick="handleCheckoutInput(false)">❌ Mislukt</button>
+            <div id="checkout-display" class="score-display-box">0</div>
+            
+            <div class="keypad">
+                <button onclick="kpCheckout(7)">7</button><button onclick="kpCheckout(8)">8</button><button onclick="kpCheckout(9)">9</button>
+                <button onclick="kpCheckout(4)">4</button><button onclick="kpCheckout(5)">5</button><button onclick="kpCheckout(6)">6</button>
+                <button onclick="kpCheckout(1)">1</button><button onclick="kpCheckout(2)">2</button><button onclick="kpCheckout(3)">3</button>
+                <button onclick="kpCheckout('BACK')" style="color:var(--danger)">⌫</button>
+                <button onclick="kpCheckout(0)">0</button>
+                <button onclick="submitCheckoutScore()" class="btn-success">OK</button>
             </div>
 
             <div id="checkout-history-container" class="checkout-history"></div>
-
             <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
         </div>
 
         <div id="screen-game-x01" class="screen card">
             <div id="x01-scoreboard" class="scoreboard"></div>
-            <div id="x01-display" class="x01-display">0</div>
+            <div id="x01-display" class="score-display-box">0</div>
             <div class="keypad">
                 <button onclick="kp(7)">7</button><button onclick="kp(8)">8</button><button onclick="kp(9)">9</button>
                 <button onclick="kp(4)">4</button><button onclick="kp(5)">5</button><button onclick="kp(6)">6</button>
@@ -276,15 +288,22 @@
         // Helper Vars
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
         let currentInputX01 = "";
+        let currentInputCheckout = "";
 
         // --- KEYBOARD LISTENER ---
         document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            // X01
             if (document.getElementById('screen-game-x01').classList.contains('active')) {
-                const key = event.key;
                 if (!isNaN(key) && key !== ' ') kp(parseInt(key));
                 else if (key === 'Enter') submitX01();
                 else if (key === 'Backspace') kp('BACK');
-                else if (key === 'Escape') kp('CLEAR');
+            }
+            // Checkout
+            if (document.getElementById('screen-game-checkout').classList.contains('active')) {
+                if (!isNaN(key) && key !== ' ') kpCheckout(parseInt(key));
+                else if (key === 'Enter') submitCheckoutScore();
+                else if (key === 'Backspace') kpCheckout('BACK');
             }
         });
 
@@ -342,8 +361,6 @@
                 const pState = doublesState[player];
                 const isFinished = pState.targetIdx >= boardOrder.length;
                 let targetTxt = isFinished ? "WIN" : (boardOrder[pState.targetIdx] === 25 ? "BULL" : "D" + boardOrder[pState.targetIdx]);
-                
-                // Bereken gemiddelde (Pijlen per hit)
                 let avgTxt = "-";
                 if(pState.totalHits > 0) avgTxt = "Gem: " + (pState.totalDarts / pState.totalHits).toFixed(1);
 
@@ -368,61 +385,39 @@
             const pState = doublesState[player];
             const target = boardOrder[pState.targetIdx];
             const dartsUsed = pState.dartsForCurrent + hits;
-            
-            pState.totalDarts += dartsUsed;
-            pState.totalHits += 1;
-            
+            pState.totalDarts += dartsUsed; pState.totalHits += 1;
             saveStat(player, target, dartsUsed);
-            pState.targetIdx++;
-            pState.dartsForCurrent = 0;
+            pState.targetIdx++; pState.dartsForCurrent = 0;
             nextTurn(); updateDoublesUI();
         }
 
         function handleDoublesMiss() {
             const player = activePlayers[currentPlayerIndex];
             doublesState[player].dartsForCurrent += 3;
-            doublesState[player].totalDarts += 3; // Ook bij missen tellen we mee voor gemiddelde
+            doublesState[player].totalDarts += 3;
             nextTurn(); updateDoublesUI();
         }
 
-        // --- GAME 2: SINGLES (RANDOM) ---
+        // --- GAME 2: SINGLES ---
         function setupSingles() {
             gameMode = 'singles';
             singlesState = {};
-            
-            // Generate list 1-20 + 25
-            let list = Array.from({length: 20}, (_, i) => i + 1);
-            list.push(25);
-            
+            let list = Array.from({length: 20}, (_, i) => i + 1); list.push(25);
             activePlayers.forEach(p => {
-                singlesState[p] = { 
-                    queue: shuffleArray([...list]), // Iedereen krijgt eigen random lijst
-                    idx: 0,
-                    score: 0 
-                };
+                singlesState[p] = { queue: shuffleArray([...list]), idx: 0, score: 0 };
             });
-            currentPlayerIndex = 0;
-            updateSinglesUI();
-            showScreen('screen-game-singles');
+            currentPlayerIndex = 0; updateSinglesUI(); showScreen('screen-game-singles');
         }
 
         function updateSinglesUI() {
             const sb = document.getElementById('singles-scoreboard');
             sb.innerHTML = '';
-
             activePlayers.forEach((player, index) => {
                 const st = singlesState[player];
                 const isActive = (index === currentPlayerIndex);
-                
-                // Check end
-                if(st.idx >= st.queue.length) {
-                     sb.innerHTML += `<div class="p-card"><div class="p-name">${player}</div><div class="p-score">Klaar</div></div>`;
-                     return;
-                }
-                
+                if(st.idx >= st.queue.length) { sb.innerHTML += `<div class="p-card"><div class="p-name">${player}</div><div class="p-score">Klaar</div></div>`; return; }
                 const val = st.queue[st.idx];
                 const display = val === 25 ? "BULL" : val;
-                
                 sb.innerHTML += `
                     <div class="p-card ${isActive ? 'active-turn' : ''}">
                         <div class="p-name">${player}</div>
@@ -430,11 +425,8 @@
                         <div class="p-avg">Hits: ${st.score}</div>
                     </div>`;
             });
-
-            // Check if active player is done
             if(singlesState[activePlayers[currentPlayerIndex]].idx >= singlesState[activePlayers[currentPlayerIndex]].queue.length) {
-                alert("Spel afgelopen!");
-                showScreen('screen-menu');
+                alert("Spel afgelopen!"); showScreen('screen-menu');
             }
         }
 
@@ -442,31 +434,32 @@
             const player = activePlayers[currentPlayerIndex];
             singlesState[player].score += hits;
             singlesState[player].idx++;
-            nextTurn();
-            updateSinglesUI();
+            nextTurn(); updateSinglesUI();
         }
 
-        // --- GAME 3: CHECKOUT CHALLENGE ---
-        function setupCheckoutMenu() {
-            showScreen('screen-checkout-setup');
-        }
+        // --- GAME 3: CHECKOUT CHALLENGE (UPDATED) ---
+        function setupCheckoutMenu() { showScreen('screen-checkout-setup'); }
 
         function startCheckoutGame() {
             const min = parseInt(document.getElementById('co-min').value);
             const max = parseInt(document.getElementById('co-max').value);
-            
             gameMode = 'checkout';
             checkoutState = {};
             
+            // Generate first target
             activePlayers.forEach(p => {
                 checkoutState[p] = {
                     round: 1,
-                    history: [], // true/false
-                    currentTarget: getRandomInt(min, max),
+                    history: [],
+                    targetStart: getRandomInt(min, max),
+                    currentScore: 0, // wordt gezet in loop
+                    turnsUsed: 0,
                     min: min, max: max
                 };
+                checkoutState[p].currentScore = checkoutState[p].targetStart;
             });
             currentPlayerIndex = 0;
+            currentInputCheckout = "";
             updateCheckoutUI();
             showScreen('screen-game-checkout');
         }
@@ -474,13 +467,12 @@
         function updateCheckoutUI() {
             const sb = document.getElementById('checkout-scoreboard');
             const historyContainer = document.getElementById('checkout-history-container');
-            sb.innerHTML = '';
-            historyContainer.innerHTML = '';
+            sb.innerHTML = ''; historyContainer.innerHTML = '';
 
             const player = activePlayers[currentPlayerIndex];
             const st = checkoutState[player];
 
-            // Scoreboard (Wie is aan de beurt)
+            // Scoreboard
             activePlayers.forEach((p, index) => {
                 const isActive = (index === currentPlayerIndex);
                 const wins = checkoutState[p].history.filter(x => x).length;
@@ -491,33 +483,86 @@
                     </div>`;
             });
 
-            if (st.round > 10) {
-                alert("Challenge Afgelopen!");
-                showScreen('screen-menu'); return;
-            }
+            if (st.round > 10) { alert("Challenge Afgelopen!"); showScreen('screen-menu'); return; }
 
-            // Main Display
+            // Displays
             document.getElementById('co-round').innerText = st.round;
-            document.getElementById('co-target').innerText = st.currentTarget;
+            document.getElementById('co-turn').innerText = st.turnsUsed + 1;
+            document.getElementById('co-target').innerText = st.currentScore; // Toont wat er over is
+            document.getElementById('checkout-display').innerText = currentInputCheckout === "" ? "0" : currentInputCheckout;
 
-            // History Icons
-            const funnies = ["💩", "🤡", "🐢", "🥀", "🍩"];
+            // Icons
+            const funnies = ["🤡", "💩", "🐢", "🥀", "🍩"];
             st.history.forEach(res => {
                 const icon = res ? "🎯" : funnies[Math.floor(Math.random() * funnies.length)];
                 historyContainer.innerHTML += `<span class="result-icon">${icon}</span>`;
             });
         }
 
-        function handleCheckoutInput(success) {
+        function kpCheckout(val) {
+            if (val === 'BACK') currentInputCheckout = currentInputCheckout.slice(0, -1);
+            else if (currentInputCheckout.length < 3) currentInputCheckout += val;
+            updateCheckoutUI();
+        }
+
+        function submitCheckoutScore() {
+            const val = parseInt(currentInputCheckout);
+            if (isNaN(val) || currentInputCheckout === "") return;
+            if (val > 180) { alert("Max 180!"); currentInputCheckout=""; updateCheckoutUI(); return; }
+
             const player = activePlayers[currentPlayerIndex];
             const st = checkoutState[player];
+            const oldScore = st.currentScore;
+            const newScore = oldScore - val;
+
+            // Logic Check
+            if (newScore === 0) {
+                // SUCCESS!
+                alert("🎯 UITGEGOOID!");
+                st.history.push(true);
+                nextRoundCheckout(player);
+            } else if (newScore <= 1) {
+                // BUST
+                alert("BUST!");
+                st.turnsUsed++;
+                checkTurnLimitCheckout(player);
+            } else {
+                // NORMAL THROW
+                st.currentScore = newScore;
+                st.turnsUsed++;
+                checkTurnLimitCheckout(player);
+            }
             
-            st.history.push(success);
-            st.round++;
-            st.currentTarget = getRandomInt(st.min, st.max);
+            currentInputCheckout = "";
+            // We blijven bij dezelfde speler zolang zijn beurt (2 turns max) loopt, tenzij hij finisht
+            // Echter, in multiplayer wisselen we beurt na 3 pijlen.
+            // Aangezien 1 'beurt' in de code meestal 3 pijlen is:
+            if(st.currentScore > 0) {
+                // Als niet uitgegooid, naar volgende speler? 
+                // Meestal in checkout practice gooit speler A 6 pijlen, dan speler B.
+                // Laten we wisselen van speler, maar state onthouden.
+                nextTurn(); 
+            }
             
-            nextTurn();
             updateCheckoutUI();
+        }
+
+        function checkTurnLimitCheckout(player) {
+            const st = checkoutState[player];
+            // Max 2 beurten (6 pijlen)
+            if (st.turnsUsed >= 2 && st.currentScore > 0) {
+                alert("Helaas, beurten op! 🤡");
+                st.history.push(false);
+                nextRoundCheckout(player);
+            }
+        }
+
+        function nextRoundCheckout(player) {
+            const st = checkoutState[player];
+            st.round++;
+            st.turnsUsed = 0;
+            st.targetStart = getRandomInt(st.min, st.max);
+            st.currentScore = st.targetStart;
         }
 
         // --- GAME 4: X01 ---
@@ -537,8 +582,6 @@
             activePlayers.forEach((player, index) => {
                 const isActive = (index === currentPlayerIndex);
                 const st = x01State[player];
-                
-                // Avg Calc: (Start - Current) / (Darts / 3)
                 let avgTxt = "Gem: -";
                 if (st.dartsThrown > 0) {
                     const scored = st.startScore - st.score;
@@ -546,7 +589,6 @@
                     const avg = (scored / turns).toFixed(1);
                     avgTxt = "Gem: " + avg;
                 }
-
                 sb.innerHTML += `
                     <div class="p-card ${isActive ? 'active-turn' : ''}">
                         <div class="p-name">${player}</div>
@@ -559,7 +601,6 @@
 
         function kp(val) {
             if (val === 'BACK') currentInputX01 = currentInputX01.slice(0, -1);
-            else if (val === 'CLEAR') currentInputX01 = "";
             else if (currentInputX01.length < 3) currentInputX01 += val;
             updateX01UI();
         }
@@ -568,17 +609,13 @@
             const val = parseInt(currentInputX01);
             if (isNaN(val) || currentInputX01 === "") return;
             if (val > 180) { alert("Max 180!"); currentInputX01=""; updateX01UI(); return; }
-
             const player = activePlayers[currentPlayerIndex];
             const st = x01State[player];
             const newScore = st.score - val;
-
             if (newScore === 0) { alert(`${player} WINT!`); showScreen('screen-menu'); return; }
             else if (newScore <= 1) { alert(`BUST!`); } 
             else { st.score = newScore; }
-            
-            st.dartsThrown += 3;
-            currentInputX01 = ""; nextTurn(); updateX01UI();
+            st.dartsThrown += 3; currentInputX01 = ""; nextTurn(); updateX01UI();
         }
 
         // --- SHARED ---
