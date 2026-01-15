@@ -2,281 +2,638 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darts Double Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Darts Master Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-color: #e0e0e0;
-            --accent-red: #e93f33;
-            --accent-green: #4caf50;
-            --accent-gold: #ffc107;
+            /* Flashy Thema (Kleuren behouden zoals gevraagd) */
+            --bg-gradient: linear-gradient(135deg, #b721ff 0%, #21d4fd 100%);
+            --glass-bg: rgba(20, 20, 20, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.15);
+            --text-color: #ffffff;
+            --accent: #00e676; 
+            --danger: #ff1744;
+            --highlight: #21d4fd;
+            --active-glow: 0 0 25px rgba(33, 212, 253, 0.8);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            padding: 10px;
         }
 
-        h1 { margin-top: 20px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent-red); }
+        h1, h2 { text-align: center; margin: 5px 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .logo { font-size: 1.5rem; font-weight: 800; border-bottom: 3px solid white; margin-bottom: 20px; padding-bottom: 5px; }
 
-        .container {
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
+        .container { width: 100%; max-width: 600px; padding-bottom: 50px; }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: var(--glass-border);
+            border-radius: 20px;
             padding: 20px;
-        }
-
-        /* Menu Scherm */
-        #menu-screen button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 1.2rem;
-            background: var(--card-bg);
-            color: white;
-            border: 1px solid var(--accent-green);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        #menu-screen button:hover { background: var(--accent-green); color: black; }
-
-        /* Game Scherm */
-        .game-panel { display: none; }
-        
-        .target-display {
-            font-size: 5rem;
-            font-weight: bold;
-            color: var(--accent-gold);
-            margin: 20px 0;
-            text-shadow: 0 0 10px rgba(255,193,7,0.3);
-        }
-
-        .current-darts {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #aaa;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             margin-bottom: 15px;
         }
 
-        .btn-hit {
-            padding: 20px;
-            font-size: 1.5rem;
-            background-color: var(--accent-green);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        /* KNOPPEN */
+        button {
+            border: none; border-radius: 12px; padding: 15px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem;
+            cursor: pointer; width: 100%; margin-bottom: 10px;
+            transition: transform 0.1s;
+            background: rgba(255, 255, 255, 0.1); color: white;
+            border: 1px solid rgba(255,255,255,0.1);
         }
+        button:active { transform: scale(0.96); }
         
-        .btn-miss {
-            width: 100%;
-            padding: 20px;
-            font-size: 1.5rem;
-            background-color: var(--accent-red);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* Stats Tabel */
-        .stats-container {
-            margin-top: 40px;
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: left;
-        }
+        .btn-primary { background: var(--highlight); color: #000; border: none; }
+        .btn-success { background: var(--accent); color: #000; border: none; }
+        .btn-danger { background: var(--danger); color: white; border: none; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border-bottom: 1px solid #444; text-align: center; }
-        th { color: var(--accent-gold); }
-        .best-stat { color: var(--accent-green); font-weight: bold; }
-        .worst-stat { color: var(--accent-red); }
+        /* INPUTS */
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 15px; border-radius: 10px;
+            border: none; background: rgba(255,255,255,0.9);
+            margin-bottom: 10px; font-size: 1rem;
+        }
 
-        .hidden { display: none; }
-        .btn-secondary { background: #555; font-size: 0.9rem; padding: 10px; margin-top: 20px; width: auto; border: none; color: white; border-radius: 5px; }
+        /* SCOREBOARD SYSTEM */
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
 
+        .p-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            min-width: 90px;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            transform: scale(0.95);
+        }
+
+        .p-card.active-turn {
+            background: rgba(33, 212, 253, 0.15);
+            border: 2px solid var(--highlight);
+            box-shadow: var(--active-glow);
+            opacity: 1;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .p-name { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        /* AANGEPAST: Veel grotere score */
+        .p-score { font-size: 2.8rem; font-weight: 800; color: white; line-height: 1.1; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .p-avg { font-size: 0.8rem; color: var(--accent); font-weight: bold; margin-top: 5px; }
+
+        /* GAME UI SPECIFIC */
+        .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .input-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+        /* Keypad X01 */
+        .x01-display {
+            background: black; color: var(--accent);
+            font-family: 'Courier New', monospace;
+            font-size: 3rem; font-weight: bold;
+            padding: 10px; text-align: center;
+            border-radius: 10px; margin-bottom: 15px;
+            border: 2px solid #333;
+        }
+
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .keypad button { padding: 20px; font-size: 1.4rem; margin: 0; background: rgba(255,255,255,0.1); }
+
+        /* Checkout Result Styles */
+        .checkout-history { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-top: 10px; }
+        .result-icon { font-size: 1.5rem; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px; }
+
+        /* TABELLEN */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; color: var(--highlight); padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* UTILS */
+        .screen { display: none; }
+        .active { display: block; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <h1>🎯 Double Tracker</h1>
+    <div class="logo">🎯 Darts Ultimate</div>
 
     <div class="container">
-        <div id="menu-screen">
-            <p>Kies je oefening:</p>
-            <button onclick="startGame('board')">Bord Volgorde (20, 1, 18...)</button>
-            <button onclick="startGame('random')">Random Volgorde</button>
-            <div class="stats-container">
-                <h3>Jouw Statistieken (Gemiddeld aantal pijlen)</h3>
-                <table id="stats-table">
-                    <thead>
-                        <tr><th>Dubbel</th><th>Gem. Pijlen</th><th>Beurten</th></tr>
-                    </thead>
-                    <tbody id="stats-body"></tbody>
-                </table>
-                <button class="btn-secondary" onclick="resetStats()">Reset Statistieken</button>
+
+        <div id="screen-players" class="screen active card">
+            <h2>Wie speelt er mee?</h2>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="new-player-name" placeholder="Naam...">
+                <button onclick="addPlayer()" style="width: auto; background: var(--accent);">+</button>
             </div>
+            <div id="player-list" style="max-height: 250px; overflow-y: auto; margin: 15px 0;"></div>
+            <button class="btn-primary" onclick="confirmPlayers()">Naar Spelkeuze ➔</button>
         </div>
 
-        <div id="game-screen" class="game-panel">
-            <div>DOELWIT:</div>
-            <div class="target-display" id="current-target">D20</div>
-            <div class="current-darts">Pijlen deze sessie: <span id="session-darts">0</span></div>
+        <div id="screen-menu" class="screen card">
+            <h2>Kies een spel</h2>
+            <p style="text-align:center; opacity:0.7; font-size:0.9rem" id="active-players-display"></p>
+            
+            <button onclick="setupDoubles()">Doubles (Clock)</button>
+            <button onclick="setupSingles()">Singles (Random 1-20)</button>
+            <button onclick="setupX01()">X01 (301 / 501)</button>
+            <button onclick="setupCheckoutMenu()">Checkout Challenge (6 pijlen)</button>
+            
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:20px 0;">
+            <button onclick="showStats()">📊 Statistieken</button>
+            <button onclick="showScreen('screen-players')" style="background:transparent; border:1px solid rgba(255,255,255,0.3);">Terug</button>
+        </div>
 
-            <p>Raak gegooid met pijl:</p>
+        <div id="screen-game-doubles" class="screen card">
+            <div id="doubles-scoreboard" class="scoreboard"></div>
+            <p style="text-align:center; opacity:0.8;">Pijlen verbruikt: <strong id="doubles-darts-count">0</strong></p>
             <div class="input-grid">
-                <button class="btn-hit" onclick="handleInput(1)">1</button>
-                <button class="btn-hit" onclick="handleInput(2)">2</button>
-                <button class="btn-hit" onclick="handleInput(3)">3</button>
+                <button class="btn-success" onclick="handleDoublesInput(1)">1e Pijl</button>
+                <button class="btn-success" onclick="handleDoublesInput(2)">2e Pijl</button>
+                <button class="btn-success" onclick="handleDoublesInput(3)">3e Pijl</button>
+            </div>
+            <button class="btn-danger" onclick="handleDoublesMiss()">Alles Gemist (0)</button>
+            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+        </div>
+
+        <div id="screen-game-singles" class="screen card">
+            <div id="singles-scoreboard" class="scoreboard"></div>
+            <div style="text-align:center; margin-bottom:10px;">Hoeveel singles geraakt? (3 pijlen)</div>
+            <div class="input-grid-4">
+                <button class="btn-danger" onclick="handleSinglesInput(0)">0</button>
+                <button class="btn-success" onclick="handleSinglesInput(1)">1</button>
+                <button class="btn-success" onclick="handleSinglesInput(2)">2</button>
+                <button class="btn-success" onclick="handleSinglesInput(3)">3</button>
+            </div>
+            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+        </div>
+
+        <div id="screen-checkout-setup" class="screen card">
+            <h2>Checkout Setup</h2>
+            <p>10 beurten. Finish binnen 6 pijlen.</p>
+            <label>Getal tussen:</label>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="co-min" value="60">
+                <input type="number" id="co-max" value="100">
+            </div>
+            <button class="btn-primary" onclick="startCheckoutGame()">Start Challenge</button>
+            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
+        </div>
+
+        <div id="screen-game-checkout" class="screen card">
+            <div id="checkout-scoreboard" class="scoreboard"></div>
+            
+            <div style="text-align:center; font-size:1.2rem; margin-bottom:10px; color:#aaa;">
+                Ronde <span id="co-round">1</span>/10
+            </div>
+
+            <div style="text-align:center; font-size:5rem; font-weight:800; color:var(--highlight); margin:20px 0; text-shadow:0 0 20px rgba(33,212,253,0.5);" id="co-target">
+                ?
             </div>
             
-            <p>Gemist (3 pijlen):</p>
-            <button class="btn-miss" onclick="handleMiss()">0 (Volgende Beurt)</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button class="btn-success" style="height:80px; font-size:1.5rem;" onclick="handleCheckoutInput(true)">✅ Gelukt!</button>
+                <button class="btn-danger" style="height:80px; font-size:1.5rem;" onclick="handleCheckoutInput(false)">❌ Mislukt</button>
+            </div>
 
-            <button class="btn-secondary" onclick="stopGame()">Stoppen & Terug</button>
+            <div id="checkout-history-container" class="checkout-history"></div>
+
+            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
         </div>
+
+        <div id="screen-game-x01" class="screen card">
+            <div id="x01-scoreboard" class="scoreboard"></div>
+            <div id="x01-display" class="x01-display">0</div>
+            <div class="keypad">
+                <button onclick="kp(7)">7</button><button onclick="kp(8)">8</button><button onclick="kp(9)">9</button>
+                <button onclick="kp(4)">4</button><button onclick="kp(5)">5</button><button onclick="kp(6)">6</button>
+                <button onclick="kp(1)">1</button><button onclick="kp(2)">2</button><button onclick="kp(3)">3</button>
+                <button onclick="kp('BACK')" style="color:var(--danger)">⌫</button>
+                <button onclick="kp(0)">0</button>
+                <button onclick="submitX01()" class="btn-success">OK</button>
+            </div>
+            <button onclick="quitGame()" style="margin-top:20px; background:rgba(0,0,0,0.3);">Stoppen</button>
+        </div>
+
+        <div id="screen-stats" class="screen card">
+            <h2>Statistieken</h2>
+            <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:10px; border-radius:10px; margin-bottom:15px; background:white; color:black;"></select>
+            <div id="stats-content">
+                <h3 style="color:var(--highlight)">Doubles Overzicht</h3>
+                <div style="max-height:300px; overflow-y:auto;">
+                    <table id="stats-table">
+                        <thead><tr><th>Doel</th><th>Gem.</th><th>Hits</th></tr></thead>
+                        <tbody id="stats-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+        </div>
+
     </div>
 
     <script>
-        // DATA
-        // De standaard bord volgorde (Top -> Rechts -> Rond)
-        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
-        let gameQueue = [];
-        let currentTargetIndex = 0;
-        let currentDartsForTarget = 0; // Hoeveel pijlen al gegooid op dit doelwit
+        // --- DATA ---
+        let allPlayers = JSON.parse(localStorage.getItem('dartsPlayers')) || [];
+        let sessionHistory = JSON.parse(localStorage.getItem('dartsHistoryV2')) || [];
         
-        // Laad geschiedenis of maak nieuw aan
-        let historyData = JSON.parse(localStorage.getItem('dartsHistory')) || {};
+        let activePlayers = [];
+        let currentPlayerIndex = 0;
+        let gameMode = ''; 
+        
+        // --- STATE OBJECTS ---
+        let doublesState = {}; 
+        let singlesState = {};
+        let x01State = {};
+        let checkoutState = {};
 
-        // INIT
-        renderStats();
+        // Helper Vars
+        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
+        let currentInputX01 = "";
 
-        // FUNCTIES
-        function startGame(mode) {
-            gameQueue = mode === 'board' ? [...boardOrder] : shuffle([...boardOrder]);
-            currentTargetIndex = 0;
-            currentDartsForTarget = 0;
-            
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            updateUI();
-        }
-
-        function stopGame() {
-            document.getElementById('menu-screen').style.display = 'block';
-            document.getElementById('game-screen').style.display = 'none';
-            renderStats();
-        }
-
-        function updateUI() {
-            if (currentTargetIndex >= gameQueue.length) {
-                alert("Training voltooid! Goed geworpen.");
-                stopGame();
-                return;
+        // --- KEYBOARD LISTENER ---
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('screen-game-x01').classList.contains('active')) {
+                const key = event.key;
+                if (!isNaN(key) && key !== ' ') kp(parseInt(key));
+                else if (key === 'Enter') submitX01();
+                else if (key === 'Backspace') kp('BACK');
+                else if (key === 'Escape') kp('CLEAR');
             }
-            const target = gameQueue[currentTargetIndex];
-            const label = target === 25 ? "BULL" : "D" + target;
-            document.getElementById('current-target').innerText = label;
-            document.getElementById('session-darts').innerText = currentDartsForTarget;
+        });
+
+        // --- PLAYER UI ---
+        function renderPlayerList() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '';
+            if(allPlayers.length === 0) list.innerHTML = '<p style="text-align:center; opacity:0.5">Nog geen spelers.</p>';
+            allPlayers.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'player-row';
+                div.innerHTML = `<span>${name}</span><input type="checkbox" class="player-select-checkbox" value="${name}">`;
+                list.appendChild(div);
+            });
+        }
+        function addPlayer() {
+            const input = document.getElementById('new-player-name');
+            const name = input.value.trim();
+            if (!name || allPlayers.includes(name)) return;
+            allPlayers.push(name);
+            localStorage.setItem('dartsPlayers', JSON.stringify(allPlayers));
+            input.value = ''; renderPlayerList();
+        }
+        function confirmPlayers() {
+            const checkboxes = document.querySelectorAll('.player-select-checkbox:checked');
+            activePlayers = Array.from(checkboxes).map(cb => cb.value);
+            if (activePlayers.length === 0) { alert("Selecteer minstens 1 speler."); return; }
+            document.getElementById('active-players-display').innerText = activePlayers.join(", ");
+            showScreen('screen-menu');
+        }
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'screen-players') renderPlayerList();
+        }
+        function quitGame() {
+            if(confirm("Stoppen?")) showScreen('screen-menu');
         }
 
-        // Als je mist (0 drukt), tel je 3 pijlen op, maar ga je NIET naar volgende getal
-        function handleMiss() {
-            currentDartsForTarget += 3;
-            updateUI();
+        // --- GAME 1: DOUBLES ---
+        function setupDoubles() {
+            gameMode = 'doubles';
+            doublesState = {};
+            activePlayers.forEach(p => { doublesState[p] = { targetIdx: 0, dartsForCurrent: 0, totalDarts: 0, totalHits: 0 }; });
+            currentPlayerIndex = 0;
+            updateDoublesUI();
+            showScreen('screen-game-doubles');
         }
 
-        // Als je raakt (1, 2 of 3), sla op en ga naar volgende
-        function handleInput(dartNum) {
-            const totalDartsUsed = currentDartsForTarget + dartNum;
-            const target = gameQueue[currentTargetIndex];
-
-            saveStat(target, totalDartsUsed);
+        function updateDoublesUI() {
+            const sb = document.getElementById('doubles-scoreboard');
+            sb.innerHTML = '';
             
-            // Reset voor volgende
-            currentDartsForTarget = 0;
-            currentTargetIndex++;
-            updateUI();
-        }
+            activePlayers.forEach((player, index) => {
+                const pState = doublesState[player];
+                const isFinished = pState.targetIdx >= boardOrder.length;
+                let targetTxt = isFinished ? "WIN" : (boardOrder[pState.targetIdx] === 25 ? "BULL" : "D" + boardOrder[pState.targetIdx]);
+                
+                // Bereken gemiddelde (Pijlen per hit)
+                let avgTxt = "-";
+                if(pState.totalHits > 0) avgTxt = "Gem: " + (pState.totalDarts / pState.totalHits).toFixed(1);
 
-        function saveStat(target, count) {
-            if (!historyData[target]) {
-                historyData[target] = { totalDarts: 0, hits: 0 };
+                const isActive = (index === currentPlayerIndex);
+                sb.innerHTML += `
+                    <div class="p-card ${isActive ? 'active-turn' : ''}">
+                        <div class="p-name">${player}</div>
+                        <div class="p-score">${targetTxt}</div>
+                        <div class="p-avg">${avgTxt}</div>
+                    </div>`;
+            });
+
+            if (doublesState[activePlayers[currentPlayerIndex]].targetIdx >= boardOrder.length) {
+                alert(`${activePlayers[currentPlayerIndex]} heeft gewonnen!`);
+                showScreen('screen-menu'); return;
             }
-            historyData[target].totalDarts += count;
-            historyData[target].hits += 1;
-            
-            localStorage.setItem('dartsHistory', JSON.stringify(historyData));
+            document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[currentPlayerIndex]].dartsForCurrent;
         }
 
-        function renderStats() {
-            const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '';
+        function handleDoublesInput(hits) {
+            const player = activePlayers[currentPlayerIndex];
+            const pState = doublesState[player];
+            const target = boardOrder[pState.targetIdx];
+            const dartsUsed = pState.dartsForCurrent + hits;
             
-            // Sorteer op beste gemiddelde
-            const targets = boardOrder; // Of sorteer op prestatie
+            pState.totalDarts += dartsUsed;
+            pState.totalHits += 1;
             
-            targets.forEach(num => {
-                const label = num === 25 ? "Bull" : "D" + num;
-                const data = historyData[num];
-                let avg = "-";
-                let count = 0;
-                let rowClass = "";
+            saveStat(player, target, dartsUsed);
+            pState.targetIdx++;
+            pState.dartsForCurrent = 0;
+            nextTurn(); updateDoublesUI();
+        }
 
-                if (data && data.hits > 0) {
-                    const rawAvg = data.totalDarts / data.hits;
-                    avg = rawAvg.toFixed(1);
-                    count = data.hits;
-                    
-                    // Kleurcodering
-                    if (rawAvg <= 3) rowClass = "best-stat"; // Erg goed
-                    else if (rawAvg > 9) rowClass = "worst-stat"; // Werk aan de winkel
+        function handleDoublesMiss() {
+            const player = activePlayers[currentPlayerIndex];
+            doublesState[player].dartsForCurrent += 3;
+            doublesState[player].totalDarts += 3; // Ook bij missen tellen we mee voor gemiddelde
+            nextTurn(); updateDoublesUI();
+        }
+
+        // --- GAME 2: SINGLES (RANDOM) ---
+        function setupSingles() {
+            gameMode = 'singles';
+            singlesState = {};
+            
+            // Generate list 1-20 + 25
+            let list = Array.from({length: 20}, (_, i) => i + 1);
+            list.push(25);
+            
+            activePlayers.forEach(p => {
+                singlesState[p] = { 
+                    queue: shuffleArray([...list]), // Iedereen krijgt eigen random lijst
+                    idx: 0,
+                    score: 0 
+                };
+            });
+            currentPlayerIndex = 0;
+            updateSinglesUI();
+            showScreen('screen-game-singles');
+        }
+
+        function updateSinglesUI() {
+            const sb = document.getElementById('singles-scoreboard');
+            sb.innerHTML = '';
+
+            activePlayers.forEach((player, index) => {
+                const st = singlesState[player];
+                const isActive = (index === currentPlayerIndex);
+                
+                // Check end
+                if(st.idx >= st.queue.length) {
+                     sb.innerHTML += `<div class="p-card"><div class="p-name">${player}</div><div class="p-score">Klaar</div></div>`;
+                     return;
                 }
+                
+                const val = st.queue[st.idx];
+                const display = val === 25 ? "BULL" : val;
+                
+                sb.innerHTML += `
+                    <div class="p-card ${isActive ? 'active-turn' : ''}">
+                        <div class="p-name">${player}</div>
+                        <div class="p-score">${display}</div>
+                        <div class="p-avg">Hits: ${st.score}</div>
+                    </div>`;
+            });
 
-                const tr = `<tr>
-                    <td>${label}</td>
-                    <td class="${rowClass}">${avg}</td>
-                    <td>${count}</td>
-                </tr>`;
-                tbody.innerHTML += tr;
+            // Check if active player is done
+            if(singlesState[activePlayers[currentPlayerIndex]].idx >= singlesState[activePlayers[currentPlayerIndex]].queue.length) {
+                alert("Spel afgelopen!");
+                showScreen('screen-menu');
+            }
+        }
+
+        function handleSinglesInput(hits) {
+            const player = activePlayers[currentPlayerIndex];
+            singlesState[player].score += hits;
+            singlesState[player].idx++;
+            nextTurn();
+            updateSinglesUI();
+        }
+
+        // --- GAME 3: CHECKOUT CHALLENGE ---
+        function setupCheckoutMenu() {
+            showScreen('screen-checkout-setup');
+        }
+
+        function startCheckoutGame() {
+            const min = parseInt(document.getElementById('co-min').value);
+            const max = parseInt(document.getElementById('co-max').value);
+            
+            gameMode = 'checkout';
+            checkoutState = {};
+            
+            activePlayers.forEach(p => {
+                checkoutState[p] = {
+                    round: 1,
+                    history: [], // true/false
+                    currentTarget: getRandomInt(min, max),
+                    min: min, max: max
+                };
+            });
+            currentPlayerIndex = 0;
+            updateCheckoutUI();
+            showScreen('screen-game-checkout');
+        }
+
+        function updateCheckoutUI() {
+            const sb = document.getElementById('checkout-scoreboard');
+            const historyContainer = document.getElementById('checkout-history-container');
+            sb.innerHTML = '';
+            historyContainer.innerHTML = '';
+
+            const player = activePlayers[currentPlayerIndex];
+            const st = checkoutState[player];
+
+            // Scoreboard (Wie is aan de beurt)
+            activePlayers.forEach((p, index) => {
+                const isActive = (index === currentPlayerIndex);
+                const wins = checkoutState[p].history.filter(x => x).length;
+                sb.innerHTML += `
+                    <div class="p-card ${isActive ? 'active-turn' : ''}">
+                        <div class="p-name">${p}</div>
+                        <div class="p-score" style="font-size:1.5rem">${wins}/10</div>
+                    </div>`;
+            });
+
+            if (st.round > 10) {
+                alert("Challenge Afgelopen!");
+                showScreen('screen-menu'); return;
+            }
+
+            // Main Display
+            document.getElementById('co-round').innerText = st.round;
+            document.getElementById('co-target').innerText = st.currentTarget;
+
+            // History Icons
+            const funnies = ["💩", "🤡", "🐢", "🥀", "🍩"];
+            st.history.forEach(res => {
+                const icon = res ? "🎯" : funnies[Math.floor(Math.random() * funnies.length)];
+                historyContainer.innerHTML += `<span class="result-icon">${icon}</span>`;
             });
         }
 
-        function resetStats() {
-            if(confirm("Weet je zeker dat je alle geschiedenis wilt wissen?")) {
-                localStorage.removeItem('dartsHistory');
-                historyData = {};
-                renderStats();
-            }
+        function handleCheckoutInput(success) {
+            const player = activePlayers[currentPlayerIndex];
+            const st = checkoutState[player];
+            
+            st.history.push(success);
+            st.round++;
+            st.currentTarget = getRandomInt(st.min, st.max);
+            
+            nextTurn();
+            updateCheckoutUI();
         }
 
-        // Fisher-Yates Shuffle
-        function shuffle(array) {
+        // --- GAME 4: X01 ---
+        function setupX01() {
+            let choice = prompt("Start score (301/501)?", "501");
+            let start = (choice === "301" || choice === "501") ? parseInt(choice) : 501;
+            gameMode = 'x01';
+            x01State = {};
+            activePlayers.forEach(p => x01State[p] = { score: start, startScore: start, dartsThrown: 0 });
+            currentPlayerIndex = 0; currentInputX01 = "";
+            updateX01UI(); showScreen('screen-game-x01');
+        }
+
+        function updateX01UI() {
+            const sb = document.getElementById('x01-scoreboard');
+            sb.innerHTML = '';
+            activePlayers.forEach((player, index) => {
+                const isActive = (index === currentPlayerIndex);
+                const st = x01State[player];
+                
+                // Avg Calc: (Start - Current) / (Darts / 3)
+                let avgTxt = "Gem: -";
+                if (st.dartsThrown > 0) {
+                    const scored = st.startScore - st.score;
+                    const turns = st.dartsThrown / 3;
+                    const avg = (scored / turns).toFixed(1);
+                    avgTxt = "Gem: " + avg;
+                }
+
+                sb.innerHTML += `
+                    <div class="p-card ${isActive ? 'active-turn' : ''}">
+                        <div class="p-name">${player}</div>
+                        <div class="p-score">${st.score}</div>
+                        <div class="p-avg">${avgTxt}</div>
+                    </div>`;
+            });
+            document.getElementById('x01-display').innerText = currentInputX01 === "" ? "0" : currentInputX01;
+        }
+
+        function kp(val) {
+            if (val === 'BACK') currentInputX01 = currentInputX01.slice(0, -1);
+            else if (val === 'CLEAR') currentInputX01 = "";
+            else if (currentInputX01.length < 3) currentInputX01 += val;
+            updateX01UI();
+        }
+
+        function submitX01() {
+            const val = parseInt(currentInputX01);
+            if (isNaN(val) || currentInputX01 === "") return;
+            if (val > 180) { alert("Max 180!"); currentInputX01=""; updateX01UI(); return; }
+
+            const player = activePlayers[currentPlayerIndex];
+            const st = x01State[player];
+            const newScore = st.score - val;
+
+            if (newScore === 0) { alert(`${player} WINT!`); showScreen('screen-menu'); return; }
+            else if (newScore <= 1) { alert(`BUST!`); } 
+            else { st.score = newScore; }
+            
+            st.dartsThrown += 3;
+            currentInputX01 = ""; nextTurn(); updateX01UI();
+        }
+
+        // --- SHARED ---
+        function nextTurn() {
+            currentPlayerIndex++;
+            if (currentPlayerIndex >= activePlayers.length) currentPlayerIndex = 0;
+        }
+        function saveStat(player, target, darts) {
+            sessionHistory.push({ date: new Date().toISOString(), player: player, target: target, darts: darts });
+            localStorage.setItem('dartsHistoryV2', JSON.stringify(sessionHistory));
+        }
+        function getRandomInt(min, max) {
+            min = Math.ceil(min); max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
         }
+
+        // --- STATS ---
+        function showStats() {
+            const select = document.getElementById('stats-player-select');
+            select.innerHTML = '<option value="">-- Kies Speler --</option>';
+            allPlayers.forEach(p => select.innerHTML += `<option value="${p}">${p}</option>`);
+            showScreen('screen-stats'); document.getElementById('stats-content').style.display = 'none';
+        }
+        function renderStats() {
+            const player = document.getElementById('stats-player-select').value;
+            if(!player) return;
+            document.getElementById('stats-content').style.display = 'block';
+            const tbody = document.getElementById('stats-body'); tbody.innerHTML = '';
+            const pData = sessionHistory.filter(i => i.player === player);
+            let totals = {};
+            pData.forEach(i => {
+                if(!totals[i.target]) totals[i.target] = { sum: 0, count: 0 };
+                totals[i.target].sum += i.darts; totals[i.target].count++;
+            });
+            boardOrder.forEach(num => {
+                const label = num === 25 ? "Bull" : "D" + num;
+                const s = totals[num];
+                let avg = "-", hits = 0, style = "";
+                if(s) {
+                    hits = s.count; const val = s.sum / s.count; avg = val.toFixed(1);
+                    if(val <= 3) style = "color:var(--accent); font-weight:bold;";
+                    else if(val >= 9) style = "color:var(--danger);";
+                }
+                tbody.innerHTML += `<tr><td>${label}</td><td style="${style}">${avg}</td><td>${hits}</td></tr>`;
+            });
+        }
+
+        renderPlayerList();
     </script>
 </body>
 </html>
