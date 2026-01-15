@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Flight</title>
+    <title>Neon Flight Darts</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            /* TOUR DE TIETEMA / NEON FLIGHT THEME */
-            --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
-            --glass-bg: rgba(20, 20, 30, 0.95);
+            /* NEON FLIGHT (Tietema Style) */
+            --bg-gradient: radial-gradient(circle at top, #1a1625 0%, #050505 100%);
+            --glass-bg: rgba(20, 20, 30, 0.92);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
             
             --c-cyan: #00f3ff;
             --c-pink: #ff00aa;
             --c-yellow: #ffee00;
-            --c-purple: #bc13fe;
             --c-red: #ff3b3b;
             --c-green: #00e676;
             
             --text-color: #ffffff;
-            --btn-bg: rgba(255, 255, 255, 0.1);
+            --btn-bg: rgba(255, 255, 255, 0.08);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Montserrat', sans-serif;
@@ -40,6 +39,7 @@
             align-items: center;
             padding: 15px;
             overflow-x: hidden;
+            user-select: none;
         }
 
         h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
@@ -55,7 +55,7 @@
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
 
         .card {
-            background: var(--glass-bg); backdrop-filter: blur(12px);
+            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: var(--glass-border); border-radius: 20px; padding: 20px;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
             animation: slideUp 0.4s ease-out;
@@ -86,18 +86,18 @@
             border: none; border-radius: 12px; padding: 15px 25px;
             font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem;
             cursor: pointer; width: 100%; margin-bottom: 12px;
-            transition: all 0.2s ease; background: var(--btn-bg); color: white;
+            transition: all 0.1s ease; background: var(--btn-bg); color: white;
             border: 1px solid rgba(255,255,255,0.1); text-transform: uppercase; letter-spacing: 1px;
-            user-select: none; touch-action: manipulation;
+            touch-action: manipulation;
         }
         button:active { transform: scale(0.96); filter: brightness(1.3); }
         button:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); }
         
-        .btn-cyan { color: #000; background: linear-gradient(90deg, #00f3ff, #0099ff); border:none; }
-        .btn-pink { color: #fff; background: linear-gradient(90deg, #ff00aa, #ff4d4d); border:none; }
-        .btn-yellow { color: #000; background: linear-gradient(90deg, #ffee00, #ffaa00); border:none; }
-        .btn-purple { color: #fff; background: linear-gradient(90deg, #bc13fe, #7a00ff); border:none; }
-        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; border: none; }
+        .btn-cyan { color: #000; background: linear-gradient(90deg, #00f3ff, #0099ff); }
+        .btn-pink { color: #fff; background: linear-gradient(90deg, #ff00aa, #ff4d4d); }
+        .btn-yellow { color: #000; background: linear-gradient(90deg, #ffee00, #ffaa00); }
+        .btn-purple { color: #fff; background: linear-gradient(90deg, #bc13fe, #7a00ff); }
+        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; }
         
         .btn-delete {
             background: rgba(255, 59, 59, 0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0;
@@ -130,6 +130,7 @@
         .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); }
+        
         .instruction-text { text-align: center; color: var(--c-cyan); font-size: 0.9rem; margin-bottom: 15px; font-style: italic; font-weight: bold; background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 10px; border: 1px dashed var(--c-cyan); margin-top: 25px; }
 
         /* MODALS */
@@ -184,7 +185,7 @@
             <button onclick="showScreen('screen-singles-setup')" class="btn-cyan">Singles (Random)</button>
             <button onclick="preSelectVariant('bobs27', 'Bob\'s 27', 'bobs', desc.bobs)" class="btn-yellow">Bob's 27</button>
             <button onclick="preSelectVariant('x01', 'X01 Wedstrijd', 'standard', desc.x01)" class="btn-purple">X01 Wedstrijd</button>
-            <button onclick="showScreen('screen-checkout-setup')" class="btn-purple">Checkout Challenge</button>
+            <button onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" class="btn-purple">Checkout Challenge</button>
             <button onclick="showScreen('screen-100-setup')" class="btn-yellow">100 Pijlen</button>
             <button onclick="preSelectVariant('bull', 'Bullstreak', 'standard', desc.bull)" class="btn-pink">Bullstreak</button>
             
@@ -230,7 +231,7 @@
                 <input type="number" id="co-min" value="60">
                 <input type="number" id="co-max" value="100">
             </div>
-            <button class="btn-purple" onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" style="margin-top:10px;">Start Challenge</button>
+            <button class="btn-purple" onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" style="margin-top:10px;">Volgende</button>
             <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
         </div>
 
@@ -448,7 +449,39 @@
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
         const bobsTargets = Array.from({length:20}, (_,i)=>i+1).concat([25]);
 
-        // STARTUP
+        // SOUND (Simple Synth, requires interaction)
+        const sfx = { 
+            ctx: null,
+            init: () => {
+                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            play: (freq, type, duration) => {
+                // simple play function
+                sfx.init();
+                if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type; osc.frequency.value = freq;
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(); 
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            },
+            click: () => sfx.play(600, 'sine', 0.1),
+            confirm: () => { sfx.play(400, 'square', 0.1); setTimeout(()=>sfx.play(600, 'square', 0.2), 100); },
+            error: () => sfx.play(150, 'sawtooth', 0.3),
+            win: () => { 
+                sfx.play(500, 'triangle', 0.1); 
+                setTimeout(()=>sfx.play(600, 'triangle', 0.1), 100); 
+                setTimeout(()=>sfx.play(800, 'triangle', 0.2), 200); 
+            }
+        };
+        // Unblock audio on first interaction
+        document.addEventListener('click', function() { sfx.init(); }, {once:true});
+
+        // INIT
         window.onload = function() {
             renderPlayerList();
             const inp = document.getElementById('new-player-name');
@@ -456,7 +489,6 @@
         };
 
         // --- CORE FUNCTIONS ---
-        const sfx = { win: () => { try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.type='triangle'; osc.frequency.value=600; osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+0.1); } catch(e){} } };
         function triggerConfetti() { try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){} }
         function safeLoad(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e){ return []; } }
 
@@ -495,14 +527,12 @@
             showScreen('screen-menu');
         }
 
-        // --- MENU & MODALS ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'screen-players') renderPlayerList();
         }
 
-        // CHECK IF PLAYED TODAY
         function hasPlayedToday(player, gameType) {
             const today = new Date().toISOString().slice(0,10);
             const key = getSaveKey(selectedGameType, currentVariant); 
@@ -513,20 +543,15 @@
             );
         }
 
-        // CORRECT SAVE KEY MAPPER
         function getSaveKey(type, variant) {
             if(type === 'doubles' || type === 'singles') return type + '_' + variant;
             if(type === '100') return '100' + variant;
-            if(type === 'bull') return 'bullstreak';
-            if(type === 'checkout') return 'checkout_wins';
-            if(type === 'x01') return 'x01_throw';
-            return type; // bobs27
+            return type; 
         }
 
         function preSelectVariant(gameType, title, variant, description) {
             selectedGameType = gameType;
             currentVariant = variant;
-            
             document.getElementById('opt-title').innerText = title;
             document.getElementById('opt-desc').innerHTML = description;
             
@@ -543,7 +568,7 @@
             if(played) {
                 rankedBtn.disabled = true;
                 msgDiv.style.display = 'block';
-                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al voor het 'echt' gespeeld.`;
+                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al gespeeld.`;
             } else {
                 rankedBtn.disabled = false;
                 msgDiv.style.display = 'none';
@@ -629,23 +654,23 @@
                 // If ranked, you CANNOT replay. Only menu.
                 controlsDiv.innerHTML = `<button onclick="closeModal('modal-summary'); showScreen('screen-menu');" style="background:transparent; border:1px solid #555;">MENU 🏠</button>`;
                 
-                // Get correct DB key for lookup
-                const dbType = getSaveKey(selectedGameType, currentVariant);
-                const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => parseInt(r.result.score || r.result));
+                const recs = history.filter(h => h.player === player && h.gameType === gameType).map(r => parseInt(r.result.score || r.result));
                 
-                // recs includes the current score as the last item because it was just saved.
+                // Recs now includes the current score as last item.
                 if(recs.length > 1) {
-                    const currentVal = recs.pop(); // Remove current to compare
+                    const currentVal = recs.pop(); 
                     oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
                     
-                    if ((metric==='max' && currentVal > oldBest) || (metric==='min' && currentVal < oldBest)) {
-                        msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti();
+                    // Min metric logic fix (for doubles/darts count)
+                    if (metric === 'min') {
+                        if (currentVal < oldBest) { msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti(); }
+                        else { msg = "Game Voltooid"; }
                     } else {
-                        msg = "Game Voltooid";
+                        if (currentVal > oldBest) { msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti(); }
+                        else { msg = "Game Voltooid"; }
                     }
                 } else { msg = "Eerste Ranked Game!"; }
             } else {
-                // If practice, allow replay
                 msg = "Oefenmodus (Niet opgeslagen)";
                 controlsDiv.innerHTML = `
                     <button class="btn-cyan" onclick="restartGame()">SPEEL OPNIEUW ↻</button>
@@ -695,7 +720,7 @@
             showScreen('screen-records');
         }
 
-        // --- GAME LOGIC ---
+        // --- GAME UTILS ---
         function saveRec(type, player, res) {
             if(currentSessionIsRanked) {
                 history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
@@ -754,9 +779,9 @@
         }
         function handleDoublesInput(d) {
             snapshotState(); const p=activePlayers[curPIdx], s=doublesState[p];
-            // Track total darts used
-            s.totalGameDarts += (s.curDarts + d);
+            s.totalGameDarts += (s.curDarts + d); // Add correct amount to running total
             
+            // Only save hit details if ranked
             if(currentSessionIsRanked) {
                 history.push({ date: new Date().toISOString(), gameType: 'doubles_stat', player: p, result: {target:s.queue[s.idx], darts:s.curDarts+d} });
                 localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
@@ -764,9 +789,9 @@
             s.idx++; s.curDarts=0;
             if(s.idx >= s.queue.length) {
                 let saveKey = 'doubles_'+currentVariant;
-                // Save TOTAL darts as score for history
+                // SAVE FINAL SCORE (Total darts used)
                 saveRec(saveKey, p, s.totalGameDarts);
-                showSummary(p, s.totalGameDarts + " Pijlen", saveKey, 'min', "Totaal aantal pijlen");
+                showSummary(p, s.totalGameDarts + " Pijlen", saveKey, 'min', "Voltooid!");
                 return;
             }
             nextTurn(); updateDoublesUI();
@@ -793,7 +818,7 @@
                 const tt = singlesState[activePlayers[curPIdx]].totalThrows;
                 const pct = tt>0 ? ((fs/tt)*100).toFixed(1) : 0;
                 saveRec('singles_'+currentVariant, activePlayers[curPIdx], fs);
-                showSummary(activePlayers[curPIdx], fs, 'singles_'+currentVariant, 'max', `Hitrate: ${pct}%`);
+                showSummary(activePlayers[curPIdx], fs + " Hits", 'singles_'+currentVariant, 'max', `Hitrate: ${pct}%`);
             }
         }
         function handleSinglesInput(h) {
@@ -825,7 +850,7 @@
             const targetVal = bobsTargets[s.idx] === 25 ? 25 : bobsTargets[s.idx]; const points = targetVal * 2;
             if(hits > 0) s.score += (points * hits); else { s.score -= points; document.getElementById('screen-game-bobs27').classList.add('flash-red'); setTimeout(()=>document.getElementById('screen-game-bobs27').classList.remove('flash-red'), 500); }
             if(s.score < 0) { 
-                s.alive = false; alert(`${p} is AF!`); 
+                s.alive = false; sfx.play(150, 'sawtooth', 0.5); alert(`${p} is AF!`); 
                 if(activePlayers.every(pl => !bobsState[pl].alive)) { showScreen('screen-menu'); }
             } 
             else if(s.idx >= bobsTargets.length - 1) { 
@@ -845,11 +870,11 @@
             document.getElementById('x01-display').innerText=keypadInput||"0";
         }
         function submitX01() {
-            const v=parseInt(keypadInput); if(isNaN(v)||v>180) return alert("Fout");
+            const v=parseInt(keypadInput); if(isNaN(v)||v>180) return sfx.play(150,'sawtooth',0.2);
             snapshotState(); const p=activePlayers[curPIdx], s=x01State[p], r=s.score-v;
             if(currentSessionIsRanked) { history.push({ date: new Date().toISOString(), gameType: 'x01_throw', player: p, result: v }); localStorage.setItem(KEY_HISTORY, JSON.stringify(history)); }
-            if(r===0){ s.legs++; if(s.legs>=s.req){ showSummary(p, s.legs + " LEGS", 'x01', 'max', "Wedstrijd gewonnen"); return; }else{alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
-            else if(r<=1) alert("BUST"); else s.score=r;
+            if(r===0){ s.legs++; if(s.legs>=s.req){ showSummary(p, s.legs + " LEGS", 'x01', 'max', "Wedstrijd gewonnen"); return; }else{sfx.win(); alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
+            else if(r<=1) { sfx.play(150,'sawtooth',0.3); alert("BUST"); } else { sfx.click(); s.score=r; }
             keypadInput=""; nextTurn(); updateX01UI();
         }
 
@@ -867,7 +892,7 @@
         function submitCheckout() {
             const v=parseInt(keypadInput); if(isNaN(v)) return;
             snapshotState(); const p=activePlayers[curPIdx], s=checkoutState[p], r=s.cur-v;
-            if(r===0){ s.wins++; nextCO(s); } else if(r<=1){ s.tr++; checkFailCO(s); } else { s.cur=r; s.tr++; checkFailCO(s); }
+            if(r===0){ sfx.win(); s.wins++; nextCO(s); } else if(r<=1){ sfx.play(150,'sawtooth',0.3); s.tr++; checkFailCO(s); } else { sfx.click(); s.cur=r; s.tr++; checkFailCO(s); }
             keypadInput=""; if(s.cur>0) nextTurn(); updateCheckoutUI();
         }
         function checkFailCO(s) { if(s.tr>=2 && s.cur>0) nextCO(s); }
@@ -884,7 +909,7 @@
             const v=parseInt(keypadInput); if(isNaN(v)||v>180) return;
             snapshotState(); const p=activePlayers[curPIdx], s=state100[p];
             let dTurn = (100-s.darts===1)?1:3; if(dTurn===1&&v>60) return alert("Max 60");
-            s.score+=v; s.darts+=dTurn; keypadInput="";
+            sfx.click(); s.score+=v; s.darts+=dTurn; keypadInput="";
             if(s.darts>=100){ 
                 const saveKey = '100'+currentVariant;
                 saveRec(saveKey,p,s.score); showSummary(p, s.score, saveKey, currentVariant==='high'?'max':'min', "Score"); 
@@ -904,8 +929,9 @@
         }
         function handleBullResult(h){
             snapshotState(); const p=activePlayers[curPIdx]; 
-            if(h) stateBull[p].streak++; 
+            if(h) { sfx.click(); stateBull[p].streak++; } 
             else { 
+                sfx.play(150,'sawtooth',0.5);
                 saveRec('bullstreak',p,stateBull[p].streak); stateBull[p].alive=false; 
                 showSummary(p, stateBull[p].streak + " Beurten", 'bullstreak', 'max', "Streak");
             }
