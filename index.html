@@ -38,7 +38,7 @@
             flex-direction: column;
             align-items: center;
             padding: 15px;
-            overflow-x: hidden; /* Voorkom scrollbalken door confetti */
+            overflow-x: hidden;
         }
 
         h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
@@ -106,8 +106,9 @@
             color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center;
             font-family: 'Courier New', monospace; font-weight: bold;
             box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
+            text-transform: uppercase;
         }
-        input::placeholder { color: #555; font-size: 1rem; font-family: 'Montserrat', sans-serif; }
+        input::placeholder { color: #555; font-size: 1rem; font-family: 'Montserrat', sans-serif; text-transform: none; }
         input:focus { border-color: var(--c-cyan); outline: none; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
 
         /* SCORE DISPLAYS */
@@ -151,7 +152,7 @@
         .screen { display: none; }
         .active { display: block; }
         .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
-        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
         
         @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
@@ -320,10 +321,8 @@
             playTone: (freq, type, duration) => {
                 const osc = sfx.ctx.createOscillator();
                 const gain = sfx.ctx.createGain();
-                osc.type = type;
-                osc.frequency.value = freq;
-                osc.connect(gain);
-                gain.connect(sfx.ctx.destination);
+                osc.type = type; osc.frequency.value = freq;
+                osc.connect(gain); gain.connect(sfx.ctx.destination);
                 osc.start();
                 gain.gain.exponentialRampToValueAtTime(0.00001, sfx.ctx.currentTime + duration);
                 osc.stop(sfx.ctx.currentTime + duration);
@@ -338,420 +337,14 @@
                 setTimeout(()=>sfx.playTone(1000, 'square', 0.4), 300);
             }
         };
-
-        // Initialize Audio context on first interaction
         document.body.addEventListener('click', () => { if(sfx.ctx.state === 'suspended') sfx.ctx.resume(); }, {once:true});
 
         // --- 1. VISUAL EFFECTS ---
         function triggerConfetti() {
-            var duration = 2000;
-            var end = Date.now() + duration;
+            var duration = 2000; var end = Date.now() + duration;
             (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#00f3ff', '#ff00aa', '#ffee00']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#00f3ff', '#ff00aa', '#ffee00']
-                });
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
-        }
-
-        // --- 2. DATA ---
-        let allPlayers = JSON.parse(localStorage.getItem('dartsPlayers')) || [];
-        let history = JSON.parse(localStorage.getItem('dartsHistoryV3')) || [];
-        let activePlayers = [];
-        let curPIdx = 0;
-        let gameMode = ''; 
-        let keypadInput = "";
-        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
-        let myChart = null;
-        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
-
-        // --- 3. INPUT HANDLING ---
-        document.addEventListener('keydown', e => {
-            const k = e.key;
-            if (document.getElementById('screen-players').classList.contains('active')) {
-                if (k === 'Enter') addPlayer();
-                return;
-            }
-            if (document.querySelector('.screen.active .keypad')) {
-                if (!isNaN(k) && k !== ' ') kp(parseInt(k));
-                else if (k === 'Backspace') kp('BACK');
-                else if (k === 'Enter') {
-                    if (gameMode==='x01') submitX01();
-                    if (gameMode==='checkout') submitCheckout();
-                    if (gameMode==='100') submit100();
-                }
-            }
-        });
-
-        // --- 4. PLAYER MANAGEMENT ---
-        function renderPlayerList() {
-            const l = document.getElementById('player-list'); l.innerHTML = '';
-            if(!allPlayers.length) l.innerHTML = '<p style="text-align:center;opacity:0.5; margin-top:20px;">Nog geen spelers.</p>';
-            allPlayers.forEach(n => {
-                l.innerHTML += `
-                <div class="player-row">
-                    <div style="display:flex; align-items:center;">
-                        <input type="checkbox" class="player-select-checkbox cb" value="${n}">
-                        <span style="font-weight:bold; font-size:1.1rem; font-family:'Courier New'; color:var(--c-cyan)">${n}</span>
-                    </div>
-                    <button class="btn-delete" onclick="deletePlayer('${n}')">✕</button>
-                </div>`;
-            });
-        }
-        function addPlayer() {
-            sfx.confirm();
-            const input = document.getElementById('new-player-name');
-            const n = input.value.trim().toUpperCase();
-            if(n && !allPlayers.includes(n)) { 
-                allPlayers.push(n); 
-                localStorage.setItem('dartsPlayers',JSON.stringify(allPlayers)); 
-                renderPlayerList(); 
-            }
-            input.value = ''; input.focus();
-        }
-        function deletePlayer(name) {
-            if(confirm("Weet je zeker dat je " + name + " wilt verwijderen?")) {
-                allPlayers = allPlayers.filter(p => p !== name);
-                localStorage.setItem('dartsPlayers', JSON.stringify(allPlayers));
-                renderPlayerList();
-            }
-        }
-        function confirmPlayers() {
-            sfx.click();
-            activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
-            if(!activePlayers.length) return alert("Selecteer minstens 1 speler!");
-            document.getElementById('active-players-display').innerText = activePlayers.join(", ");
-            showScreen('screen-menu');
-        }
-
-        // --- 5. NAVIGATION ---
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'screen-players') renderPlayerList();
-            sfx.click();
-        }
-        function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
-        function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
-        function saveRec(type, player, res) {
-            history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
-            localStorage.setItem('dartsHistoryV3', JSON.stringify(history));
-        }
-
-        // --- 6. KEYPAD ---
-        function kp(v) {
-            sfx.click();
-            if (v==='BACK') keypadInput = keypadInput.slice(0,-1);
-            else if (keypadInput.length < 3) keypadInput += v;
-            updateDisplay();
-        }
-        function updateDisplay() {
-            const els = ['x01-display','checkout-display','100-display'];
-            els.forEach(id => { 
-                const el = document.getElementById(id); 
-                if(el && document.getElementById(id).closest('.screen').classList.contains('active')) el.innerText = keypadInput || "0"; 
-            });
-        }
-
-        // --- 7. GAMES ---
-        
-        // DOUBLES
-        function setupDoubles() {
-            gameMode = 'doubles'; doublesState = {};
-            activePlayers.forEach(p => doublesState[p] = { idx: 0, curDarts: 0, totDarts: 0, hits: 0 });
-            curPIdx = 0; updateDoublesUI(); showScreen('screen-game-doubles');
-        }
-        function updateDoublesUI() {
-            const sb = document.getElementById('doubles-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = doublesState[p];
-                const fin = s.idx >= boardOrder.length;
-                const txt = fin ? "WIN" : (boardOrder[s.idx]===25?"BULL":"D"+boardOrder[s.idx]);
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
-            });
-            document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[curPIdx]].curDarts;
-        }
-        function handleDoublesInput(d) {
-            sfx.click();
-            const p = activePlayers[curPIdx], s = doublesState[p];
-            s.totDarts += (s.curDarts + d); s.hits++;
-            saveRec('doubles', p, { target: boardOrder[s.idx], darts: s.curDarts+d });
-            s.idx++; s.curDarts = 0;
-            if(s.idx >= boardOrder.length) { 
-                sfx.win(); triggerConfetti();
-                alert(p + " WINT!"); showScreen('screen-menu'); return; 
-            }
-            nextTurn(); updateDoublesUI();
-        }
-        function handleDoublesMiss() {
-            sfx.error();
-            const p = activePlayers[curPIdx]; doublesState[p].curDarts += 3; doublesState[p].totDarts += 3;
-            nextTurn(); updateDoublesUI();
-        }
-
-        // SINGLES
-        function setupSingles() {
-            gameMode = 'singles'; singlesState = {};
-            const list = [...Array(20).keys()].map(i=>i+1); list.push(25);
-            activePlayers.forEach(p => singlesState[p] = { q: list.sort(()=>Math.random()-0.5), idx: 0, score: 0 });
-            curPIdx = 0; updateSinglesUI(); showScreen('screen-game-singles');
-        }
-        function updateSinglesUI() {
-            const sb = document.getElementById('singles-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = singlesState[p];
-                if(s.idx>=s.q.length) { sb.innerHTML+=`<div class="p-card"><div class="p-name">${p}</div><div class="p-score">FIN</div></div>`; return; }
-                const v = s.q[s.idx], t = v===25?"BULL":v;
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${t}</div><div class="p-avg">Hits: ${s.score}</div></div>`;
-            });
-            if(singlesState[activePlayers[curPIdx]].idx >= singlesState[activePlayers[curPIdx]].q.length) { 
-                sfx.win(); triggerConfetti(); alert("Klaar!"); showScreen('screen-menu'); 
-            }
-        }
-        function handleSinglesInput(h) {
-            sfx.click();
-            const p = activePlayers[curPIdx]; singlesState[p].score += h; singlesState[p].idx++;
-            nextTurn(); updateSinglesUI();
-        }
-
-        // X01
-        function setupX01() {
-            const start = prompt("301 of 501?", "501") === "301" ? 301 : 501;
-            gameMode = 'x01'; x01State = {}; keypadInput = "";
-            activePlayers.forEach(p => x01State[p] = { score: start, start: start, darts: 0 });
-            curPIdx = 0; updateX01UI(); showScreen('screen-game-x01');
-        }
-        function updateX01UI() {
-            const sb = document.getElementById('x01-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = x01State[p];
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.score}</div></div>`;
-            });
-            updateDisplay();
-        }
-        function submitX01() {
-            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
-            const p = activePlayers[curPIdx], s = x01State[p], n = s.score - v;
-            if (n === 0) { 
-                sfx.win(); triggerConfetti();
-                alert(p + " WINT!"); showScreen('screen-menu'); return; 
-            }
-            if (n > 1) { sfx.confirm(); s.score = n; } else { sfx.error(); alert("BUST"); }
-            s.darts += 3; keypadInput = ""; nextTurn(); updateX01UI();
-        }
-
-        // CHECKOUT
-        function setupCheckoutMenu() { showScreen('screen-checkout-setup'); }
-        function startCheckoutGame() {
-            const min = parseInt(document.getElementById('co-min').value), max = parseInt(document.getElementById('co-max').value);
-            gameMode = 'checkout'; checkoutState = {}; keypadInput = "";
-            activePlayers.forEach(p => checkoutState[p] = { r:1, hist:[], tStart: Math.floor(Math.random()*(max-min+1)+min), cur:0, turns:0, min:min, max:max });
-            activePlayers.forEach(p => checkoutState[p].cur = checkoutState[p].tStart);
-            curPIdx = 0; updateCheckoutUI(); showScreen('screen-game-checkout');
-        }
-        function updateCheckoutUI() {
-            const p = activePlayers[curPIdx], s = checkoutState[p];
-            if(s.r > 10) { sfx.win(); triggerConfetti(); alert("Klaar!"); showScreen('screen-menu'); return; }
-            const sb = document.getElementById('checkout-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((pl,i) => {
-                const w = checkoutState[pl].hist.filter(x=>x).length;
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${w}/10</div></div>`;
-            });
-            document.getElementById('co-round').innerText = s.r; document.getElementById('co-turn').innerText = s.turns+1;
-            document.getElementById('co-target').innerText = s.cur;
-            const hc = document.getElementById('checkout-history-container'); hc.innerHTML = '';
-            s.hist.forEach(h => hc.innerHTML += `<span style="font-size:1.5rem;background:#333;padding:5px;border-radius:5px;">${h?"🎯":"🤡"}</span>`);
-            updateDisplay();
-        }
-        function submitCheckout() {
-            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return; }
-            const p = activePlayers[curPIdx], s = checkoutState[p], n = s.cur - v;
-            if (n === 0) { sfx.win(); triggerConfetti(); alert("UIT!"); s.hist.push(true); nextRoundCO(s); }
-            else if (n <= 1) { sfx.error(); alert("BUST"); s.turns++; checkFailCO(s); }
-            else { sfx.confirm(); s.cur = n; s.turns++; checkFailCO(s); }
-            keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
-        }
-        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten op!"); s.hist.push(false); nextRoundCO(s); } }
-        function nextRoundCO(s) { s.r++; s.turns=0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
-
-        // 100 PIJLEN
-        let mode100 = 'high';
-        function setup100Menu() { showScreen('screen-100-setup'); }
-        function start100Game(mode) {
-            mode100 = mode; gameMode = '100'; state100 = {}; keypadInput = "";
-            activePlayers.forEach(p => state100[p] = { score: 0, dartsThrown: 0 });
-            curPIdx = 0; update100UI(); showScreen('screen-game-100');
-        }
-        function update100UI() {
-            const sb = document.getElementById('100-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = state100[p];
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.score}</div><div class="p-avg">${mode100==='high'?'Hoog':'Laag'}</div></div>`;
-            });
-            document.getElementById('100-counter').innerText = state100[activePlayers[curPIdx]].dartsThrown;
-            updateDisplay();
-        }
-        function submit100() {
-            const v = parseInt(keypadInput);
-            const p = activePlayers[curPIdx], s = state100[p];
-            let dartsThisTurn = (100 - s.dartsThrown === 1) ? 1 : 3;
-            if (dartsThisTurn === 1 && v > 60) return alert("Max 60 voor 1 pijl!");
-            if (isNaN(v) || v > 180) return alert("Ongeldig");
-            sfx.confirm();
-            s.score += v; s.dartsThrown += dartsThisTurn; keypadInput = "";
-            if (s.dartsThrown >= 100) {
-                sfx.win(); triggerConfetti();
-                alert(`${p} Klaar! Score: ${s.score}`);
-                saveRec(mode100 === 'high' ? '100high' : '100low', p, s.score);
-                if(curPIdx === activePlayers.length -1) { showScreen('screen-menu'); return; }
-            }
-            nextTurn(); update100UI();
-        }
-
-        // BULLSTREAK
-        function setupBullstreak() {
-            gameMode = 'bull'; stateBull = {};
-            activePlayers.forEach(p => stateBull[p] = { streak: 0, best: 0, alive: true });
-            curPIdx = 0; updateBullUI(); showScreen('screen-game-bullstreak');
-        }
-        function updateBullUI() {
-            let attempts = 0;
-            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
-            if(attempts >= activePlayers.length) { alert("Iedereen af!"); showScreen('screen-menu'); return; }
-            const sb = document.getElementById('bull-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = stateBull[p];
-                const cls = !s.alive ? 'opacity:0.3' : (i===curPIdx?'active-turn':'');
-                sb.innerHTML += `<div class="p-card ${cls}"><div class="p-name">${p}</div><div class="p-score">${s.streak}</div></div>`;
-            });
-            document.getElementById('bull-streak-val').innerText = stateBull[activePlayers[curPIdx]].streak;
-        }
-        function handleBullResult(hit) {
-            const p = activePlayers[curPIdx], s = stateBull[p];
-            if(hit) { sfx.confirm(); s.streak++; if(s.streak > s.best) s.best = s.streak; }
-            else { sfx.error(); alert(`Helaas! Streak: ${s.streak}`); saveRec('bullstreak', p, s.streak); s.alive = false; }
-            curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
-        }
-
-        // STATS & CHARTS
-        function showStats() {
-            sfx.click();
-            const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
-            allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
-            document.getElementById('stats-content').innerHTML = '';
-            document.getElementById('chart-section').style.display = 'none';
-            showScreen('screen-stats');
-        }
-
-        function renderStats() {
-            const p = document.getElementById('stats-player-select').value;
-            if(!p) return;
-            const c = document.getElementById('stats-content'); c.innerHTML = '';
-            const recs = history.filter(h => h.player === p);
-
-            const getBest = (type, mode='max') => {
-                const rs = recs.filter(r => r.gameType === type).map(r => parseInt(r.result.score || r.result));
-                if(!rs.length) return '-';
-                return mode==='max' ? Math.max(...rs) : Math.min(...rs);
-            };
-
-            let html = `
-            <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="color:var(--c-yellow); margin-top:0; text-align:left;">🏆 Records</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
-                    <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Hoog)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-cyan)">${getBest('100high')}</div></div>
-                    <div><div style="font-size:0.8rem; color:#aaa;">100 Pijlen (Laag)</div><div style="font-size:2rem; font-weight:bold; color:var(--c-pink)">${getBest('100low', 'min')}</div></div>
-                    <div style="grid-column:span 2; border-top:1px solid rgba(255,255,255,0.1); margin-top:5px; padding-top:10px;">
-                        <div style="font-size:0.8rem; color:#aaa;">Langste Bullstreak (Beurten)</div><div style="font-size:3rem; color:var(--c-yellow); font-weight:900; line-height:1;">${getBest('bullstreak')}</div>
-                    </div>
-                </div>
-            </div>`;
-
-            html += `<h3 style="color:var(--c-purple); text-align:left;">🎯 Doubles Gemiddelden</h3>
-            <div style="max-height:250px; overflow-y:auto; margin-bottom:20px;"><table id="stats-table"><thead><tr><th>Doel</th><th>Gem.</th><th>Hits</th></tr></thead><tbody>`;
-            let totals = {};
-            const doubleRecs = recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)); 
-            doubleRecs.forEach(i => {
-                const t = i.result ? i.result.target : i.target;
-                const d = i.result ? i.result.darts : i.darts;
-                if(!totals[t]) totals[t] = {sum:0, c:0};
-                totals[t].sum += d; totals[t].c++;
-            });
-            boardOrder.forEach(n => {
-                const l = n===25?"Bull":"D"+n;
-                const s = totals[n];
-                let avg="-", h=0, col="color:white";
-                if(s) { h=s.c; const v=s.sum/h; avg=v.toFixed(1); if(v<=3) col="color:var(--c-cyan)"; else if(v>=9) col="color:var(--c-pink)"; }
-                html += `<tr><td>${l}</td><td style="${col}">${avg}</td><td>${h}</td></tr>`;
-            });
-            html += `</tbody></table></div>`;
-            c.innerHTML = html;
-            document.getElementById('chart-section').style.display = 'block';
-            updateChart('100high');
-        }
-
-        function updateChart(metricType) {
-            sfx.click();
-            const p = document.getElementById('stats-player-select').value;
-            if(!p) return;
-            document.querySelectorAll('.btn-chart-toggle').forEach(b => b.classList.remove('active-chart'));
-            event.target.classList.add('active-chart');
-
-            const recs = history.filter(h => h.player === p && h.gameType === metricType);
-            recs.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-            const labels = recs.map(r => {
-                const d = new Date(r.date);
-                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            });
-            const dataPoints = recs.map(r => parseInt(r.result.score || r.result));
-
-            let lineColor = '#00f3ff';
-            if(metricType === '100low') lineColor = '#ff00aa';
-            if(metricType === 'bullstreak') lineColor = '#ffee00';
-
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            if(myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: metricType.toUpperCase(),
-                        data: dataPoints,
-                        borderColor: lineColor,
-                        backgroundColor: lineColor,
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#000',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#aaa', font: {family: 'Montserrat'} } },
-                        x: { display: false }
-                    },
-                    animation: { duration: 1500, easing: 'easeOutQuart' }
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+            
