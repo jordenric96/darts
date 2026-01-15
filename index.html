@@ -3,83 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade: Match Mode</title>
+    <title>Yarni's Darts Arcade: Visual Stats</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
+            /* TDT Sky Rockets Thema */
             --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
             --glass-bg: rgba(20, 20, 30, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            --c-cyan: #00f3ff; --c-pink: #ff00aa; --c-yellow: #ffee00;
-            --c-purple: #bc13fe; --c-red: #ff3b3b;
-            --text-color: #ffffff; --btn-bg: rgba(255, 255, 255, 0.1);
+            
+            --c-cyan: #00f3ff;
+            --c-pink: #ff00aa;
+            --c-yellow: #ffee00;
+            --c-purple: #bc13fe;
+            --c-red: #ff3b3b;
+            --c-green: #00e676;
+            
+            --text-color: #ffffff;
+            --btn-bg: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--bg-gradient); color: var(--text-color); margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-x: hidden; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
         
-        .logo { font-size: 2rem; font-weight: 900; font-style: italic; background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3); cursor: pointer; }
+        .logo { 
+            font-size: 2rem; font-weight: 900; font-style: italic;
+            background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3);
+            cursor: pointer;
+        }
+
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
-        .card { background: var(--glass-bg); backdrop-filter: blur(12px); border: var(--glass-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px; animation: slideUp 0.4s ease-out; }
+
+        .card {
+            background: var(--glass-bg); backdrop-filter: blur(12px);
+            border: var(--glass-border); border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        /* INSTRUCTIE TEXT */
+        .instruction-text {
+            text-align: center; color: var(--c-cyan); font-size: 0.9rem;
+            margin-bottom: 15px; font-style: italic; font-weight: bold;
+            background: rgba(0, 243, 255, 0.1); padding: 8px; border-radius: 10px;
+            border: 1px dashed rgba(0, 243, 255, 0.3);
+        }
 
         /* KNOPPEN */
-        button { border: none; border-radius: 50px; padding: 15px 25px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; margin-bottom: 12px; transition: all 0.1s ease; background: var(--btn-bg); color: white; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px; user-select: none; }
+        button {
+            border: none; border-radius: 50px; padding: 15px 25px;
+            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
+            cursor: pointer; width: 100%; margin-bottom: 12px;
+            transition: all 0.1s ease; background: var(--btn-bg); color: white;
+            border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px;
+            user-select: none; touch-action: manipulation;
+        }
         button:active { transform: scale(0.95); filter: brightness(1.2); }
-        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; box-shadow: 0 4px 15px rgba(0,243,255,0.3); }
-        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; box-shadow: 0 4px 15px rgba(255,0,170,0.3); }
-        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; box-shadow: 0 4px 15px rgba(255,238,0,0.3); }
-        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; box-shadow: 0 4px 15px rgba(188,19,254,0.3); }
-        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; }
-        .btn-delete { background: rgba(255,59,59,0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1.2rem; border: 1px solid var(--c-red); display:flex; align-items:center; justify-content:center;}
+        
+        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
+        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
+        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; box-shadow: 0 4px 15px rgba(255, 238, 0, 0.3); }
+        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
+        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; border:none; }
+        
+        .btn-delete {
+            background: rgba(255, 59, 59, 0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; margin: 0; border: 1px solid var(--c-red);
+        }
+
+        .btn-chart-toggle { width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px; }
+        .btn-chart-toggle.active-chart { background: white; color: black; box-shadow: 0 0 15px white; }
 
         /* INPUTS */
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: black; color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2); text-transform: uppercase; }
-        input:focus { border-color: var(--c-cyan); outline: none; }
+        input {
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: black;
+            color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center;
+            font-family: 'Courier New', monospace; font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2); text-transform: uppercase;
+        }
+        input:focus { border-color: var(--c-cyan); outline: none; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
 
-        /* SCOREBOARD */
+        /* UI ELEMENTS */
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 8px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
+        
         .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .p-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; position: relative; }
+        .p-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; }
         .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); }
         .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
         .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
-        .leg-indicator { font-size: 0.8rem; color: var(--c-yellow); margin-top: 5px; font-weight: bold; }
-
-        /* DISPLAYS & KEYPAD */
+        
         .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; box-shadow: inset 0 0 20px rgba(255,238,0,0.2); }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
         .keypad button:active { background: var(--c-cyan); color: black; }
 
-        /* UI UTILS */
-        .screen { display: none; }
-        .active { display: block; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
-        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
+        /* VISUAL STATS BARS */
+        .stat-group { margin-bottom: 25px; }
+        .stat-group h3 { text-align: left; color: var(--c-yellow); font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px; }
         
-        /* MODAL (POPUP) STYLES */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-            z-index: 1000; display: none; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 0.3s;
-        }
+        .skill-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
+        .skill-label { width: 40px; font-weight: bold; color: var(--c-cyan); text-align: right; margin-right: 10px; }
+        .skill-bar-bg { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; position: relative; }
+        .skill-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease-out; }
+        .skill-value { width: 60px; text-align: right; margin-left: 10px; color: #aaa; font-size: 0.8rem; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content {
-            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
-            border: 2px solid var(--c-cyan); border-radius: 20px;
-            padding: 30px; width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 0 50px rgba(0, 243, 255, 0.3);
-            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .modal-content { background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%); border: 2px solid var(--c-cyan); border-radius: 20px; padding: 30px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.3); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-content { transform: scale(1); }
         .modal-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; color: var(--c-yellow); }
         .modal-score { font-size: 3rem; font-weight: 900; color: white; margin: 20px 0; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
         .modal-pb { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 20px; }
         .pb-badge { background: var(--c-pink); color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; margin-left: 5px; display:none; }
 
+        .screen { display: none; } .active { display: block; }
+        .chart-container { position: relative; height: 250px; width: 100%; margin-top: 15px; }
+        
         @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
 </head>
@@ -92,7 +154,7 @@
         <div id="screen-players" class="screen active card">
             <h2>Wie speelt er mee?</h2>
             <div style="display:flex; gap:10px; margin-bottom: 15px; align-items: center;">
-                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0; text-transform:uppercase;">
+                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0;">
                 <button onclick="addPlayer()" class="btn-cyan" style="width: auto; margin:0; padding: 15px 20px; font-size:1.5rem;">+</button>
             </div>
             <div id="player-list"></div>
@@ -101,32 +163,31 @@
         </div>
 
         <div id="screen-menu" class="screen card">
-            <h2>Kies je Challenge</h2>
+            <h2>Menu</h2>
             <p id="active-players-display" style="text-align:center; opacity:0.7; margin-bottom: 20px;"></p>
             <button onclick="setupDoubles()" class="btn-cyan">Doubles (Clock)</button>
             <button onclick="setupSingles()" class="btn-cyan">Singles (Random 1-20)</button>
             <button onclick="setupX01()" class="btn-purple">X01 Wedstrijd</button>
             <button onclick="setupCheckoutMenu()" class="btn-purple">Checkout Challenge</button>
-            <button onclick="setup100Menu()" class="btn-yellow">100 Pijlen Challenge</button>
+            <button onclick="setup100Menu()" class="btn-yellow">100 Pijlen</button>
             <button onclick="setupBullstreak()" class="btn-pink">Bullstreak</button>
             <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 25px 0;"></div>
-            <button onclick="showStats()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">📈 Statistieken</button>
-            <button onclick="showScreen('screen-players')" style="background:transparent; opacity: 0.6;">Terug naar Spelers</button>
+            <button onclick="showStats()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">📈 Statistieken & Data</button>
+            <button onclick="showScreen('screen-players')" style="background:transparent; opacity:0.6;">Terug</button>
         </div>
 
         <div id="game-modal" class="modal-overlay">
             <div class="modal-content">
-                <div id="modal-title" class="modal-title">GEWONNEN!</div>
-                <div style="font-size:1rem; opacity:0.8" id="modal-subtitle">Speler X</div>
-                <div id="modal-score" class="modal-score">50</div>
-                <div id="modal-pb" class="modal-pb">
-                    Jouw Record: <span id="modal-pb-val">-</span> <span id="modal-new-pb" class="pb-badge">NIEUW RECORD!</span>
-                </div>
+                <div id="modal-title" class="modal-title">TITLE</div>
+                <div style="font-size:1rem; opacity:0.8" id="modal-subtitle">Subtitle</div>
+                <div id="modal-score" class="modal-score">0</div>
+                <div id="modal-pb" class="modal-pb">Record: <span id="modal-pb-val">-</span> <span id="modal-new-pb" class="pb-badge">NIEUW!</span></div>
                 <button class="btn-cyan" onclick="closeModal()">DOORGAAN ➔</button>
             </div>
         </div>
 
         <div id="screen-game-doubles" class="screen card">
+            <div class="instruction-text" id="doubles-instruction">Gooi 3 pijlen naar...</div>
             <div id="doubles-scoreboard" class="scoreboard"></div>
             <p style="text-align:center;">Pijlen: <strong id="doubles-darts-count" style="color:var(--c-cyan)">0</strong></p>
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
@@ -139,6 +200,7 @@
         </div>
 
         <div id="screen-game-singles" class="screen card">
+            <div class="instruction-text" id="singles-instruction">Gooi 3 pijlen naar...</div>
             <div id="singles-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin-bottom:15px;">Hits (3 pijlen):</div>
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
@@ -151,7 +213,7 @@
         </div>
 
         <div id="screen-checkout-setup" class="screen card">
-            <h2>Checkout Setup</h2>
+            <h2>Checkout</h2>
             <label>Tussen:</label>
             <div style="display:flex; gap:10px; margin: 15px 0;">
                 <input type="number" id="co-min" value="60">
@@ -162,6 +224,7 @@
         </div>
 
         <div id="screen-game-checkout" class="screen card">
+            <div class="instruction-text">Gooi dit getal uit binnen 2 beurten (6 pijlen)</div>
             <div id="checkout-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin-bottom:5px;">Doel</div>
             <div style="text-align:center; font-size:5rem; font-weight:900; color:var(--c-yellow);" id="co-target">?</div>
@@ -178,6 +241,7 @@
         </div>
 
         <div id="screen-game-x01" class="screen card">
+            <div class="instruction-text">Gooi de score naar 0 (Dubbel Uit)</div>
             <div id="x01-scoreboard" class="scoreboard"></div>
             <div id="x01-display" class="score-display-box">0</div>
             <div class="keypad">
@@ -199,6 +263,7 @@
         </div>
 
         <div id="screen-game-100" class="screen card">
+            <div class="instruction-text">Gooi 100 pijlen en haal de beste score</div>
             <div id="100-scoreboard" class="scoreboard"></div>
             <div style="text-align:center;">Pijl <span id="100-counter" style="color:var(--c-yellow);">0</span>/100</div>
             <div id="100-display" class="score-display-box">0</div>
@@ -214,6 +279,7 @@
         </div>
 
         <div id="screen-game-bullstreak" class="screen card">
+            <div class="instruction-text">Blijf gooien zolang je minstens 1 bull raakt</div>
             <div id="bull-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin:20px 0;">
                 <div style="font-size:0.9rem;">HUIDIGE STREAK</div>
@@ -228,8 +294,9 @@
 
         <div id="screen-stats" class="screen card">
             <h2>Statistieken</h2>
+            
             <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center;">
-                <h3 style="font-size: 1rem; color: #aaa; margin-bottom:10px;">💾 DATA MANAGEMENT</h3>
+                <h3 style="font-size: 1rem; color: #aaa; margin-bottom:10px;">💾 DATA</h3>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-green" onclick="exportData()">⬇️ Download</button>
                     <button class="btn-yellow" onclick="document.getElementById('file-input').click()">⬆️ Herstel</button>
@@ -239,14 +306,30 @@
             <hr>
             <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:15px; border-radius:15px; margin-bottom:20px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--c-cyan);">
             </select>
+            
             <div id="stats-content"></div>
+            
+            <div id="chart-section" style="display:none; margin-top:30px;">
+                <h3 style="color:var(--c-cyan); text-align:left;">📈 Evolutie</h3>
+                <div style="display:flex; flex-wrap:wrap;">
+                    <button class="btn-chart-toggle" onclick="updateChart('100high')">100 High</button>
+                    <button class="btn-chart-toggle" onclick="updateChart('100low')">100 Low</button>
+                    <button class="btn-chart-toggle" onclick="updateChart('bullstreak')">Bullstreak</button>
+                </div>
+                <div class="chart-container"><canvas id="progressChart"></canvas></div>
+            </div>
+
             <button onclick="showScreen('screen-menu')" style="margin-top:25px; background:transparent; border:1px solid rgba(255,255,255,0.2)">Terug</button>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center; opacity: 0.3;">
+            <button onclick="hardReset()" style="background:transparent; border:1px solid #555; width:auto; font-size:0.7rem;">⚠️ Reset App</button>
         </div>
 
     </div>
 
     <script>
-        // --- 0. AUDIO SYSTEM ---
+        // --- 0. AUDIO ---
         let audioCtx = null;
         const sfx = {
             init: () => {
@@ -259,77 +342,54 @@
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                     osc.type = type; osc.frequency.value = freq;
                     osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start();
-                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
                     osc.stop(audioCtx.currentTime + duration);
                 } catch(e) {}
             },
             click: () => sfx.playTone(600, 'sine', 0.1),
             confirm: () => { sfx.playTone(400, 'square', 0.1); setTimeout(()=>sfx.playTone(600, 'square', 0.2), 100); },
             error: () => sfx.playTone(150, 'sawtooth', 0.3),
-            win: () => {
-                sfx.playTone(500, 'triangle', 0.1);
-                setTimeout(()=>sfx.playTone(600, 'triangle', 0.1), 100);
-                setTimeout(()=>sfx.playTone(800, 'triangle', 0.2), 200);
-                setTimeout(()=>sfx.playTone(1000, 'square', 0.4), 300);
-            }
+            win: () => { sfx.playTone(500, 'triangle', 0.1); setTimeout(()=>sfx.playTone(600, 'triangle', 0.1), 100); setTimeout(()=>sfx.playTone(800, 'triangle', 0.2), 200); }
         };
 
-        // --- 1. VISUAL EFFECTS ---
-        function triggerConfetti() {
-            try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){}
-        }
+        // --- 1. VISUALS ---
+        function triggerConfetti() { try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){} }
 
-        // --- 2. MODAL SYSTEM ---
+        // --- 2. MODAL ---
         function showModal(title, subtitle, scoreText, pbDetails = null) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-subtitle').innerText = subtitle;
             document.getElementById('modal-score').innerText = scoreText;
-            
             const pbEl = document.getElementById('modal-pb');
             if(pbDetails) {
                 pbEl.style.display = 'block';
-                document.getElementById('modal-pb-val').innerText = pbDetails.oldBest !== '-' ? pbDetails.oldBest : "Nog geen";
+                document.getElementById('modal-pb-val').innerText = pbDetails.oldBest !== '-' ? pbDetails.oldBest : "Geen";
                 document.getElementById('modal-new-pb').style.display = pbDetails.isNew ? 'inline-block' : 'none';
                 if(pbDetails.isNew) sfx.win();
-            } else {
-                pbEl.style.display = 'none';
-            }
-            
+            } else { pbEl.style.display = 'none'; }
             const modal = document.getElementById('game-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
-
         function closeModal() {
             const modal = document.getElementById('game-modal');
-            modal.classList.remove('show');
-            setTimeout(() => { modal.style.display = 'none'; showScreen('screen-menu'); }, 300);
+            modal.classList.remove('show'); setTimeout(() => { modal.style.display = 'none'; showScreen('screen-menu'); }, 300);
         }
 
-        // --- 3. DATA LOGIC ---
+        // --- 3. DATA ---
         function safeLoad(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; } }
-        
-        const KEY_PLAYERS = 'dartsPlayers';
-        const KEY_HISTORY = 'dartsHistoryV3';
-
+        const KEY_PLAYERS = 'dartsPlayers'; const KEY_HISTORY = 'dartsHistoryV3';
         let allPlayers = safeLoad(KEY_PLAYERS);
         let history = safeLoad(KEY_HISTORY);
-        let activePlayers = [];
-        let curPIdx = 0;
-        let gameMode = ''; 
-        let keypadInput = "";
-        
+        let activePlayers = [], curPIdx = 0, gameMode = '', keypadInput = "";
         let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
+        let myChart = null;
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
 
         // --- 4. EXPORT/IMPORT ---
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ players: allPlayers, history: history }));
-            const dlNode = document.createElement('a');
-            dlNode.setAttribute("href", dataStr);
-            dlNode.setAttribute("download", "darts_backup.json");
-            document.body.appendChild(dlNode); dlNode.click(); dlNode.remove();
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "darts_backup.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
         }
         function importData(input) {
             const file = input.files[0]; if(!file) return;
@@ -337,94 +397,74 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(data.players && data.history) {
-                        if(confirm("Dit overschrijft huidige data!")) {
-                            allPlayers = data.players; history = data.history;
-                            localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers));
-                            localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
-                            location.reload();
-                        }
+                    if(data.players && data.history && confirm("Overschrijven?")) {
+                        allPlayers = data.players; history = data.history;
+                        localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers));
+                        localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+                        location.reload();
                     }
                 } catch(err) { alert("Fout bestand."); }
-            };
-            reader.readAsText(file);
+            }; reader.readAsText(file);
         }
 
-        // --- 5. INITIALIZATION ---
+        // --- 5. INIT & INPUT ---
         document.addEventListener("DOMContentLoaded", function() {
             renderPlayerList();
             const inputName = document.getElementById('new-player-name');
             if(inputName) inputName.addEventListener("keypress", function(e) { if(e.key === "Enter") handleAddPlayer(); });
         });
-
         document.addEventListener('keydown', e => {
             if (document.querySelector('.screen.active .keypad')) {
-                const k = e.key;
-                if (!isNaN(k) && k !== ' ') kp(parseInt(k));
-                else if (k === 'Backspace') kp('BACK');
-                else if (k === 'Enter') {
-                    if (gameMode==='x01') submitX01();
-                    if (gameMode==='checkout') submitCheckout();
-                    if (gameMode==='100') submit100();
+                const k = e.key; if (!isNaN(k) && k !== ' ') kp(parseInt(k)); else if (k === 'Backspace') kp('BACK'); else if (k === 'Enter') {
+                    if (gameMode==='x01') submitX01(); if (gameMode==='checkout') submitCheckout(); if (gameMode==='100') submit100();
                 }
             }
         });
 
         // --- 6. PLAYER FUNCTIONS ---
         function renderPlayerList() {
-            const list = document.getElementById('player-list');
-            if(!list) return; list.innerHTML = "";
+            const list = document.getElementById('player-list'); if(!list) return; list.innerHTML = "";
             if (allPlayers.length === 0) { list.innerHTML = '<p style="text-align:center; opacity:0.6;">Geen spelers.</p>'; return; }
             allPlayers.forEach(name => {
-                list.innerHTML += `<div class="player-row"><div style="display:flex; align-items:center;"><input type="checkbox" class="player-select-checkbox cb" value="${name}"><span style="font-weight:bold; font-size:1.1rem; color:var(--c-cyan); font-family:'Courier New'">${name}</span></div><button class="btn-delete" onclick="handleDeletePlayer('${name}')">X</button></div>`;
+                list.innerHTML += `<div class="player-row"><div style="display:flex; align-items:center;"><input type="checkbox" class="player-select-checkbox cb" value="${name}"><span style="font-weight:bold; font-size:1.1rem; color:var(--c-cyan); font-family:'Courier New'">${name}</span></div><button class="btn-delete" onclick="handleDeletePlayer('${name}')">✕</button></div>`;
             });
         }
         function handleAddPlayer() {
-            sfx.confirm();
-            const input = document.getElementById('new-player-name');
-            const name = input.value.trim().toUpperCase();
+            sfx.confirm(); const input = document.getElementById('new-player-name'); const name = input.value.trim().toUpperCase();
             if (name && !allPlayers.includes(name)) { allPlayers.push(name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); input.value = ""; input.focus(); }
         }
         function handleDeletePlayer(name) {
             if(confirm("Verwijder " + name + "?")) { allPlayers = allPlayers.filter(p => p !== name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); }
         }
         function confirmPlayers() {
-            sfx.click();
-            activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
+            sfx.click(); activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
             if(!activePlayers.length) return alert("Selecteer speler.");
-            document.getElementById('active-players-display').innerText = activePlayers.join(", ");
-            showScreen('screen-menu');
+            document.getElementById('active-players-display').innerText = activePlayers.join(", "); showScreen('screen-menu');
         }
 
         // --- 7. UTILS ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'screen-players') renderPlayerList();
-            sfx.click();
+            const t = document.getElementById(id); if(t) t.classList.add('active');
+            if(id === 'screen-players') renderPlayerList(); sfx.click();
         }
         function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
+        function hardReset() { if(confirm("ALLES wissen?")) { localStorage.clear(); location.reload(); } }
         function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
         function saveRec(type, player, res) {
             history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
             localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
         }
         function kp(v) {
-            sfx.click();
-            if (v==='BACK') keypadInput = keypadInput.slice(0, -1);
-            else if (keypadInput.length < 3) keypadInput += v;
+            sfx.click(); if (v==='BACK') keypadInput = keypadInput.slice(0, -1); else if (keypadInput.length < 3) keypadInput += v;
             ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el && el.closest('.active')) el.innerText = keypadInput || "0"; });
         }
-        
-        // CHECK PERSONAL BEST
         function getPB(player, gameType, score, mode='max') {
             const recs = history.filter(h => h.player === player && h.gameType === gameType);
             if(recs.length === 0) return { oldBest: '-', isNew: true };
-            
             const scores = recs.map(r => parseInt(r.result.score || r.result));
             const oldBest = mode === 'max' ? Math.max(...scores) : Math.min(...scores);
-            const isNew = mode === 'max' ? (score > oldBest) : (score < oldBest);
-            return { oldBest: oldBest, isNew: isNew };
+            return { oldBest: oldBest, isNew: mode === 'max' ? (score > oldBest) : (score < oldBest) };
         }
 
         // --- 8. GAMES ---
@@ -435,24 +475,21 @@
         }
         function updateDoublesUI() {
             const sb = document.getElementById('doubles-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p, i) => {
-                const s = doublesState[p];
-                const txt = s.idx >= boardOrder.length ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
+            const p = activePlayers[curPIdx], s = doublesState[p];
+            const target = s.idx >= boardOrder.length ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
+            document.getElementById('doubles-instruction').innerHTML = `Gooi 3 pijlen naar <span style="color:white; font-size:1.2rem">${target}</span>`;
+            activePlayers.forEach((pl, i) => {
+                const sl = doublesState[pl];
+                const t = sl.idx >= boardOrder.length ? "WIN" : (boardOrder[sl.idx] === 25 ? "BULL" : "D" + boardOrder[sl.idx]);
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${t}</div></div>`;
             });
-            document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[curPIdx]].curDarts;
+            document.getElementById('doubles-darts-count').innerText = s.curDarts;
         }
         function handleDoublesInput(d) {
-            sfx.click();
-            const p = activePlayers[curPIdx], s = doublesState[p], t = boardOrder[s.idx];
-            const totalDarts = s.curDarts + d;
-            saveRec('doubles', p, { target: t, darts: totalDarts });
+            sfx.click(); const p = activePlayers[curPIdx], s = doublesState[p];
+            saveRec('doubles', p, { target: boardOrder[s.idx], darts: s.curDarts + d });
             s.idx++; s.curDarts = 0;
-            if(s.idx >= boardOrder.length) { 
-                triggerConfetti(); sfx.win();
-                showModal("UITGEGOOID!", p, "Around the Clock", null);
-                return;
-            }
+            if(s.idx >= boardOrder.length) { triggerConfetti(); sfx.win(); showModal("UITGEGOOID!", p, "Clock Finished", null); return; }
             nextTurn(); updateDoublesUI();
         }
         function handleDoublesMiss() { sfx.error(); doublesState[activePlayers[curPIdx]].curDarts += 3; nextTurn(); updateDoublesUI(); }
@@ -465,31 +502,28 @@
         }
         function updateSinglesUI() {
             const sb = document.getElementById('singles-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p, i) => {
-                const s = singlesState[p];
-                if(s.idx >= s.q.length) { sb.innerHTML += `<div class="p-card"><div class="p-name">${p}</div><div class="p-score">FIN</div></div>`; return; }
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.q[s.idx]===25?'BULL':s.q[s.idx]}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
+            const p = activePlayers[curPIdx], s = singlesState[p];
+            const target = s.idx >= s.q.length ? "KLAAR" : (s.q[s.idx]===25?'BULL':s.q[s.idx]);
+            document.getElementById('singles-instruction').innerHTML = `Gooi 3 pijlen naar <span style="color:white; font-size:1.2rem">${target}</span>`;
+            activePlayers.forEach((pl, i) => {
+                const sl = singlesState[pl];
+                const t = sl.idx >= sl.q.length ? "FIN" : (sl.q[sl.idx]===25?'BULL':sl.q[sl.idx]);
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${t}</div><div style="font-size:0.8rem">Hits: ${sl.score}</div></div>`;
             });
-            if(singlesState[activePlayers[curPIdx]].idx >= singlesState[activePlayers[curPIdx]].q.length) {
-                const p = activePlayers[curPIdx];
-                const score = singlesState[p].score;
-                const pb = getPB(p, 'singles', score, 'max'); // Save this game type
-                saveRec('singles', p, score);
-                showModal("SPEL AFGELOPEN", p, score + " Hits", pb);
+            if(s.idx >= s.q.length) {
+                const pb = getPB(p, 'singles', s.score, 'max'); saveRec('singles', p, s.score);
+                showModal("SPEL AFGELOPEN", p, s.score + " Hits", pb);
             }
         }
-        function handleSinglesInput(hits) {
-            sfx.click(); singlesState[activePlayers[curPIdx]].score += hits; singlesState[activePlayers[curPIdx]].idx++; nextTurn(); updateSinglesUI();
-        }
+        function handleSinglesInput(hits) { sfx.click(); singlesState[activePlayers[curPIdx]].score += hits; singlesState[activePlayers[curPIdx]].idx++; nextTurn(); updateSinglesUI(); }
 
-        // X01 (First to X Legs)
+        // X01
         function setupX01() {
             gameMode = 'x01';
-            let legs = prompt("First to how many legs?", "1");
+            let legs = prompt("Om hoeveel gewonnen legs?", "1");
             let req = parseInt(legs) || 1;
             let start = prompt("Start score (301/501)?", "501") === "301" ? 301 : 501;
-            
-            activePlayers.forEach(p => x01State[p] = { score: start, start: start, legs: 0, req: req, totalDarts: 0 });
+            activePlayers.forEach(p => x01State[p] = { score: start, start: start, legs: 0, req: req });
             curPIdx = 0; keypadInput = ""; updateX01UI(); showScreen('screen-game-x01');
         }
         function updateX01UI() {
@@ -501,32 +535,14 @@
             document.getElementById('x01-display').innerText = keypadInput || "0";
         }
         function submitX01() {
-            const v = parseInt(keypadInput);
-            if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
-            const p = activePlayers[curPIdx];
-            const s = x01State[p];
-            const rem = s.score - v;
-            
-            // Record darts thrown (approx 3 per turn)
-            saveRec('x01_darts', p, 3); // track usage
-
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
+            const p = activePlayers[curPIdx], s = x01State[p], rem = s.score - v;
+            saveRec('x01_darts', p, 3);
             if(rem === 0) {
-                // Leg Win
-                sfx.win(); triggerConfetti();
-                s.legs++;
-                if(s.legs >= s.req) {
-                    showModal("WEDSTRIJD GEWONNEN!", p, s.legs + " Legs", null);
-                    return;
-                } else {
-                    alert(`${p} wint de leg!`);
-                    // Reset scores for next leg
-                    activePlayers.forEach(pl => x01State[pl].score = x01State[pl].start);
-                }
-            } else if(rem <= 1) {
-                sfx.error(); alert("BUST");
-            } else {
-                sfx.confirm(); s.score = rem;
-            }
+                sfx.win(); triggerConfetti(); s.legs++;
+                if(s.legs >= s.req) { showModal("MATCH WINNER!", p, s.legs + " LEGS", null); return; }
+                else { alert(`${p} wint de leg!`); activePlayers.forEach(pl => x01State[pl].score = x01State[pl].start); }
+            } else if(rem <= 1) { sfx.error(); alert("BUST"); } else { sfx.confirm(); s.score = rem; }
             keypadInput = ""; nextTurn(); updateX01UI();
         }
 
@@ -542,10 +558,8 @@
         function updateCheckoutUI() {
             const p = activePlayers[curPIdx], s = checkoutState[p];
             if(s.r > 10) { 
-                const pb = getPB(p, 'checkout_wins', s.wins, 'max');
-                saveRec('checkout_wins', p, s.wins);
-                showModal("CHALLENGE KLAAR", p, s.wins + "/10", pb); 
-                return; 
+                const pb = getPB(p, 'checkout_wins', s.wins, 'max'); saveRec('checkout_wins', p, s.wins);
+                showModal("CHALLENGE KLAAR", p, s.wins + "/10", pb); return; 
             }
             const sb = document.getElementById('checkout-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((pl, i) => { sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${checkoutState[pl].wins}/10</div></div>`; });
@@ -555,9 +569,7 @@
         function submitCheckout() {
             const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
             const p = activePlayers[curPIdx], s = checkoutState[p], rem = s.cur - v;
-            
             saveRec('checkout_darts', p, 3);
-
             if(rem === 0) { sfx.win(); triggerConfetti(); alert("UIT!"); s.wins++; nextCO(s); }
             else if(rem <= 1) { sfx.error(); alert("BUST"); s.turns++; checkFailCO(s); }
             else { sfx.confirm(); s.cur = rem; s.turns++; checkFailCO(s); }
@@ -566,12 +578,11 @@
         function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten Op!"); nextCO(s); } }
         function nextCO(s) { s.r++; s.turns = 0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
-        // 100 PIJLEN
+        // 100
         let mode100 = 'high';
         function setup100Menu() { showScreen('screen-100-setup'); }
         function start100Game(m) {
-            mode100 = m; gameMode = '100';
-            activePlayers.forEach(p => state100[p] = { score: 0, darts: 0 });
+            mode100 = m; gameMode = '100'; activePlayers.forEach(p => state100[p] = { score: 0, darts: 0 });
             curPIdx = 0; update100UI(); showScreen('screen-game-100');
         }
         function update100UI() {
@@ -585,78 +596,138 @@
             const p = activePlayers[curPIdx], s = state100[p];
             let dartsTurn = (100 - s.darts === 1) ? 1 : 3;
             if(dartsTurn === 1 && v > 60) return alert("Max 60 voor 1 pijl");
-            
-            sfx.confirm();
-            s.score += v; s.darts += dartsTurn; keypadInput = "";
-            saveRec('100_darts', p, dartsTurn); // Track arrows
-
+            sfx.confirm(); s.score += v; s.darts += dartsTurn; keypadInput = ""; saveRec('100_darts', p, dartsTurn);
             if(s.darts >= 100) {
                 const type = mode100 === 'high' ? '100high' : '100low';
-                const pb = getPB(p, type, s.score, mode100 === 'high' ? 'max' : 'min');
-                saveRec(type, p, s.score);
+                const pb = getPB(p, type, s.score, mode100 === 'high' ? 'max' : 'min'); saveRec(type, p, s.score);
                 showModal("100 PIJLEN KLAAR", p, s.score + " Ptn", pb);
                 if(curPIdx === activePlayers.length - 1) return;
             }
             nextTurn(); update100UI();
         }
 
-        // BULLSTREAK
-        function setupBullstreak() {
-            gameMode = 'bull'; activePlayers.forEach(p => stateBull[p] = { streak: 0, alive: true });
-            curPIdx = 0; updateBullUI(); showScreen('screen-game-bullstreak');
-        }
+        // BULL
+        function setupBullstreak() { gameMode = 'bull'; activePlayers.forEach(p => stateBull[p] = { streak: 0, alive: true }); curPIdx = 0; updateBullUI(); showScreen('screen-game-bullstreak'); }
         function updateBullUI() {
-            let attempts = 0;
-            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
+            let attempts = 0; while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
             if(attempts >= activePlayers.length) { showScreen('screen-menu'); return; }
-            
             const sb = document.getElementById('bull-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((p,i) => { sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''} ${!stateBull[p].alive?'opacity:0.3':''}"><div class="p-name">${p}</div><div class="p-score">${stateBull[p].streak}</div></div>`; });
             document.getElementById('bull-streak-val').innerText = stateBull[activePlayers[curPIdx]].streak;
         }
         function handleBullResult(hit) {
-            const p = activePlayers[curPIdx];
-            saveRec('bull_darts', p, 3);
+            const p = activePlayers[curPIdx]; saveRec('bull_darts', p, 3);
             if(hit) { sfx.confirm(); stateBull[p].streak++; }
             else {
-                sfx.error(); 
-                const pb = getPB(p, 'bullstreak', stateBull[p].streak, 'max');
-                saveRec('bullstreak', p, stateBull[p].streak);
-                showModal("GAME OVER", p, stateBull[p].streak + " Beurten", pb);
-                stateBull[p].alive = false;
+                sfx.error(); const pb = getPB(p, 'bullstreak', stateBull[p].streak, 'max'); saveRec('bullstreak', p, stateBull[p].streak);
+                showModal("GAME OVER", p, stateBull[p].streak + " Beurten", pb); stateBull[p].alive = false;
             }
             curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
         }
 
         // STATS
         function showStats() {
-            const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
+            sfx.click(); const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
             allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
-            document.getElementById('stats-content').innerHTML = ''; showScreen('screen-stats');
+            document.getElementById('stats-content').innerHTML = '';
+            document.getElementById('chart-section').style.display = 'none';
+            showScreen('screen-stats');
         }
+
         function renderStats() {
-            const p = document.getElementById('stats-player-select').value;
-            if(!p) return;
-            const c = document.getElementById('stats-content');
+            const p = document.getElementById('stats-player-select').value; if(!p) return;
+            const c = document.getElementById('stats-content'); c.innerHTML = '';
             const recs = history.filter(h => h.player === p);
-            
-            // Calculate total darts
-            let totalDarts = 0;
-            recs.forEach(r => {
-                // Check various keys where we might have stored dart counts
-                if(r.gameType === 'doubles' && r.result.darts) totalDarts += parseInt(r.result.darts);
-                else if(r.gameType.includes('darts')) totalDarts += parseInt(r.result); // generic tracker
+
+            // VISUAL STATS
+            const getBest = (type, mode='max') => {
+                const rs = recs.filter(r => r.gameType === type).map(r => parseInt(r.result.score || r.result));
+                if(!rs.length) return '-'; return mode==='max' ? Math.max(...rs) : Math.min(...rs);
+            };
+
+            // Doubles Calculation
+            let dTotals = {};
+            recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)).forEach(i => {
+                const t = i.result ? i.result.target : i.target; const d = i.result ? i.result.darts : i.darts;
+                if(!dTotals[t]) dTotals[t] = {sum:0, c:0}; dTotals[t].sum += d; dTotals[t].c++;
             });
 
-            c.innerHTML = `
-                <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; margin-bottom:20px;">
-                    <h3>Records</h3>
-                    <p>Totaal Pijlen: <strong style="color:var(--c-cyan)">${totalDarts}</strong></p>
-                    <p>100 High: <strong>${getPB(p, '100high').oldBest}</strong></p>
-                    <p>100 Low: <strong>${getPB(p, '100low', 0, 'min').oldBest}</strong></p>
-                    <p>Bullstreak: <strong>${getPB(p, 'bullstreak').oldBest}</strong></p>
+            // Singles Calculation
+            let sTotals = { hits:0, turns:0 };
+            recs.filter(r => r.gameType === 'singles').forEach(i => {
+                sTotals.hits += parseInt(i.result); sTotals.turns += 21; // 21 turns in a round
+            });
+            let singleAvg = sTotals.turns > 0 ? ((sTotals.hits / (sTotals.turns * 3)) * 100).toFixed(1) + '%' : '0%';
+
+            // BUILD HTML
+            let html = `
+            <div class="stat-group">
+                <h3>🏆 Records</h3>
+                <div style="display:flex; justify-content:space-around; text-align:center;">
+                    <div><div style="color:#aaa; font-size:0.8rem">100 High</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-cyan)">${getBest('100high')}</div></div>
+                    <div><div style="color:#aaa; font-size:0.8rem">100 Low</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-pink)">${getBest('100low', 'min')}</div></div>
+                    <div><div style="color:#aaa; font-size:0.8rem">Bullstreak</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-yellow)">${getBest('bullstreak')}</div></div>
                 </div>
-            `;
+            </div>
+
+            <div class="stat-group">
+                <h3>🎯 Singles Nauwkeurigheid</h3>
+                <div class="skill-item">
+                    <span class="skill-label">Hit %</span>
+                    <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${singleAvg}; background:var(--c-cyan);"></div></div>
+                    <span class="skill-value">${singleAvg}</span>
+                </div>
+            </div>
+
+            <div class="stat-group">
+                <h3>🕰️ Doubles (Gem. Pijlen)</h3>
+                <div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
+            
+            boardOrder.forEach(n => {
+                const label = n===25?"BULL":"D"+n;
+                const s = dTotals[n];
+                let val = 0, width = "0%", color = "#555", text = "-";
+                
+                if(s) {
+                    val = s.sum / s.c;
+                    text = val.toFixed(1);
+                    // Visual logic: 3.0 is best (full bar green), > 15 is bad (full bar red)
+                    // Let's invert logic for "efficiency": Short bar = Good.
+                    // Bar length = (val / 15) * 100. Cap at 100.
+                    let pct = Math.min((val / 15) * 100, 100);
+                    width = pct + "%";
+                    color = val <= 3 ? "var(--c-cyan)" : (val <= 9 ? "var(--c-yellow)" : "var(--c-pink)");
+                }
+                
+                html += `
+                <div class="skill-item">
+                    <span class="skill-label">${label}</span>
+                    <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${width}; background:${color}"></div></div>
+                    <span class="skill-value">${text}</span>
+                </div>`;
+            });
+            html += `</div></div>`;
+            
+            c.innerHTML = html;
+            document.getElementById('chart-section').style.display = 'block';
+            updateChart('100high');
+        }
+
+        // CHARTS
+        function updateChart(metricType) {
+            const p = document.getElementById('stats-player-select').value; if(!p) return;
+            document.querySelectorAll('.btn-chart-toggle').forEach(b => b.classList.remove('active-chart')); event.target.classList.add('active-chart');
+            const recs = history.filter(h => h.player === p && h.gameType === metricType).sort((a,b) => new Date(a.date) - new Date(b.date));
+            const labels = recs.map(r => new Date(r.date).toLocaleDateString());
+            const dataPoints = recs.map(r => parseInt(r.result.score || r.result));
+            
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: metricType, data: dataPoints, borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)', tension: 0.3, fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.1)' } } } }
+            });
         }
     </script>
 </body>
