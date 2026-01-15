@@ -208,6 +208,58 @@
             </div>
         </div>
 
+        <div id="screen-doubles-setup" class="screen card">
+            <h2>Doubles Mode</h2>
+            <p class="instruction-text">Kies de volgorde van de doelen</p>
+            <div class="option-grid">
+                <button onclick="startDoublesGame('clock')" class="option-btn btn-cyan">
+                    <span class="option-icon">⏰</span> 1 - 20
+                </button>
+                <button onclick="startDoublesGame('random')" class="option-btn btn-purple">
+                    <span class="option-icon">🔀</span> Random
+                </button>
+            </div>
+            <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+        </div>
+
+        <div id="screen-singles-setup" class="screen card">
+            <h2>Singles Mode</h2>
+            <p class="instruction-text">Kies de volgorde van de doelen</p>
+            <div class="option-grid">
+                <button onclick="startSinglesGame('clock')" class="option-btn btn-cyan">
+                    <span class="option-icon">⏰</span> 1 - 20
+                </button>
+                <button onclick="startSinglesGame('random')" class="option-btn btn-purple">
+                    <span class="option-icon">🔀</span> Random
+                </button>
+            </div>
+            <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+        </div>
+
+        <div id="screen-100-setup" class="screen card">
+            <h2>100 Pijlen</h2>
+            <div class="option-grid">
+                <button onclick="start100Game('high')" class="option-btn btn-yellow">
+                    <span class="option-icon">⬆️</span> Hoogste
+                </button>
+                <button onclick="start100Game('low')" class="option-btn btn-pink">
+                    <span class="option-icon">⬇️</span> Laagste
+                </button>
+            </div>
+            <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
+        </div>
+
+        <div id="screen-checkout-setup" class="screen card">
+            <h2>Checkout</h2>
+            <label>Range:</label>
+            <div style="display:flex; gap:10px; margin: 15px 0;">
+                <input type="number" id="co-min" value="60">
+                <input type="number" id="co-max" value="100">
+            </div>
+            <button class="btn-purple" onclick="startCheckoutGame()" style="margin-top:10px;">Start Challenge</button>
+            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
+        </div>
+
         <div id="modal-stats" class="modal-overlay">
             <div class="modal-content" style="max-width: 600px;">
                 <h2 id="stats-modal-title" style="color:var(--c-yellow)">Stats</h2>
@@ -311,16 +363,6 @@
             <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
-        <div id="screen-checkout-setup" class="screen card">
-            <h2>Checkout</h2>
-            <label>Range:</label>
-            <div style="display:flex; gap:10px; margin: 15px 0;">
-                <input type="number" id="co-min" value="60">
-                <input type="number" id="co-max" value="100">
-            </div>
-            <button class="btn-purple" onclick="startCheckoutGame()">Start</button>
-            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
-        </div>
         <div id="screen-game-checkout" class="screen card">
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Checkout Challenge</h3>
@@ -339,12 +381,6 @@
             <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
-        <div id="screen-100-setup" class="screen card">
-            <h2>100 Pijlen</h2>
-            <button onclick="start100Game('high')" class="btn-yellow">Hoogste Score</button>
-            <button onclick="start100Game('low')" class="btn-pink">Laagste Score</button>
-            <button onclick="showScreen('screen-menu')" style="background:transparent;">Terug</button>
-        </div>
         <div id="screen-game-100" class="screen card">
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>100 Pijlen</h3>
@@ -398,8 +434,8 @@
 
         // UITGEBREIDE UITLEG PER SPEL (MET HTML OPMAAK VOOR DUIDELIJKHEID)
         const desc = {
-            doubles: "<b>DOEL:</b> Gooi alle dubbels uit (1-20 + Bull) met zo min mogelijk pijlen.<br><br><b>HOE:</b> Je begint bij D1. Je mag 3 pijlen gooien. Raak je? Klik op 1, 2 of 3. Mis je? Klik op 'Mis'. Je gaat door tot de Bull.",
-            singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een willekeurig getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
+            doubles: "<b>DOEL:</b> Gooi alle dubbels uit (1-20 + Bull) met zo min mogelijk pijlen.<br><br><b>HOE:</b> Je begint bij D1 (of Random). Je mag 3 pijlen gooien. Raak je? Klik op 1, 2 of 3. Mis je? Klik op 'Mis'. Je gaat door tot de Bull.",
+            singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
             bobs: "<b>DOEL:</b> Eindig met een zo hoog mogelijke score en zak niet onder 0.<br><br><b>HOE:</b> Je start met 27 punten. Gooi op volgorde (D1 t/m D20, Bull).<br>Raak = waarde erbij.<br>Mis (alle 3) = waarde eraf.",
             x01: "<b>DOEL:</b> Win de wedstrijd door als eerste het aantal legs te pakken.<br><br><b>HOE:</b> Klassiek 501/301. Gooi punten weg tot exact 0. Eindigen moet met een dubbel.",
             checkout: "<b>DOEL:</b> Train je finishes. Haal 10 finishes.<br><br><b>HOE:</b> Je krijgt een random getal (bv. 82). Je hebt 6 pijlen (2 beurten) om uit te gooien. Lukt het niet? Dan heb je gefaald.",
@@ -409,9 +445,9 @@
 
         // Game States
         let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {}, bobsState = {};
-        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
-        const bobsTargets = Array.from({length:20}, (_,i)=>i+1).concat([25]);
-
+        const standardTargets = [...Array(20).keys()].map(i=>i+1).concat([25]); // 1 to 20 + Bull
+        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25]; // Traditional board order (not strictly needed if using clock/random, but good for reference)
+        
         // UNDO SYSTEM VARS
         let undoStack = []; // Stores previous state
 
@@ -486,8 +522,8 @@
         function launchGame() {
             closeModal('modal-options');
             const t = selectedGameType;
-            if(t === 'doubles') setupDoubles();
-            else if(t === 'singles') setupSingles();
+            if(t === 'doubles') showScreen('screen-doubles-setup');
+            else if(t === 'singles') showScreen('screen-singles-setup');
             else if(t === 'bobs27') setupBobs27();
             else if(t === 'x01') setupX01();
             else if(t === 'checkout') setupCheckoutMenu();
@@ -692,20 +728,14 @@
         }
 
         // DOUBLES
-        function setupDoubles() { 
+        function startDoublesGame(mode) {
             undoStack = [];
-            if(confirm("Volgorde: Random?")) {
-                // simple random sort of boardOrder copy
-                // For simplicity in this structure, we stick to standard order logic or implement shuffleArray on a copy
-                // Implementing shuffle for single player session
-                activePlayers.forEach(p => {
-                    doublesState[p] = { idx:0, curDarts:0, queue: [...boardOrder].sort(()=>Math.random()-0.5) };
-                });
-            } else {
-                activePlayers.forEach(p => {
-                    doublesState[p] = { idx:0, curDarts:0, queue: [...boardOrder] };
-                });
-            }
+            activePlayers.forEach(p => {
+                // Determine order
+                let queue = [...standardTargets]; // 1-20+Bull
+                if (mode === 'random') queue.sort(() => Math.random() - 0.5);
+                doublesState[p] = { idx:0, curDarts:0, queue: queue };
+            });
             gameMode='doubles'; curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles'); 
         }
         function updateDoublesUI() {
@@ -732,21 +762,39 @@
         function handleDoublesMiss() { snapshotState(); doublesState[activePlayers[curPIdx]].curDarts+=3; nextTurn(); updateDoublesUI(); }
 
         // SINGLES
-        function setupSingles() { undoStack=[]; gameMode='singles'; activePlayers.forEach(p=>singlesState[p]={q:[...Array(20).keys()].map(i=>i+1).concat([25]).sort(()=>Math.random()-0.5),idx:0,score:0}); curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles'); }
+        function startSinglesGame(mode) { 
+            undoStack=[]; gameMode='singles'; 
+            activePlayers.forEach(p=> {
+                let queue = [...standardTargets]; // 1-20+Bull
+                if (mode === 'random') queue.sort(() => Math.random() - 0.5);
+                // We use 'queue' similar to doubles, but for singles we just need to know the current target.
+                // However, previous Logic used random sorting EVERY turn for singles.
+                // Let's adopt the 'Random' vs 'Clock' logic here too.
+                // If random, we create a shuffled queue. If clock, ordered queue.
+                // BUT: Singles usually implies random popups in training apps.
+                // Let's stick to the Queue system for consistency.
+                singlesState[p]={ queue: queue, idx:0, score:0 };
+            });
+            curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles'); 
+        }
         function updateSinglesUI() {
             const sb=document.getElementById('singles-scoreboard'); sb.innerHTML='';
             const p = activePlayers[curPIdx], s = singlesState[p];
-            const target = s.idx >= s.q.length ? "KLAAR" : (s.q[s.idx]===25?'BULL':s.q[s.idx]);
+            const tVal = s.queue[s.idx];
+            const target = s.idx >= s.queue.length ? "KLAAR" : (tVal===25?'BULL':tVal);
             document.getElementById('singles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i)=>{
-                const s=singlesState[p]; if(s.idx>=s.q.length){ sb.innerHTML+=`<div class="p-card"><div class="p-name">${p}</div><div class="p-score">FIN</div></div>`; return; }
-                sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.q[s.idx]===25?'BULL':s.q[s.idx]}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
+                const s=singlesState[p]; 
+                const tv = s.queue[s.idx];
+                const txt = s.idx>=s.queue.length?"FIN":(tv===25?'BULL':tv);
+                sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
             });
-            if(singlesState[activePlayers[curPIdx]].idx>=singlesState[activePlayers[curPIdx]].q.length) { saveRec('singles',activePlayers[curPIdx],singlesState[activePlayers[curPIdx]].score); showSummary(activePlayers[curPIdx], singlesState[activePlayers[curPIdx]].score, 'singles'); }
+            if(singlesState[activePlayers[curPIdx]].idx>=singlesState[activePlayers[curPIdx]].queue.length) { saveRec('singles',activePlayers[curPIdx],singlesState[activePlayers[curPIdx]].score); showSummary(activePlayers[curPIdx], singlesState[activePlayers[curPIdx]].score, 'singles'); }
         }
         function handleSinglesInput(h) { 
             snapshotState();
-            const p = activePlayers[curPIdx]; saveRec('singles_stat', p, {target:singlesState[p].q[singlesState[p].idx], hits:h});
+            const p = activePlayers[curPIdx]; 
+            saveRec('singles_stat', p, {target:singlesState[p].queue[singlesState[p].idx], hits:h});
             singlesState[p].score+=h; singlesState[p].idx++; nextTurn(); updateSinglesUI(); 
         }
 
