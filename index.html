@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darts Arcade: Ultimate Stats</title>
+    <title>Darts Arcade: Offline Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -600,9 +600,8 @@
             const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
             const p = activePlayers[curPIdx], s = checkoutState[p], rem = s.cur - v;
             
-            // SAVE ATTEMPT (1 = Success, 0 = Fail yet/Bust)
-            // But real success is only when rem == 0.
-            // Let's track checkout % by saving: saveRec('checkout_try', p, success?1:0)
+            // SAVE ATTEMPT
+            saveRec('checkout_darts', p, 3);
             
             if(rem === 0) { 
                 sfx.win(); triggerConfetti(); alert("UIT!"); s.wins++; 
@@ -616,10 +615,6 @@
             }
             else { 
                 sfx.confirm(); s.cur = rem; s.turns++; 
-                // Not a fail yet, just a throw. Don't record as miss yet unless last dart?
-                // Visual stats usually track "Checkout %" on the double. 
-                // This is hard to track without knowing if they aimed for double.
-                // Let's stick to Game Win %.
                 checkFailCO(s); 
             }
             keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
