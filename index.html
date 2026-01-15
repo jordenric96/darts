@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darten Jorden: Pro</title>
+    <title>Darten Jorden: Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -129,7 +129,7 @@
             text-align: center; color: var(--c-cyan); font-size: 0.9rem;
             margin-bottom: 15px; font-style: italic; font-weight: bold;
             background: rgba(0, 243, 255, 0.1); padding: 8px; border-radius: 10px;
-            border: 1px dashed rgba(0, 243, 255, 0.3); margin-top: 25px; /* ruimte voor undo knop */
+            border: 1px dashed rgba(0, 243, 255, 0.3); margin-top: 25px;
         }
 
         /* MODALS */
@@ -159,7 +159,7 @@
 </head>
 <body>
 
-    <div class="logo" onclick="sfx.win()">🚀 Darten Jorden</div>
+    <div class="logo" onclick="sfx.win()">🚀 Darts Jorden</div>
 
     <div class="container">
 
@@ -195,7 +195,7 @@
         <div id="modal-options" class="modal-overlay">
             <div class="modal-content">
                 <h2 id="opt-title" style="color:var(--c-cyan)">Game</h2>
-                <div id="opt-desc" style="font-size:0.9rem; line-height:1.5; color:#ddd; margin:10px 0; min-height:60px;"></div>
+                <div id="opt-desc" style="font-size:0.9rem; line-height:1.6; color:#ddd; margin:15px 0; text-align:left; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;"></div>
                 <div class="option-grid">
                     <button class="option-btn btn-green" onclick="launchGame()">
                         <span class="option-icon">🎯</span> SPELEN
@@ -396,15 +396,15 @@
         let selectedGameType = ""; 
         let myChart = null;
 
-        // UITGEBREIDE UITLEG PER SPEL
+        // UITGEBREIDE UITLEG PER SPEL (MET HTML OPMAAK VOOR DUIDELIJKHEID)
         const desc = {
-            doubles: "Train je dubbels door het hele bord rond te gaan (1-20 + Bull). Je telt het totaal aantal pijlen dat je nodig hebt om alles te raken.",
-            singles: "Oefen je precisie op de enkele getallen (1-20 + Bull). Je gooit telkens 3 pijlen. Probeer een zo hoog mogelijk percentage te halen.",
-            bobs: "Start met 27 punten. Gooi op dubbels van 1 tot 20. Raak = punten erbij. Mis = punten eraf. Onder 0 = Game Over.",
-            x01: "De wedstrijdvariant. Begin op 301 of 501 en gooi uit op 0 met een dubbel. Speel 'Best of' sets tegen elkaar.",
-            checkout: "Finish training. Je krijgt een random getal (bv. 82) en hebt 6 pijlen (2 beurten) om uit te gooien.",
-            p100: "Gooi 100 pijlen naar één doel (bv. Triple 20). Tel al je punten op. Ga voor de High Score of juist Low Score (missers trainen).",
-            bull: "Blijf gooien zolang je minstens één Bull raakt per beurt. Hoe lang houd jij de streak vol?"
+            doubles: "<b>DOEL:</b> Gooi alle dubbels uit (1-20 + Bull) met zo min mogelijk pijlen.<br><br><b>HOE:</b> Je begint bij D1. Je mag 3 pijlen gooien. Raak je? Klik op 1, 2 of 3. Mis je? Klik op 'Mis'. Je gaat door tot de Bull.",
+            singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een willekeurig getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
+            bobs: "<b>DOEL:</b> Eindig met een zo hoog mogelijke score en zak niet onder 0.<br><br><b>HOE:</b> Je start met 27 punten. Gooi op volgorde (D1 t/m D20, Bull).<br>Raak = waarde erbij.<br>Mis (alle 3) = waarde eraf.",
+            x01: "<b>DOEL:</b> Win de wedstrijd door als eerste het aantal legs te pakken.<br><br><b>HOE:</b> Klassiek 501/301. Gooi punten weg tot exact 0. Eindigen moet met een dubbel.",
+            checkout: "<b>DOEL:</b> Train je finishes. Haal 10 finishes.<br><br><b>HOE:</b> Je krijgt een random getal (bv. 82). Je hebt 6 pijlen (2 beurten) om uit te gooien. Lukt het niet? Dan heb je gefaald.",
+            p100: "<b>DOEL:</b> Zet een topscore neer in 100 worpen.<br><br><b>HOE:</b> Kies 'Hoog' (bvb Triple 20 trainen) of 'Laag' (bvb T1 trainen). Gooi 100 pijlen en voer telkens je score in.",
+            bull: "<b>DOEL:</b> Een zo lang mogelijke reeks (streak) neerzetten.<br><br><b>HOE:</b> Gooi 3 pijlen per beurt. Je MOET minstens één Bull (groen of rood) raken om in het spel te blijven."
         };
 
         // Game States
@@ -472,7 +472,7 @@
         function openGameMenu(type, title, description) {
             selectedGameType = type;
             document.getElementById('opt-title').innerText = title;
-            document.getElementById('opt-desc').innerText = description;
+            document.getElementById('opt-desc').innerHTML = description; // InnerHTML voor <br> support
             const modal = document.getElementById('modal-options');
             modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
@@ -512,17 +512,14 @@
             document.getElementById('sum-player').innerText = player;
             document.getElementById('sum-score').innerText = score;
             
-            // Get PB
-            let dbType = gameType; // Simplify mapping if needed
-            if(gameType === '100') dbType = '100high'; // assume high for now in simple call
+            let dbType = gameType;
+            if(gameType === '100') dbType = '100high'; 
             
             const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => {
-                // Parse score properly, ignore current game (last entry)
                 let val = r.result.score || r.result; 
                 if(typeof r.result === 'object' && r.result.darts) val = r.result.darts;
                 return parseInt(val);
             });
-            // remove last added
             recs.pop(); 
             
             let oldBest = "-";
@@ -631,7 +628,7 @@
             showScreen('screen-records');
         }
 
-        // --- CORE GAME LOGIC & UNDO ---
+        // --- GAME LOGIC ---
         function saveRec(type, player, res) {
             history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
             localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
@@ -646,12 +643,10 @@
 
         // UNDO FUNCTIONALITY
         function snapshotState() {
-            // Save current crucial variables to stack
             let stateToSave = {
                 gameMode: gameMode,
                 curPIdx: curPIdx,
                 keypadInput: keypadInput,
-                // Deep copy specific game states
                 doublesState: JSON.parse(JSON.stringify(doublesState)),
                 singlesState: JSON.parse(JSON.stringify(singlesState)),
                 x01State: JSON.parse(JSON.stringify(x01State)),
@@ -659,17 +654,16 @@
                 state100: JSON.parse(JSON.stringify(state100)),
                 stateBull: JSON.parse(JSON.stringify(stateBull)),
                 bobsState: JSON.parse(JSON.stringify(bobsState)),
-                historyLen: history.length // to pop last history item
+                historyLen: history.length
             };
             undoStack.push(stateToSave);
-            if(undoStack.length > 5) undoStack.shift(); // Max 5 undos
+            if(undoStack.length > 5) undoStack.shift();
         }
 
         function undoLastMove() {
             if(undoStack.length === 0) return alert("Kan niet verder terug.");
             const s = undoStack.pop();
             
-            // Restore
             gameMode = s.gameMode;
             curPIdx = s.curPIdx;
             keypadInput = s.keypadInput;
@@ -681,13 +675,11 @@
             stateBull = s.stateBull;
             bobsState = s.bobsState;
 
-            // Rollback History if logic added a record
             if(history.length > s.historyLen) {
                 history = history.slice(0, s.historyLen);
                 localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
             }
 
-            // Update UI
             if(gameMode==='doubles') updateDoublesUI();
             if(gameMode==='singles') updateSinglesUI();
             if(gameMode==='x01') updateX01UI();
@@ -696,36 +688,45 @@
             if(gameMode==='bull') updateBullUI();
             if(gameMode==='bobs') updateBobsUI();
             
-            // Update keypad displays
             ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = keypadInput || "0"; });
         }
-
-        // --- SPECIFIC GAMES ---
 
         // DOUBLES
         function setupDoubles() { 
             undoStack = [];
             if(confirm("Volgorde: Random?")) {
-                // Shuffling per player needs logic change, simpler: One shuffle for all or keep standard.
-                // Keeping standard for stability in this version.
+                // simple random sort of boardOrder copy
+                // For simplicity in this structure, we stick to standard order logic or implement shuffleArray on a copy
+                // Implementing shuffle for single player session
+                activePlayers.forEach(p => {
+                    doublesState[p] = { idx:0, curDarts:0, queue: [...boardOrder].sort(()=>Math.random()-0.5) };
+                });
+            } else {
+                activePlayers.forEach(p => {
+                    doublesState[p] = { idx:0, curDarts:0, queue: [...boardOrder] };
+                });
             }
-            gameMode='doubles'; activePlayers.forEach(p=>doublesState[p]={idx:0,curDarts:0}); curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles'); 
+            gameMode='doubles'; curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles'); 
         }
         function updateDoublesUI() {
             const sb=document.getElementById('doubles-scoreboard'); sb.innerHTML='';
             const p = activePlayers[curPIdx], s = doublesState[p];
-            const target = s.idx >= boardOrder.length ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
+            const targetVal = s.queue[s.idx];
+            const target = s.idx >= s.queue.length ? "WIN" : (targetVal === 25 ? "BULL" : "D" + targetVal);
             document.getElementById('doubles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i) => {
-                const s=doublesState[p]; const txt=s.idx>=boardOrder.length?"WIN":(boardOrder[s.idx]===25?"BULL":"D"+boardOrder[s.idx]);
+                const s=doublesState[p]; 
+                const tv = s.queue[s.idx];
+                const txt=s.idx>=s.queue.length?"WIN":(tv===25?"BULL":"D"+tv);
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
             });
             document.getElementById('doubles-darts-count').innerText=doublesState[activePlayers[curPIdx]].curDarts;
         }
         function handleDoublesInput(d) {
             snapshotState();
-            const p=activePlayers[curPIdx],s=doublesState[p]; saveRec('doubles',p,{target:boardOrder[s.idx],darts:s.curDarts+d});
-            s.idx++; s.curDarts=0; if(s.idx>=boardOrder.length){ showSummary(p, "Voltooid!", 'doubles'); return; }
+            const p=activePlayers[curPIdx],s=doublesState[p]; 
+            saveRec('doubles',p,{target:s.queue[s.idx],darts:s.curDarts+d});
+            s.idx++; s.curDarts=0; if(s.idx>=s.queue.length){ showSummary(p, "Voltooid!", 'doubles'); return; }
             nextTurn(); updateDoublesUI();
         }
         function handleDoublesMiss() { snapshotState(); doublesState[activePlayers[curPIdx]].curDarts+=3; nextTurn(); updateDoublesUI(); }
