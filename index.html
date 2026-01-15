@@ -3,149 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade: Robust</title>
+    <title>Yarni's Darts Arcade: Match Mode</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            /* TDT Sky Rockets Thema */
             --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
             --glass-bg: rgba(20, 20, 30, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            
-            --c-cyan: #00f3ff;
-            --c-pink: #ff00aa;
-            --c-yellow: #ffee00;
-            --c-purple: #bc13fe;
-            --c-red: #ff3b3b;
-            
-            --text-color: #ffffff;
-            --btn-bg: rgba(255, 255, 255, 0.1);
+            --c-cyan: #00f3ff; --c-pink: #ff00aa; --c-yellow: #ffee00;
+            --c-purple: #bc13fe; --c-red: #ff3b3b;
+            --text-color: #ffffff; --btn-bg: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-color);
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg-gradient); color: var(--text-color); margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-x: hidden; }
         
-        .logo { 
-            font-size: 2rem; font-weight: 900; font-style: italic;
-            background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3);
-        }
-
+        .logo { font-size: 2rem; font-weight: 900; font-style: italic; background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3); cursor: pointer; }
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
-
-        .card {
-            background: var(--glass-bg); backdrop-filter: blur(12px);
-            border: var(--glass-border); border-radius: 20px; padding: 20px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
-        }
+        .card { background: var(--glass-bg); backdrop-filter: blur(12px); border: var(--glass-border); border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px; animation: slideUp 0.4s ease-out; }
 
         /* KNOPPEN */
-        button {
-            border: none; border-radius: 50px; padding: 15px 25px;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
-            cursor: pointer; width: 100%; margin-bottom: 12px;
-            background: var(--btn-bg); color: white;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-transform: uppercase; letter-spacing: 1px;
-            transition: transform 0.1s;
-        }
-        button:active { transform: scale(0.95); }
-        
-        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
-        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
-        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; box-shadow: 0 4px 15px rgba(255, 238, 0, 0.3); }
-        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
-        
-        .btn-delete {
-            background: rgba(255, 59, 59, 0.2); color: var(--c-red);
-            width: 40px; height: 40px; padding: 0;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; margin: 0; border: 1px solid var(--c-red);
-        }
+        button { border: none; border-radius: 50px; padding: 15px 25px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; margin-bottom: 12px; transition: all 0.1s ease; background: var(--btn-bg); color: white; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 1px; user-select: none; }
+        button:active { transform: scale(0.95); filter: brightness(1.2); }
+        .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; box-shadow: 0 4px 15px rgba(0,243,255,0.3); }
+        .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; box-shadow: 0 4px 15px rgba(255,0,170,0.3); }
+        .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; box-shadow: 0 4px 15px rgba(255,238,0,0.3); }
+        .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; box-shadow: 0 4px 15px rgba(188,19,254,0.3); }
+        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; }
+        .btn-delete { background: rgba(255,59,59,0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1.2rem; border: 1px solid var(--c-red); display:flex; align-items:center; justify-content:center;}
 
         /* INPUTS */
-        input {
-            width: 100%; padding: 15px; border-radius: 12px;
-            border: 2px solid #333; background: black;
-            color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center;
-            font-family: 'Courier New', monospace; font-weight: bold;
-            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
-            text-transform: uppercase;
-        }
-        input::placeholder { color: #555; font-size: 1rem; font-family: 'Montserrat', sans-serif; text-transform: none; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #333; background: black; color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; font-family: 'Courier New', monospace; font-weight: bold; box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2); text-transform: uppercase; }
         input:focus { border-color: var(--c-cyan); outline: none; }
 
-        /* UI ELEMENTS */
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 8px; }
-        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
-        
+        /* SCOREBOARD */
         .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .p-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); }
-        
-        .p-score { font-size: 2.2rem; font-weight: 900; color: white; }
-        .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; }
-        
+        .p-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; position: relative; }
+        .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); }
+        .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
+        .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
+        .leg-indicator { font-size: 0.8rem; color: var(--c-yellow); margin-top: 5px; font-weight: bold; }
+
+        /* DISPLAYS & KEYPAD */
+        .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; box-shadow: inset 0 0 20px rgba(255,238,0,0.2); }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
+        .keypad button:active { background: var(--c-cyan); color: black; }
 
+        /* UI UTILS */
         .screen { display: none; }
         .active { display: block; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; cursor: pointer; }
         
-        /* FOOTER RESET */
-        .debug-footer { margin-top: 50px; text-align: center; opacity: 0.5; }
-        .debug-footer button { font-size: 0.8rem; background: transparent; border: 1px solid #555; padding: 10px; width: auto; }
+        /* MODAL (POPUP) STYLES */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            z-index: 1000; display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content {
+            background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%);
+            border: 2px solid var(--c-cyan); border-radius: 20px;
+            padding: 30px; width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.3);
+            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; color: var(--c-yellow); }
+        .modal-score { font-size: 3rem; font-weight: 900; color: white; margin: 20px 0; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .modal-pb { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 20px; }
+        .pb-badge { background: var(--c-pink); color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; margin-left: 5px; display:none; }
+
+        @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
 </head>
 <body>
 
-    <div class="logo">🚀 Yarni's Darts Arcade</div>
+    <div class="logo" onclick="sfx.win()">🚀 Yarni's Darts Arcade</div>
 
     <div class="container">
 
         <div id="screen-players" class="screen active card">
             <h2>Wie speelt er mee?</h2>
-            
             <div style="display:flex; gap:10px; margin-bottom: 15px; align-items: center;">
-                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0;">
-                <button onclick="handleAddPlayer()" class="btn-cyan" style="width: auto; margin:0; padding: 15px 20px; font-size:1.5rem;">+</button>
+                <input type="text" id="new-player-name" placeholder="NAAM" autocomplete="off" style="margin:0; text-transform:uppercase;">
+                <button onclick="addPlayer()" class="btn-cyan" style="width: auto; margin:0; padding: 15px 20px; font-size:1.5rem;">+</button>
             </div>
-
-            <div id="player-list">
-                </div>
+            <div id="player-list"></div>
             <br>
             <button class="btn-pink" onclick="confirmPlayers()">🚀 Start Game</button>
         </div>
 
         <div id="screen-menu" class="screen card">
-            <h2>Menu</h2>
+            <h2>Kies je Challenge</h2>
             <p id="active-players-display" style="text-align:center; opacity:0.7; margin-bottom: 20px;"></p>
-            <button onclick="setupDoubles()" class="btn-cyan">Doubles</button>
-            <button onclick="setupSingles()" class="btn-cyan">Singles</button>
-            <button onclick="setupX01()" class="btn-purple">X01</button>
-            <button onclick="setupCheckoutMenu()" class="btn-purple">Checkout</button>
-            <button onclick="setup100Menu()" class="btn-yellow">100 Pijlen</button>
+            <button onclick="setupDoubles()" class="btn-cyan">Doubles (Clock)</button>
+            <button onclick="setupSingles()" class="btn-cyan">Singles (Random 1-20)</button>
+            <button onclick="setupX01()" class="btn-purple">X01 Wedstrijd</button>
+            <button onclick="setupCheckoutMenu()" class="btn-purple">Checkout Challenge</button>
+            <button onclick="setup100Menu()" class="btn-yellow">100 Pijlen Challenge</button>
             <button onclick="setupBullstreak()" class="btn-pink">Bullstreak</button>
             <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 25px 0;"></div>
             <button onclick="showStats()" style="background: transparent; border: 1px solid var(--c-cyan); color: var(--c-cyan);">📈 Statistieken</button>
-            <button onclick="showScreen('screen-players')" style="background:transparent; opacity:0.6;">Terug</button>
+            <button onclick="showScreen('screen-players')" style="background:transparent; opacity: 0.6;">Terug naar Spelers</button>
+        </div>
+
+        <div id="game-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div id="modal-title" class="modal-title">GEWONNEN!</div>
+                <div style="font-size:1rem; opacity:0.8" id="modal-subtitle">Speler X</div>
+                <div id="modal-score" class="modal-score">50</div>
+                <div id="modal-pb" class="modal-pb">
+                    Jouw Record: <span id="modal-pb-val">-</span> <span id="modal-new-pb" class="pb-badge">NIEUW RECORD!</span>
+                </div>
+                <button class="btn-cyan" onclick="closeModal()">DOORGAAN ➔</button>
+            </div>
         </div>
 
         <div id="screen-game-doubles" class="screen card">
@@ -173,7 +151,7 @@
         </div>
 
         <div id="screen-checkout-setup" class="screen card">
-            <h2>Checkout</h2>
+            <h2>Checkout Setup</h2>
             <label>Tussen:</label>
             <div style="display:flex; gap:10px; margin: 15px 0;">
                 <input type="number" id="co-min" value="60">
@@ -250,41 +228,93 @@
 
         <div id="screen-stats" class="screen card">
             <h2>Statistieken</h2>
+            <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center;">
+                <h3 style="font-size: 1rem; color: #aaa; margin-bottom:10px;">💾 DATA MANAGEMENT</h3>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-green" onclick="exportData()">⬇️ Download</button>
+                    <button class="btn-yellow" onclick="document.getElementById('file-input').click()">⬆️ Herstel</button>
+                    <input type="file" id="file-input" style="display:none" accept=".json" onchange="importData(this)">
+                </div>
+            </div>
+            <hr>
             <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:15px; border-radius:15px; margin-bottom:20px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--c-cyan);">
             </select>
             <div id="stats-content"></div>
             <button onclick="showScreen('screen-menu')" style="margin-top:25px; background:transparent; border:1px solid rgba(255,255,255,0.2)">Terug</button>
         </div>
 
-        <div class="debug-footer">
-            <button onclick="hardReset()">⚠️ Reset App (Fabrieksinstellingen)</button>
-        </div>
-
     </div>
 
     <script>
-        // --- 1. CORE DATA LOGIC ---
-        // We laden data veilig in. Als het corrupt is, resetten we naar een lege lijst.
-        let allPlayers = [];
-        let history = [];
+        // --- 0. AUDIO SYSTEM ---
+        let audioCtx = null;
+        const sfx = {
+            init: () => {
+                if(!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            },
+            playTone: (freq, type, duration) => {
+                sfx.init(); if(!audioCtx) return;
+                try {
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    osc.type = type; osc.frequency.value = freq;
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch(e) {}
+            },
+            click: () => sfx.playTone(600, 'sine', 0.1),
+            confirm: () => { sfx.playTone(400, 'square', 0.1); setTimeout(()=>sfx.playTone(600, 'square', 0.2), 100); },
+            error: () => sfx.playTone(150, 'sawtooth', 0.3),
+            win: () => {
+                sfx.playTone(500, 'triangle', 0.1);
+                setTimeout(()=>sfx.playTone(600, 'triangle', 0.1), 100);
+                setTimeout(()=>sfx.playTone(800, 'triangle', 0.2), 200);
+                setTimeout(()=>sfx.playTone(1000, 'square', 0.4), 300);
+            }
+        };
 
-        try {
-            const p = localStorage.getItem('dartsPlayers');
-            allPlayers = p ? JSON.parse(p) : [];
-            if(!Array.isArray(allPlayers)) allPlayers = [];
-        } catch(e) {
-            console.error("Data error", e);
-            allPlayers = [];
+        // --- 1. VISUAL EFFECTS ---
+        function triggerConfetti() {
+            try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){}
         }
 
-        try {
-            const h = localStorage.getItem('dartsHistoryV3');
-            history = h ? JSON.parse(h) : [];
-            if(!Array.isArray(history)) history = [];
-        } catch(e) {
-            history = [];
+        // --- 2. MODAL SYSTEM ---
+        function showModal(title, subtitle, scoreText, pbDetails = null) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-subtitle').innerText = subtitle;
+            document.getElementById('modal-score').innerText = scoreText;
+            
+            const pbEl = document.getElementById('modal-pb');
+            if(pbDetails) {
+                pbEl.style.display = 'block';
+                document.getElementById('modal-pb-val').innerText = pbDetails.oldBest !== '-' ? pbDetails.oldBest : "Nog geen";
+                document.getElementById('modal-new-pb').style.display = pbDetails.isNew ? 'inline-block' : 'none';
+                if(pbDetails.isNew) sfx.win();
+            } else {
+                pbEl.style.display = 'none';
+            }
+            
+            const modal = document.getElementById('game-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
 
+        function closeModal() {
+            const modal = document.getElementById('game-modal');
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; showScreen('screen-menu'); }, 300);
+        }
+
+        // --- 3. DATA LOGIC ---
+        function safeLoad(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; } }
+        
+        const KEY_PLAYERS = 'dartsPlayers';
+        const KEY_HISTORY = 'dartsHistoryV3';
+
+        let allPlayers = safeLoad(KEY_PLAYERS);
+        let history = safeLoad(KEY_HISTORY);
         let activePlayers = [];
         let curPIdx = 0;
         let gameMode = ''; 
@@ -293,178 +323,144 @@
         let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
 
-        // --- 2. INITIALIZATION ---
-        // Dit is cruciaal: we wachten tot de HTML geladen is.
+        // --- 4. EXPORT/IMPORT ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ players: allPlayers, history: history }));
+            const dlNode = document.createElement('a');
+            dlNode.setAttribute("href", dataStr);
+            dlNode.setAttribute("download", "darts_backup.json");
+            document.body.appendChild(dlNode); dlNode.click(); dlNode.remove();
+        }
+        function importData(input) {
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.players && data.history) {
+                        if(confirm("Dit overschrijft huidige data!")) {
+                            allPlayers = data.players; history = data.history;
+                            localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers));
+                            localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+                            location.reload();
+                        }
+                    }
+                } catch(err) { alert("Fout bestand."); }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- 5. INITIALIZATION ---
         document.addEventListener("DOMContentLoaded", function() {
             renderPlayerList();
-            
-            // Enter key support voor naam toevoegen
             const inputName = document.getElementById('new-player-name');
-            if(inputName) {
-                inputName.addEventListener("keypress", function(event) {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        handleAddPlayer();
-                    }
-                });
+            if(inputName) inputName.addEventListener("keypress", function(e) { if(e.key === "Enter") handleAddPlayer(); });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (document.querySelector('.screen.active .keypad')) {
+                const k = e.key;
+                if (!isNaN(k) && k !== ' ') kp(parseInt(k));
+                else if (k === 'Backspace') kp('BACK');
+                else if (k === 'Enter') {
+                    if (gameMode==='x01') submitX01();
+                    if (gameMode==='checkout') submitCheckout();
+                    if (gameMode==='100') submit100();
+                }
             }
         });
 
-        // --- 3. PLAYER FUNCTIONS ---
+        // --- 6. PLAYER FUNCTIONS ---
         function renderPlayerList() {
             const list = document.getElementById('player-list');
-            if(!list) return;
-            
-            list.innerHTML = "";
-            if (allPlayers.length === 0) {
-                list.innerHTML = '<p style="text-align:center; opacity:0.6;">Nog geen spelers. Typ een naam en druk op +</p>';
-                return;
-            }
-
+            if(!list) return; list.innerHTML = "";
+            if (allPlayers.length === 0) { list.innerHTML = '<p style="text-align:center; opacity:0.6;">Geen spelers.</p>'; return; }
             allPlayers.forEach(name => {
-                const div = document.createElement("div");
-                div.className = "player-row";
-                div.innerHTML = `
-                    <div style="display:flex; align-items:center;">
-                        <input type="checkbox" class="player-select-checkbox cb" value="${name}">
-                        <span style="font-weight:bold; font-size:1.1rem; color:var(--c-cyan); font-family:'Courier New'">${name}</span>
-                    </div>
-                    <button class="btn-delete" onclick="handleDeletePlayer('${name}')">X</button>
-                `;
-                list.appendChild(div);
+                list.innerHTML += `<div class="player-row"><div style="display:flex; align-items:center;"><input type="checkbox" class="player-select-checkbox cb" value="${name}"><span style="font-weight:bold; font-size:1.1rem; color:var(--c-cyan); font-family:'Courier New'">${name}</span></div><button class="btn-delete" onclick="handleDeletePlayer('${name}')">X</button></div>`;
             });
         }
-
         function handleAddPlayer() {
+            sfx.confirm();
             const input = document.getElementById('new-player-name');
             const name = input.value.trim().toUpperCase();
-            
-            if (name && !allPlayers.includes(name)) {
-                allPlayers.push(name);
-                localStorage.setItem('dartsPlayers', JSON.stringify(allPlayers));
-                renderPlayerList();
-                input.value = "";
-                input.focus();
-            } else if (allPlayers.includes(name)) {
-                alert("Naam bestaat al!");
-            }
+            if (name && !allPlayers.includes(name)) { allPlayers.push(name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); input.value = ""; input.focus(); }
         }
-
         function handleDeletePlayer(name) {
-            if(confirm("Verwijder " + name + "?")) {
-                allPlayers = allPlayers.filter(p => p !== name);
-                localStorage.setItem('dartsPlayers', JSON.stringify(allPlayers));
-                renderPlayerList();
-            }
+            if(confirm("Verwijder " + name + "?")) { allPlayers = allPlayers.filter(p => p !== name); localStorage.setItem(KEY_PLAYERS, JSON.stringify(allPlayers)); renderPlayerList(); }
         }
-
         function confirmPlayers() {
-            const checkboxes = document.querySelectorAll('.cb:checked');
-            activePlayers = Array.from(checkboxes).map(cb => cb.value);
-            
-            if (activePlayers.length === 0) {
-                alert("Selecteer minstens 1 speler.");
-                return;
-            }
+            sfx.click();
+            activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
+            if(!activePlayers.length) return alert("Selecteer speler.");
             document.getElementById('active-players-display').innerText = activePlayers.join(", ");
             showScreen('screen-menu');
         }
 
-        // --- 4. NAVIGATION ---
-        function showScreen(screenId) {
+        // --- 7. UTILS ---
+        function showScreen(id) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-            const target = document.getElementById(screenId);
-            if(target) target.classList.add('active');
-            if(screenId === 'screen-players') renderPlayerList();
+            document.getElementById(id).classList.add('active');
+            if(id === 'screen-players') renderPlayerList();
+            sfx.click();
         }
-
-        function quitGame() {
-            if(confirm("Stoppen en terug naar menu?")) {
-                showScreen('screen-menu');
-            }
+        function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
+        function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
+        function saveRec(type, player, res) {
+            history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
+            localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
         }
-
-        function hardReset() {
-            if(confirm("Weet je het zeker? ALLES wordt gewist.")) {
-                localStorage.clear();
-                location.reload();
-            }
+        function kp(v) {
+            sfx.click();
+            if (v==='BACK') keypadInput = keypadInput.slice(0, -1);
+            else if (keypadInput.length < 3) keypadInput += v;
+            ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el && el.closest('.active')) el.innerText = keypadInput || "0"; });
         }
-
-        // --- 5. GAME LOGIC ---
-        function nextTurn() {
-            curPIdx = (curPIdx + 1) % activePlayers.length;
-        }
-
-        function saveHistory(gameType, player, resultData) {
-            const record = {
-                date: new Date().toISOString(),
-                gameType: gameType,
-                player: player,
-                result: resultData
-            };
-            history.push(record);
-            localStorage.setItem('dartsHistoryV3', JSON.stringify(history));
-        }
-
-        // KEYPAD
-        function kp(val) {
-            if (val === 'BACK') keypadInput = keypadInput.slice(0, -1);
-            else if (keypadInput.length < 3) keypadInput += val;
+        
+        // CHECK PERSONAL BEST
+        function getPB(player, gameType, score, mode='max') {
+            const recs = history.filter(h => h.player === player && h.gameType === gameType);
+            if(recs.length === 0) return { oldBest: '-', isNew: true };
             
-            const displayIds = ['x01-display', 'checkout-display', '100-display'];
-            displayIds.forEach(id => {
-                const el = document.getElementById(id);
-                if(el && el.closest('.active')) el.innerText = keypadInput || "0";
-            });
+            const scores = recs.map(r => parseInt(r.result.score || r.result));
+            const oldBest = mode === 'max' ? Math.max(...scores) : Math.min(...scores);
+            const isNew = mode === 'max' ? (score > oldBest) : (score < oldBest);
+            return { oldBest: oldBest, isNew: isNew };
         }
 
+        // --- 8. GAMES ---
         // DOUBLES
         function setupDoubles() {
-            gameMode = 'doubles';
-            activePlayers.forEach(p => doublesState[p] = { idx: 0, curDarts: 0 });
+            gameMode = 'doubles'; activePlayers.forEach(p => doublesState[p] = { idx: 0, curDarts: 0 });
             curPIdx = 0; updateDoublesUI(); showScreen('screen-game-doubles');
         }
         function updateDoublesUI() {
-            const sb = document.getElementById('doubles-scoreboard');
-            sb.innerHTML = '';
+            const sb = document.getElementById('doubles-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((p, i) => {
                 const s = doublesState[p];
-                const done = s.idx >= boardOrder.length;
-                const txt = done ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
+                const txt = s.idx >= boardOrder.length ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
                 sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
             });
             document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[curPIdx]].curDarts;
         }
         function handleDoublesInput(d) {
-            const p = activePlayers[curPIdx];
-            const s = doublesState[p];
-            const target = boardOrder[s.idx];
-            
-            saveHistory('doubles', p, { target: target, darts: s.curDarts + d });
-            
-            s.idx++; 
-            s.curDarts = 0;
-            
-            if(s.idx >= boardOrder.length) {
-                alert(p + " WINT!");
-                showScreen('screen-menu');
+            sfx.click();
+            const p = activePlayers[curPIdx], s = doublesState[p], t = boardOrder[s.idx];
+            const totalDarts = s.curDarts + d;
+            saveRec('doubles', p, { target: t, darts: totalDarts });
+            s.idx++; s.curDarts = 0;
+            if(s.idx >= boardOrder.length) { 
+                triggerConfetti(); sfx.win();
+                showModal("UITGEGOOID!", p, "Around the Clock", null);
                 return;
             }
             nextTurn(); updateDoublesUI();
         }
-        function handleDoublesMiss() {
-            doublesState[activePlayers[curPIdx]].curDarts += 3;
-            nextTurn(); updateDoublesUI();
-        }
+        function handleDoublesMiss() { sfx.error(); doublesState[activePlayers[curPIdx]].curDarts += 3; nextTurn(); updateDoublesUI(); }
 
         // SINGLES
         function setupSingles() {
-            gameMode = 'singles';
-            const targets = Array.from({length:20}, (_,i)=>i+1).concat([25]);
-            activePlayers.forEach(p => {
-                singlesState[p] = { q: targets.sort(()=>Math.random()-0.5), idx: 0, score: 0 };
-            });
+            gameMode = 'singles'; 
+            activePlayers.forEach(p => singlesState[p] = { q: Array.from({length:20},(_,i)=>i+1).concat([25]).sort(()=>Math.random()-0.5), idx: 0, score: 0 });
             curPIdx = 0; updateSinglesUI(); showScreen('screen-game-singles');
         }
         function updateSinglesUI() {
@@ -472,93 +468,105 @@
             activePlayers.forEach((p, i) => {
                 const s = singlesState[p];
                 if(s.idx >= s.q.length) { sb.innerHTML += `<div class="p-card"><div class="p-name">${p}</div><div class="p-score">FIN</div></div>`; return; }
-                const val = s.q[s.idx] === 25 ? "BULL" : s.q[s.idx];
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${val}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.q[s.idx]===25?'BULL':s.q[s.idx]}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
             });
             if(singlesState[activePlayers[curPIdx]].idx >= singlesState[activePlayers[curPIdx]].q.length) {
-                alert("Spel Afgelopen!"); showScreen('screen-menu');
+                const p = activePlayers[curPIdx];
+                const score = singlesState[p].score;
+                const pb = getPB(p, 'singles', score, 'max'); // Save this game type
+                saveRec('singles', p, score);
+                showModal("SPEL AFGELOPEN", p, score + " Hits", pb);
             }
         }
         function handleSinglesInput(hits) {
+            sfx.click(); singlesState[activePlayers[curPIdx]].score += hits; singlesState[activePlayers[curPIdx]].idx++; nextTurn(); updateSinglesUI();
+        }
+
+        // X01 (First to X Legs)
+        function setupX01() {
+            gameMode = 'x01';
+            let legs = prompt("First to how many legs?", "1");
+            let req = parseInt(legs) || 1;
+            let start = prompt("Start score (301/501)?", "501") === "301" ? 301 : 501;
+            
+            activePlayers.forEach(p => x01State[p] = { score: start, start: start, legs: 0, req: req, totalDarts: 0 });
+            curPIdx = 0; keypadInput = ""; updateX01UI(); showScreen('screen-game-x01');
+        }
+        function updateX01UI() {
+            const sb = document.getElementById('x01-scoreboard'); sb.innerHTML = '';
+            activePlayers.forEach((p,i) => {
+                const s = x01State[p];
+                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.score}</div><div class="leg-indicator">Legs: ${s.legs}/${s.req}</div></div>`;
+            });
+            document.getElementById('x01-display').innerText = keypadInput || "0";
+        }
+        function submitX01() {
+            const v = parseInt(keypadInput);
+            if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
             const p = activePlayers[curPIdx];
-            singlesState[p].score += hits;
-            singlesState[p].idx++;
-            nextTurn(); updateSinglesUI();
+            const s = x01State[p];
+            const rem = s.score - v;
+            
+            // Record darts thrown (approx 3 per turn)
+            saveRec('x01_darts', p, 3); // track usage
+
+            if(rem === 0) {
+                // Leg Win
+                sfx.win(); triggerConfetti();
+                s.legs++;
+                if(s.legs >= s.req) {
+                    showModal("WEDSTRIJD GEWONNEN!", p, s.legs + " Legs", null);
+                    return;
+                } else {
+                    alert(`${p} wint de leg!`);
+                    // Reset scores for next leg
+                    activePlayers.forEach(pl => x01State[pl].score = x01State[pl].start);
+                }
+            } else if(rem <= 1) {
+                sfx.error(); alert("BUST");
+            } else {
+                sfx.confirm(); s.score = rem;
+            }
+            keypadInput = ""; nextTurn(); updateX01UI();
         }
 
         // CHECKOUT
         function setupCheckoutMenu() { showScreen('screen-checkout-setup'); }
         function startCheckoutGame() {
-            const min = parseInt(document.getElementById('co-min').value);
-            const max = parseInt(document.getElementById('co-max').value);
+            const min = parseInt(document.getElementById('co-min').value); const max = parseInt(document.getElementById('co-max').value);
             gameMode = 'checkout';
             activePlayers.forEach(p => checkoutState[p] = { r:1, wins:0, tStart: Math.floor(Math.random()*(max-min+1)+min), cur:0, turns:0, min:min, max:max });
             activePlayers.forEach(p => checkoutState[p].cur = checkoutState[p].tStart);
             curPIdx = 0; updateCheckoutUI(); showScreen('screen-game-checkout');
         }
         function updateCheckoutUI() {
-            const p = activePlayers[curPIdx];
-            const s = checkoutState[p];
-            if(s.r > 10) { alert("Klaar!"); showScreen('screen-menu'); return; }
-            
+            const p = activePlayers[curPIdx], s = checkoutState[p];
+            if(s.r > 10) { 
+                const pb = getPB(p, 'checkout_wins', s.wins, 'max');
+                saveRec('checkout_wins', p, s.wins);
+                showModal("CHALLENGE KLAAR", p, s.wins + "/10", pb); 
+                return; 
+            }
             const sb = document.getElementById('checkout-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((pl, i) => {
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${checkoutState[pl].wins}/10</div></div>`;
-            });
+            activePlayers.forEach((pl, i) => { sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${pl}</div><div class="p-score">${checkoutState[pl].wins}/10</div></div>`; });
             document.getElementById('co-target').innerText = s.cur;
             document.getElementById('checkout-display').innerText = keypadInput || "0";
         }
         function submitCheckout() {
-            const v = parseInt(keypadInput);
-            if(isNaN(v)) return;
-            const p = activePlayers[curPIdx];
-            const s = checkoutState[p];
-            const rem = s.cur - v;
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
+            const p = activePlayers[curPIdx], s = checkoutState[p], rem = s.cur - v;
             
-            if(rem === 0) {
-                alert("UIT!"); s.wins++; nextCO(s);
-            } else if (rem <= 1) {
-                alert("BUST"); s.turns++; checkFailCO(s);
-            } else {
-                s.cur = rem; s.turns++; checkFailCO(s);
-            }
-            keypadInput = ""; 
-            if(s.cur > 0) nextTurn(); // wissel speler indien niet uit
-            updateCheckoutUI();
-        }
-        function checkFailCO(s) {
-            if(s.turns >= 2 && s.cur > 0) { alert("Beurten Op!"); nextCO(s); }
-        }
-        function nextCO(s) {
-            s.r++; s.turns = 0;
-            s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min);
-            s.cur = s.tStart;
-        }
+            saveRec('checkout_darts', p, 3);
 
-        // X01
-        function setupX01() {
-            gameMode = 'x01';
-            activePlayers.forEach(p => x01State[p] = { score: 501 });
-            curPIdx = 0; updateX01UI(); showScreen('screen-game-x01');
+            if(rem === 0) { sfx.win(); triggerConfetti(); alert("UIT!"); s.wins++; nextCO(s); }
+            else if(rem <= 1) { sfx.error(); alert("BUST"); s.turns++; checkFailCO(s); }
+            else { sfx.confirm(); s.cur = rem; s.turns++; checkFailCO(s); }
+            keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
         }
-        function updateX01UI() {
-            const sb = document.getElementById('x01-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${x01State[p].score}</div></div>`;
-            });
-            document.getElementById('x01-display').innerText = keypadInput || "0";
-        }
-        function submitX01() {
-            const v = parseInt(keypadInput);
-            if(isNaN(v) || v > 180) return alert("Ongeldig");
-            const p = activePlayers[curPIdx];
-            const rem = x01State[p].score - v;
-            if(rem === 0) { alert(p + " WINT!"); showScreen('screen-menu'); return; }
-            if(rem > 1) x01State[p].score = rem; else alert("BUST");
-            keypadInput = ""; nextTurn(); updateX01UI();
-        }
+        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten Op!"); nextCO(s); } }
+        function nextCO(s) { s.r++; s.turns = 0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
-        // 100
+        // 100 PIJLEN
         let mode100 = 'high';
         function setup100Menu() { showScreen('screen-100-setup'); }
         function start100Game(m) {
@@ -568,96 +576,88 @@
         }
         function update100UI() {
             const sb = document.getElementById('100-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${state100[p].score}</div></div>`;
-            });
+            activePlayers.forEach((p,i) => { sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${state100[p].score}</div></div>`; });
             document.getElementById('100-counter').innerText = state100[activePlayers[curPIdx]].darts;
             document.getElementById('100-display').innerText = keypadInput || "0";
         }
         function submit100() {
-            const v = parseInt(keypadInput);
-            if(isNaN(v) || v > 180) return;
-            const p = activePlayers[curPIdx];
-            const s = state100[p];
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
+            const p = activePlayers[curPIdx], s = state100[p];
             let dartsTurn = (100 - s.darts === 1) ? 1 : 3;
             if(dartsTurn === 1 && v > 60) return alert("Max 60 voor 1 pijl");
             
-            s.score += v; s.darts += dartsTurn;
-            keypadInput = "";
-            
+            sfx.confirm();
+            s.score += v; s.darts += dartsTurn; keypadInput = "";
+            saveRec('100_darts', p, dartsTurn); // Track arrows
+
             if(s.darts >= 100) {
-                alert("Klaar! Score: " + s.score);
-                saveHistory(mode100 === 'high' ? '100high' : '100low', p, s.score);
-                if(curPIdx === activePlayers.length - 1) { showScreen('screen-menu'); return; }
+                const type = mode100 === 'high' ? '100high' : '100low';
+                const pb = getPB(p, type, s.score, mode100 === 'high' ? 'max' : 'min');
+                saveRec(type, p, s.score);
+                showModal("100 PIJLEN KLAAR", p, s.score + " Ptn", pb);
+                if(curPIdx === activePlayers.length - 1) return;
             }
             nextTurn(); update100UI();
         }
 
         // BULLSTREAK
         function setupBullstreak() {
-            gameMode = 'bull';
-            activePlayers.forEach(p => stateBull[p] = { streak: 0, alive: true });
+            gameMode = 'bull'; activePlayers.forEach(p => stateBull[p] = { streak: 0, alive: true });
             curPIdx = 0; updateBullUI(); showScreen('screen-game-bullstreak');
         }
         function updateBullUI() {
             let attempts = 0;
-            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) {
-                curPIdx = (curPIdx + 1) % activePlayers.length;
-                attempts++;
-            }
-            if(attempts >= activePlayers.length) { alert("Iedereen af!"); showScreen('screen-menu'); return; }
+            while(!stateBull[activePlayers[curPIdx]].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
+            if(attempts >= activePlayers.length) { showScreen('screen-menu'); return; }
             
             const sb = document.getElementById('bull-scoreboard'); sb.innerHTML = '';
-            activePlayers.forEach((p,i) => {
-                const s = stateBull[p];
-                sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''} ${!s.alive?'opacity:0.3':''}"><div class="p-name">${p}</div><div class="p-score">${s.streak}</div></div>`;
-            });
+            activePlayers.forEach((p,i) => { sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''} ${!stateBull[p].alive?'opacity:0.3':''}"><div class="p-name">${p}</div><div class="p-score">${stateBull[p].streak}</div></div>`; });
             document.getElementById('bull-streak-val').innerText = stateBull[activePlayers[curPIdx]].streak;
         }
         function handleBullResult(hit) {
             const p = activePlayers[curPIdx];
-            if(hit) stateBull[p].streak++;
+            saveRec('bull_darts', p, 3);
+            if(hit) { sfx.confirm(); stateBull[p].streak++; }
             else {
-                alert("Helaas! Streak: " + stateBull[p].streak);
+                sfx.error(); 
+                const pb = getPB(p, 'bullstreak', stateBull[p].streak, 'max');
+                saveRec('bullstreak', p, stateBull[p].streak);
+                showModal("GAME OVER", p, stateBull[p].streak + " Beurten", pb);
                 stateBull[p].alive = false;
-                saveHistory('bullstreak', p, stateBull[p].streak);
             }
-            curPIdx = (curPIdx + 1) % activePlayers.length;
-            updateBullUI();
+            curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
         }
 
         // STATS
         function showStats() {
-            const s = document.getElementById('stats-player-select');
-            s.innerHTML = '<option value="">-- Kies Speler --</option>';
+            const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
             allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
-            document.getElementById('stats-content').innerHTML = '';
-            showScreen('screen-stats');
+            document.getElementById('stats-content').innerHTML = ''; showScreen('screen-stats');
         }
         function renderStats() {
             const p = document.getElementById('stats-player-select').value;
             if(!p) return;
             const c = document.getElementById('stats-content');
-            
             const recs = history.filter(h => h.player === p);
             
-            const getBest = (type, mode='max') => {
-                const vals = recs.filter(r => r.gameType === type).map(r => parseInt(r.result));
-                if(!vals.length) return '-';
-                return mode==='max' ? Math.max(...vals) : Math.min(...vals);
-            };
+            // Calculate total darts
+            let totalDarts = 0;
+            recs.forEach(r => {
+                // Check various keys where we might have stored dart counts
+                if(r.gameType === 'doubles' && r.result.darts) totalDarts += parseInt(r.result.darts);
+                else if(r.gameType.includes('darts')) totalDarts += parseInt(r.result); // generic tracker
+            });
 
             c.innerHTML = `
                 <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; margin-bottom:20px;">
                     <h3>Records</h3>
-                    <p>100 High: <strong>${getBest('100high')}</strong></p>
-                    <p>100 Low: <strong>${getBest('100low', 'min')}</strong></p>
-                    <p>Bullstreak: <strong>${getBest('bullstreak')}</strong></p>
+                    <p>Totaal Pijlen: <strong style="color:var(--c-cyan)">${totalDarts}</strong></p>
+                    <p>100 High: <strong>${getPB(p, '100high').oldBest}</strong></p>
+                    <p>100 Low: <strong>${getPB(p, '100low', 0, 'min').oldBest}</strong></p>
+                    <p>Bullstreak: <strong>${getPB(p, 'bullstreak').oldBest}</strong></p>
                 </div>
-                <p style="text-align:center; opacity:0.6;">(Grafieken tijdelijk uitgeschakeld)</p>
             `;
         }
-
     </script>
 </body>
 </html>
