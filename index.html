@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darten Jorden</title>
+    <title>Darten Jorden: Bob's 27</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            /* THEMA: Darten Jorden (Rocket Style) */
-            --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            /* TDT Sky Rockets Thema */
+            --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
             --glass-bg: rgba(20, 20, 30, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
             
             --c-cyan: #00f3ff;
             --c-pink: #ff00aa;
             --c-yellow: #ffee00;
+            --c-purple: #bc13fe;
             --c-red: #ff3b3b;
             --c-green: #00e676;
             
@@ -44,7 +45,7 @@
         h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
         
         .logo { 
-            font-size: 2.2rem; font-weight: 900; font-style: italic;
+            font-size: 2rem; font-weight: 900; font-style: italic;
             background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3);
@@ -58,11 +59,20 @@
             border: var(--glass-border); border-radius: 20px; padding: 20px;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
             animation: slideUp 0.4s ease-out;
+            transition: background 0.3s;
+        }
+
+        /* INSTRUCTIE TEXT */
+        .instruction-text {
+            text-align: center; color: var(--c-cyan); font-size: 0.9rem;
+            margin-bottom: 15px; font-style: italic; font-weight: bold;
+            background: rgba(0, 243, 255, 0.1); padding: 8px; border-radius: 10px;
+            border: 1px dashed rgba(0, 243, 255, 0.3);
         }
 
         /* KNOPPEN */
         button {
-            border: none; border-radius: 15px; padding: 15px 25px;
+            border: none; border-radius: 50px; padding: 15px 25px;
             font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
             cursor: pointer; width: 100%; margin-bottom: 12px;
             transition: all 0.1s ease; background: var(--btn-bg); color: white;
@@ -82,6 +92,9 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem; margin: 0; border: 1px solid var(--c-red);
         }
+
+        .btn-chart-toggle { width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px; }
+        .btn-chart-toggle.active-chart { background: white; color: black; box-shadow: 0 0 15px white; }
 
         /* INPUTS */
         input {
@@ -107,21 +120,32 @@
         .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
         .keypad button:active { background: var(--c-cyan); color: black; }
 
+        /* ADVANCED STATS VISUALS */
+        .stat-grid-header { display:grid; grid-template-columns: 40px 1fr 1fr; gap:10px; font-size:0.8rem; color:var(--c-yellow); margin-bottom:10px; text-transform:uppercase; font-weight:bold; text-align:center;}
+        .stat-number-row { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px; margin-bottom: 8px; display: grid; grid-template-columns: 40px 1fr 1fr; gap: 15px; align-items: center; }
+        .stat-label { font-size: 1.2rem; font-weight: 900; color: white; background: rgba(255,255,255,0.1); border-radius: 8px; height: 40px; display:flex; align-items:center; justify-content:center; }
+        .stat-bar-container { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .stat-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top:5px;}
+        .stat-bar-fill { height: 100%; border-radius: 4px; }
+        .stat-info { font-size: 0.7rem; color: #aaa; display: flex; justify-content: space-between; width: 100%; margin-top:2px; }
+        .stat-highlight { color: white; font-weight: bold; }
+
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-content { background: linear-gradient(135deg, #2a2a40 0%, #1a1a2e 100%); border: 2px solid var(--c-cyan); border-radius: 20px; padding: 30px; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.3); transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.show .modal-content { transform: scale(1); }
-        
-        /* OPTION MODAL (Play/Stats) */
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .option-btn { height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2rem; }
         .option-icon { font-size: 2.5rem; margin-bottom: 10px; }
-
-        /* CHARTS */
-        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
-
+        
         .screen { display: none; } .active { display: block; }
+        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.3); }
+        
+        /* FLASH ANIMATION */
+        @keyframes flashRed { 0% { background-color: rgba(255,0,0,0.5); } 100% { background-color: var(--glass-bg); } }
+        .flash-red { animation: flashRed 0.5s; }
+
         @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
 </head>
@@ -148,6 +172,7 @@
             
             <button onclick="openGameMenu('doubles', 'Doubles (Clock)')" class="btn-cyan">Doubles (Clock)</button>
             <button onclick="openGameMenu('singles', 'Singles (Random)')" class="btn-cyan">Singles (Random)</button>
+            <button onclick="openGameMenu('bobs27', 'Bob\'s 27')" class="btn-yellow">Bob's 27</button>
             <button onclick="openGameMenu('x01', 'X01 Wedstrijd')" class="btn-purple">X01 Wedstrijd</button>
             <button onclick="openGameMenu('checkout', 'Checkout Challenge')" class="btn-purple">Checkout Challenge</button>
             <button onclick="openGameMenu('100', '100 Pijlen')" class="btn-yellow">100 Pijlen</button>
@@ -197,6 +222,7 @@
 
         <div id="screen-game-doubles" class="screen card">
             <h3>Doubles</h3>
+            <div class="instruction-text" id="doubles-instruction">Gooi 3 pijlen naar...</div>
             <div id="doubles-scoreboard" class="scoreboard"></div>
             <p style="text-align:center;">Pijlen: <strong id="doubles-darts-count" style="color:var(--c-cyan)">0</strong></p>
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
@@ -210,6 +236,7 @@
 
         <div id="screen-game-singles" class="screen card">
             <h3>Singles</h3>
+            <div class="instruction-text" id="singles-instruction">Gooi 3 pijlen naar...</div>
             <div id="singles-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin-bottom:15px;">Hits (3 pijlen):</div>
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
@@ -221,8 +248,23 @@
             <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
         </div>
 
+        <div id="screen-game-bobs27" class="screen card">
+            <h3>Bob's 27</h3>
+            <div class="instruction-text" id="bobs-instruction">Target: D1</div>
+            <div id="bobs-scoreboard" class="scoreboard"></div>
+            <div style="text-align:center; margin-bottom:15px;">Aantal keer geraakt:</div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+                <button class="btn-pink" onclick="handleBobsInput(0)">0 (Mis)</button>
+                <button class="btn-cyan" onclick="handleBobsInput(1)">1</button>
+                <button class="btn-cyan" onclick="handleBobsInput(2)">2</button>
+                <button class="btn-cyan" onclick="handleBobsInput(3)">3</button>
+            </div>
+            <button onclick="quitGame()" style="margin-top:20px; background:transparent;">Stoppen</button>
+        </div>
+
         <div id="screen-game-x01" class="screen card">
             <h3>X01 Match</h3>
+            <div class="instruction-text">Gooi de score naar 0 (Dubbel Uit)</div>
             <div id="x01-scoreboard" class="scoreboard"></div>
             <div id="x01-display" class="score-display-box">0</div>
             <div class="keypad">
@@ -248,6 +290,7 @@
         </div>
         <div id="screen-game-checkout" class="screen card">
             <h3>Checkout Challenge</h3>
+            <div class="instruction-text">Gooi dit getal uit binnen 2 beurten (6 pijlen)</div>
             <div id="checkout-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; font-size:5rem; font-weight:900; color:var(--c-yellow);" id="co-target">?</div>
             <div id="checkout-display" class="score-display-box">0</div>
@@ -270,6 +313,7 @@
         </div>
         <div id="screen-game-100" class="screen card">
             <h3>100 Pijlen</h3>
+            <div class="instruction-text">Gooi 100 pijlen en haal de beste score</div>
             <div id="100-scoreboard" class="scoreboard"></div>
             <div style="text-align:center;">Pijl <span id="100-counter" style="color:var(--c-yellow);">0</span>/100</div>
             <div id="100-display" class="score-display-box">0</div>
@@ -286,6 +330,7 @@
 
         <div id="screen-game-bullstreak" class="screen card">
             <h3>Bullstreak</h3>
+            <div class="instruction-text">Blijf gooien zolang je minstens 1 bull raakt</div>
             <div id="bull-scoreboard" class="scoreboard"></div>
             <div style="text-align:center; margin:20px 0;">
                 <div style="font-size:0.9rem;">HUIDIGE STREAK</div>
@@ -316,8 +361,9 @@
         let myChart = null;
 
         // Game States
-        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {};
+        let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {}, bobsState = {};
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
+        const bobsTargets = Array.from({length:20}, (_,i)=>i+1).concat([25]); // 1 to 20 + Bull
 
         // STARTUP
         window.onload = function() {
@@ -327,6 +373,14 @@
         };
 
         // --- CORE FUNCTIONS ---
+        const sfx = {
+            win: () => { try {
+                const ctx = new (window.AudioContext||window.webkitAudioContext)();
+                const osc = ctx.createOscillator(); osc.type='triangle'; osc.frequency.value=600; osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+0.1);
+            } catch(e){} }
+        };
+        function triggerConfetti() { try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00f3ff', '#ff00aa', '#ffee00'] }); } catch(e){} }
+
         function safeLoad(key) {
             try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e){ return []; }
         }
@@ -391,6 +445,7 @@
             const t = selectedGameType;
             if(t === 'doubles') setupDoubles();
             else if(t === 'singles') setupSingles();
+            else if(t === 'bobs27') setupBobs27();
             else if(t === 'x01') setupX01();
             else if(t === 'checkout') setupCheckoutMenu();
             else if(t === '100') setup100Menu();
@@ -399,23 +454,14 @@
 
         function launchStats() {
             closeModal('modal-options');
-            const t = selectedGameType;
-            // Map types to save keys
-            let key = t;
-            if(t === '100') key = '100high'; // Default chart
-            if(t === 'bull') key = 'bullstreak';
-            
-            // Populate selector
             const s = document.getElementById('stats-modal-player');
             s.innerHTML = "";
             if(allPlayers.length === 0) s.innerHTML = "<option>Geen spelers</option>";
             else allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
             
-            // Show modal
             document.getElementById('stats-modal-title').innerText = document.getElementById('opt-title').innerText + " Stats";
             const m = document.getElementById('modal-stats');
             m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10);
-            
             refreshGameStats();
         }
 
@@ -423,15 +469,12 @@
         function refreshGameStats() {
             const player = document.getElementById('stats-modal-player').value;
             let type = selectedGameType;
-            let dbType = type; // Map to DB key
-            
-            // Logic to determine which data to show
-            if(type === 'doubles') dbType = 'doubles';
-            if(type === 'singles') dbType = 'singles'; // score records
-            if(type === 'x01') dbType = 'x01_throw'; // avg tracking
-            if(type === 'checkout') dbType = 'checkout_wins'; 
+            // Map types to DB key
+            let dbType = type;
             if(type === '100') dbType = '100high';
             if(type === 'bull') dbType = 'bullstreak';
+            if(type === 'x01') dbType = 'x01_throw';
+            if(type === 'checkout') dbType = 'checkout_wins';
 
             const recs = history.filter(h => h.player === player && h.gameType === dbType).sort((a,b) => new Date(a.date) - new Date(b.date));
             const labels = recs.map(r => new Date(r.date).toLocaleDateString());
@@ -442,19 +485,15 @@
             if(recs.length > 0) {
                 dataPoints = recs.map(r => {
                     let val = r.result.score || r.result;
-                    // Handle objects differently
-                    if(typeof r.result === 'object' && r.result.darts) val = r.result.darts; // Doubles efficiency
+                    if(typeof r.result === 'object' && r.result.darts) val = r.result.darts; 
                     return parseInt(val);
                 });
-                
                 const best = Math.max(...dataPoints);
                 const avg = (dataPoints.reduce((a,b)=>a+b,0) / dataPoints.length).toFixed(1);
                 summary = `Beste: <strong>${best}</strong> | Gemiddeld: <strong>${avg}</strong>`;
             }
-            
             document.getElementById('stats-text-summary').innerHTML = summary;
 
-            // Render Chart
             const ctx = document.getElementById('gameChart').getContext('2d');
             if(myChart) myChart.destroy();
             
@@ -462,23 +501,9 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: 'Score / Resultaat',
-                        data: dataPoints,
-                        borderColor: '#00f3ff',
-                        backgroundColor: 'rgba(0,243,255,0.1)',
-                        tension: 0.3, fill: true,
-                        pointBackgroundColor: '#fff'
-                    }]
+                    datasets: [{ label: 'Score', data: dataPoints, borderColor: '#00f3ff', backgroundColor: 'rgba(0,243,255,0.1)', tension: 0.3, fill: true }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#aaa' } },
-                        x: { display: false }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#aaa' } } } }
             });
         }
 
@@ -486,14 +511,11 @@
         function showRecords() {
             const div = document.getElementById('records-content');
             div.innerHTML = "";
-            
             if(allPlayers.length === 0) { div.innerHTML = "Geen spelers."; return; }
 
-            // Helper for global max
             const getGlobalBest = (type, mode='max') => {
-                let bestVal = mode==='min' ? 9999 : 0;
+                let bestVal = mode==='min' ? 9999 : -9999;
                 let bestPlayer = "-";
-                
                 allPlayers.forEach(p => {
                     const rs = history.filter(h => h.player === p && h.gameType === type).map(r => parseInt(r.result.score || r.result));
                     if(rs.length > 0) {
@@ -505,24 +527,23 @@
                 return bestPlayer === "-" ? "-" : `${bestVal} (${bestPlayer})`;
             };
 
-            div.innerHTML = `
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
-                    <h3 style="color:var(--c-yellow)">100 Pijlen (High)</h3>
-                    <div style="font-size:1.5rem; font-weight:bold;">${getGlobalBest('100high')}</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
-                    <h3 style="color:var(--c-pink)">100 Pijlen (Low)</h3>
-                    <div style="font-size:1.5rem; font-weight:bold;">${getGlobalBest('100low', 'min')}</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
-                    <h3 style="color:var(--c-cyan)">Bullstreak</h3>
-                    <div style="font-size:1.5rem; font-weight:bold;">${getGlobalBest('bullstreak')}</div>
-                </div>
-            `;
+            const recs = [
+                {t: '100high', l: '100 Pijlen (High)', c: 'var(--c-yellow)'},
+                {t: '100low', l: '100 Pijlen (Low)', c: 'var(--c-pink)', m: 'min'},
+                {t: 'bullstreak', l: 'Bullstreak', c: 'var(--c-cyan)'},
+                {t: 'bobs27', l: 'Bob\'s 27', c: 'var(--c-green)'}
+            ];
+
+            recs.forEach(r => {
+                div.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
+                    <h3 style="color:${r.c}">${r.l}</h3>
+                    <div style="font-size:1.5rem; font-weight:bold;">${getGlobalBest(r.t, r.m || 'max')}</div>
+                </div>`;
+            });
             showScreen('screen-records');
         }
 
-        // --- GAME LOGIC (SHORTENED BUT WORKING) ---
+        // --- GAME LOGIC ---
         function saveRec(type, player, res) {
             history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
             localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
@@ -530,17 +551,18 @@
         function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
         function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
         function hardReset() { if(confirm("ALLES WISSEN?")) { localStorage.clear(); location.reload(); } }
-        
-        // Keypad
         function kp(v) {
             if (v==='BACK') keypadInput = keypadInput.slice(0,-1); else if (keypadInput.length < 3) keypadInput += v;
             ['x01-display', 'checkout-display', '100-display'].forEach(id => { const el = document.getElementById(id); if(el && el.closest('.active')) el.innerText = keypadInput || "0"; });
         }
 
-        // Doubles
+        // DOUBLES
         function setupDoubles() { gameMode='doubles'; activePlayers.forEach(p=>doublesState[p]={idx:0,curDarts:0}); curPIdx=0; updateDoublesUI(); showScreen('screen-game-doubles'); }
         function updateDoublesUI() {
             const sb=document.getElementById('doubles-scoreboard'); sb.innerHTML='';
+            const p = activePlayers[curPIdx], s = doublesState[p];
+            const target = s.idx >= boardOrder.length ? "WIN" : (boardOrder[s.idx] === 25 ? "BULL" : "D" + boardOrder[s.idx]);
+            document.getElementById('doubles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i) => {
                 const s=doublesState[p]; const txt=s.idx>=boardOrder.length?"WIN":(boardOrder[s.idx]===25?"BULL":"D"+boardOrder[s.idx]);
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
@@ -549,15 +571,18 @@
         }
         function handleDoublesInput(d) {
             const p=activePlayers[curPIdx],s=doublesState[p]; saveRec('doubles',p,{target:boardOrder[s.idx],darts:s.curDarts+d});
-            s.idx++; s.curDarts=0; if(s.idx>=boardOrder.length){ triggerConfetti(); alert(p+" WINT!"); showScreen('screen-menu'); return; }
+            s.idx++; s.curDarts=0; if(s.idx>=boardOrder.length){ triggerConfetti(); sfx.win(); alert(p+" WINT!"); showScreen('screen-menu'); return; }
             nextTurn(); updateDoublesUI();
         }
         function handleDoublesMiss() { doublesState[activePlayers[curPIdx]].curDarts+=3; nextTurn(); updateDoublesUI(); }
 
-        // Singles (Simple)
+        // SINGLES
         function setupSingles() { gameMode='singles'; activePlayers.forEach(p=>singlesState[p]={q:[...Array(20).keys()].map(i=>i+1).concat([25]).sort(()=>Math.random()-0.5),idx:0,score:0}); curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles'); }
         function updateSinglesUI() {
             const sb=document.getElementById('singles-scoreboard'); sb.innerHTML='';
+            const p = activePlayers[curPIdx], s = singlesState[p];
+            const target = s.idx >= s.q.length ? "KLAAR" : (s.q[s.idx]===25?'BULL':s.q[s.idx]);
+            document.getElementById('singles-instruction').innerText = `Doel: ${target}`;
             activePlayers.forEach((p,i)=>{
                 const s=singlesState[p]; if(s.idx>=s.q.length){ sb.innerHTML+=`<div class="p-card"><div class="p-name">${p}</div><div class="p-score">FIN</div></div>`; return; }
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${s.q[s.idx]===25?'BULL':s.q[s.idx]}</div><div style="font-size:0.8rem">Hits: ${s.score}</div></div>`;
@@ -567,6 +592,54 @@
         function handleSinglesInput(h) { 
             const p = activePlayers[curPIdx]; saveRec('singles_stat', p, {target:singlesState[p].q[singlesState[p].idx], hits:h});
             singlesState[p].score+=h; singlesState[p].idx++; nextTurn(); updateSinglesUI(); 
+        }
+
+        // BOBS 27
+        function setupBobs27() { gameMode='bobs'; activePlayers.forEach(p => bobsState[p] = {score: 27, idx: 0, alive: true}); curPIdx = 0; updateBobsUI(); showScreen('screen-game-bobs27'); }
+        function updateBobsUI() {
+            const sb = document.getElementById('bobs-scoreboard'); sb.innerHTML = '';
+            const p = activePlayers[curPIdx];
+            
+            // Skip dead players
+            let attempts = 0;
+            while(!bobsState[p].alive && attempts < activePlayers.length) { curPIdx = (curPIdx + 1) % activePlayers.length; attempts++; }
+            if(attempts >= activePlayers.length) { alert("Game Over!"); showScreen('screen-menu'); return; }
+
+            const s = bobsState[activePlayers[curPIdx]];
+            const tVal = bobsTargets[s.idx];
+            const tTxt = tVal === 25 ? "BULL" : "D" + tVal;
+            document.getElementById('bobs-instruction').innerText = `Target: ${tTxt}`;
+
+            activePlayers.forEach((pl, i) => {
+                const st = bobsState[pl];
+                const cls = !st.alive ? 'opacity:0.3' : (i===curPIdx?'active-turn':'');
+                sb.innerHTML += `<div class="p-card ${cls}"><div class="p-name">${pl}</div><div class="p-score">${st.score}</div></div>`;
+            });
+        }
+        function handleBobsInput(hits) {
+            const p = activePlayers[curPIdx], s = bobsState[p];
+            const targetVal = bobsTargets[s.idx] === 25 ? 25 : bobsTargets[s.idx]; // Bull value is 25 in bobs 27 usually (double bull 50), let's simplify: Bull=25
+            const points = targetVal * 2; // Always double value logic
+            
+            if(hits > 0) {
+                s.score += (points * hits);
+            } else {
+                s.score -= points;
+                document.getElementById('screen-game-bobs27').classList.add('flash-red');
+                setTimeout(()=>document.getElementById('screen-game-bobs27').classList.remove('flash-red'), 500);
+            }
+
+            if(s.score < 0) {
+                s.alive = false; alert(`${p} is AF!`);
+            } else if(s.idx >= bobsTargets.length - 1) {
+                sfx.win(); triggerConfetti();
+                saveRec('bobs27', p, s.score);
+                alert(`${p} finisht met ${s.score}!`);
+                showScreen('screen-menu'); return;
+            } else {
+                s.idx++;
+            }
+            nextTurn(); updateBobsUI();
         }
 
         // X01
@@ -579,7 +652,7 @@
         function submitX01() {
             const v=parseInt(keypadInput); if(isNaN(v)||v>180) return alert("Fout");
             const p=activePlayers[curPIdx], s=x01State[p], r=s.score-v; saveRec('x01_throw',p,v);
-            if(r===0){ s.legs++; triggerConfetti(); if(s.legs>=s.req){alert("WINNER"); showScreen('screen-menu');}else{alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
+            if(r===0){ s.legs++; triggerConfetti(); sfx.win(); if(s.legs>=s.req){alert("WINNER"); showScreen('screen-menu');}else{alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
             else if(r<=1) alert("BUST"); else s.score=r;
             keypadInput=""; nextTurn(); updateX01UI();
         }
@@ -619,7 +692,7 @@
             const p=activePlayers[curPIdx], s=state100[p];
             let dTurn = (100-s.darts===1)?1:3; if(dTurn===1&&v>60) return alert("Max 60");
             s.score+=v; s.darts+=dTurn; keypadInput="";
-            if(s.darts>=100){ saveRec(mode100==='high'?'100high':'100low',p,s.score); alert("Klaar: "+s.score); if(curPIdx===activePlayers.length-1) showScreen('screen-menu'); }
+            if(s.darts>=100){ saveRec(mode100==='high'?'100high':'100low',p,s.score); sfx.win(); triggerConfetti(); alert("Klaar: "+s.score); if(curPIdx===activePlayers.length-1) showScreen('screen-menu'); }
             nextTurn(); update100UI();
         }
 
