@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Darten Jorden: Arcade</title>
+    <title>Darten Jorden: Ranked</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            /* THEMA: Darten Jorden (Rocket Style) */
             --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             --glass-bg: rgba(20, 20, 30, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
             
-            --c-cyan: #00f3ff;
-            --c-pink: #ff00aa;
-            --c-yellow: #ffee00;
-            --c-red: #ff3b3b;
-            --c-green: #00e676;
+            --c-cyan: #00f3ff; --c-pink: #ff00aa; --c-yellow: #ffee00;
+            --c-red: #ff3b3b; --c-green: #00e676; --c-grey: #888;
             
             --text-color: #ffffff;
             --btn-bg: rgba(255, 255, 255, 0.1);
@@ -61,6 +57,15 @@
             position: relative;
         }
 
+        /* STATUS BADGE (RANKED/PRACTICE) */
+        .status-badge {
+            position: absolute; top: -10px; right: 20px;
+            padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .badge-ranked { background: var(--c-yellow); color: black; border: 2px solid #fff; }
+        .badge-practice { background: var(--c-grey); color: white; border: 1px solid #aaa; }
+
         /* UNDO BUTTON */
         .btn-undo {
             position: absolute; top: 15px; left: 15px;
@@ -83,6 +88,7 @@
             user-select: none; touch-action: manipulation;
         }
         button:active { transform: scale(0.95); filter: brightness(1.2); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         
         .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
         .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
@@ -139,8 +145,9 @@
         .modal-overlay.show .modal-content { transform: scale(1); }
         
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .option-btn { height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2rem; }
+        .option-btn { height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.2rem; padding: 10px; }
         .option-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .btn-secondary-option { height: 60px; font-size: 1rem; margin-top: 10px; background: rgba(255,255,255,0.1); color: white; border:1px solid rgba(255,255,255,0.2); }
 
         /* SUMMARY DASHBOARD */
         .summary-score { font-size: 4rem; font-weight: 900; color: white; text-shadow: 0 0 20px var(--c-cyan); margin: 10px 0; }
@@ -159,7 +166,7 @@
 </head>
 <body>
 
-    <div class="logo" onclick="sfx.win()">🚀 Darts Jorden</div>
+    <div class="logo" onclick="sfx.win()">🚀 Darten Jorden</div>
 
     <div class="container">
 
@@ -196,14 +203,22 @@
             <div class="modal-content">
                 <h2 id="opt-title" style="color:var(--c-cyan)">Game</h2>
                 <div id="opt-desc" style="font-size:0.9rem; line-height:1.6; color:#ddd; margin:15px 0; text-align:left; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;"></div>
+                
+                <div id="play-limit-msg" style="color:var(--c-red); font-size:0.8rem; font-weight:bold; margin-bottom:10px; display:none;"></div>
+
                 <div class="option-grid">
-                    <button class="option-btn btn-green" onclick="launchGame()">
-                        <span class="option-icon">🎯</span> SPELEN
+                    <button id="btn-ranked" class="option-btn btn-green" onclick="launchGame(true)">
+                        <span class="option-icon">🏆</span> VOOR ECHT<br><span style="font-size:0.7rem">(1x / dag)</span>
                     </button>
-                    <button class="option-btn btn-yellow" onclick="launchStats()">
-                        <span class="option-icon">📈</span> STATS
+                    <button class="option-btn btn-cyan" onclick="launchGame(false)">
+                        <span class="option-icon">🛡️</span> OEFENEN<br><span style="font-size:0.7rem">(Ongelimiteerd)</span>
                     </button>
                 </div>
+                
+                <button class="btn-secondary-option" onclick="launchStats()">
+                    📈 Bekijk Statistieken
+                </button>
+
                 <button onclick="closeModal('modal-options')" style="margin-top:20px; background:transparent; border:1px solid #555;">Annuleren</button>
             </div>
         </div>
@@ -302,6 +317,7 @@
         </div>
 
         <div id="screen-game-doubles" class="screen card">
+            <span id="badge-doubles" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Doubles</h3>
             <div class="instruction-text" id="doubles-instruction">Gooi 3 pijlen naar...</div>
@@ -317,6 +333,7 @@
         </div>
 
         <div id="screen-game-singles" class="screen card">
+            <span id="badge-singles" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Singles</h3>
             <div class="instruction-text" id="singles-instruction">Gooi 3 pijlen naar...</div>
@@ -332,6 +349,7 @@
         </div>
 
         <div id="screen-game-bobs27" class="screen card">
+            <span id="badge-bobs27" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Bob's 27</h3>
             <div class="instruction-text" id="bobs-instruction">Target: D1</div>
@@ -347,6 +365,7 @@
         </div>
 
         <div id="screen-game-x01" class="screen card">
+            <span id="badge-x01" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>X01 Match</h3>
             <div class="instruction-text">Gooi de score naar 0 (Dubbel Uit)</div>
@@ -364,6 +383,7 @@
         </div>
 
         <div id="screen-game-checkout" class="screen card">
+            <span id="badge-checkout" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Checkout Challenge</h3>
             <div class="instruction-text">Gooi dit getal uit binnen 2 beurten (6 pijlen)</div>
@@ -382,6 +402,7 @@
         </div>
 
         <div id="screen-game-100" class="screen card">
+            <span id="badge-100" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>100 Pijlen</h3>
             <div class="instruction-text">Gooi 100 pijlen en haal de beste score</div>
@@ -400,6 +421,7 @@
         </div>
 
         <div id="screen-game-bullstreak" class="screen card">
+            <span id="badge-bull" class="status-badge"></span>
             <button class="btn-undo" onclick="undoLastMove()">↩</button>
             <h3>Bullstreak</h3>
             <div class="instruction-text">Blijf gooien zolang je minstens 1 bull raakt</div>
@@ -430,9 +452,10 @@
         let history = safeLoad(KEY_HISTORY);
         let activePlayers = [], curPIdx = 0, gameMode = '', keypadInput = "";
         let selectedGameType = ""; 
+        let currentSessionIsRanked = false; // Is this a ranked game or practice?
         let myChart = null;
 
-        // UITGEBREIDE UITLEG PER SPEL (MET HTML OPMAAK VOOR DUIDELIJKHEID)
+        // UITGEBREIDE UITLEG PER SPEL
         const desc = {
             doubles: "<b>DOEL:</b> Gooi alle dubbels uit (1-20 + Bull) met zo min mogelijk pijlen.<br><br><b>HOE:</b> Je begint bij D1 (of Random). Je mag 3 pijlen gooien. Raak je? Klik op 1, 2 of 3. Mis je? Klik op 'Mis'. Je gaat door tot de Bull.",
             singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
@@ -445,11 +468,11 @@
 
         // Game States
         let doublesState = {}, singlesState = {}, x01State = {}, checkoutState = {}, state100 = {}, stateBull = {}, bobsState = {};
-        const standardTargets = [...Array(20).keys()].map(i=>i+1).concat([25]); // 1 to 20 + Bull
-        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25]; // Traditional board order (not strictly needed if using clock/random, but good for reference)
+        const standardTargets = [...Array(20).keys()].map(i=>i+1).concat([25]); 
+        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
+        const bobsTargets = Array.from({length:20}, (_,i)=>i+1).concat([25]);
         
-        // UNDO SYSTEM VARS
-        let undoStack = []; // Stores previous state
+        let undoStack = [];
 
         // STARTUP
         window.onload = function() {
@@ -505,10 +528,53 @@
             if(id === 'screen-players') renderPlayerList();
         }
 
+        // CHECK IF PLAYED TODAY
+        function hasPlayedToday(player, gameType) {
+            const today = new Date().toISOString().slice(0,10);
+            let dbType = gameType; // Simplified check
+            // For games with subtypes (100), we just check if they played any variant for now, or specific?
+            // Let's check generally based on the main key logic used in history
+            // Actually, best is to check exact matches in history.
+            // But gameTypes vary (e.g. 100high vs 100low).
+            // Let's check based on the 'selectedGameType' passed to openGameMenu
+            
+            // Map generic menu type to specific DB types to check
+            let typesToCheck = [gameType];
+            if(gameType === '100') typesToCheck = ['100high', '100low'];
+            if(gameType === 'x01') typesToCheck = ['x01_throw']; // Actually x01 is logged per throw, checking if played is hard.
+            // Better strategy: Check simply if there is ANY record for today for that main mode.
+            
+            return history.some(h => 
+                h.player === player && 
+                h.date.startsWith(today) && 
+                (h.gameType === gameType || h.gameType.startsWith(gameType))
+            );
+        }
+
         function openGameMenu(type, title, description) {
             selectedGameType = type;
             document.getElementById('opt-title').innerText = title;
-            document.getElementById('opt-desc').innerHTML = description; // InnerHTML voor <br> support
+            document.getElementById('opt-desc').innerHTML = description; 
+            
+            // CHECK DAILY LIMIT
+            const rankedBtn = document.getElementById('btn-ranked');
+            const msgDiv = document.getElementById('play-limit-msg');
+            let played = false;
+            let who = "";
+
+            activePlayers.forEach(p => {
+                if(hasPlayedToday(p, type)) { played = true; who = p; }
+            });
+
+            if(played) {
+                rankedBtn.disabled = true;
+                msgDiv.style.display = 'block';
+                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al voor het 'echt' gespeeld.`;
+            } else {
+                rankedBtn.disabled = false;
+                msgDiv.style.display = 'none';
+            }
+
             const modal = document.getElementById('modal-options');
             modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
@@ -519,8 +585,18 @@
             setTimeout(() => m.style.display = 'none', 300);
         }
 
-        function launchGame() {
+        function launchGame(isRanked) {
             closeModal('modal-options');
+            currentSessionIsRanked = isRanked;
+            
+            // Set visual badges
+            const badgeClass = isRanked ? 'badge-ranked' : 'badge-practice';
+            const badgeText = isRanked ? '🏆 RANKED' : '🛡️ PRACTICE';
+            document.querySelectorAll('.status-badge').forEach(b => {
+                b.className = 'status-badge ' + badgeClass;
+                b.innerText = badgeText;
+            });
+
             const t = selectedGameType;
             if(t === 'doubles') showScreen('screen-doubles-setup');
             else if(t === 'singles') showScreen('screen-singles-setup');
@@ -548,45 +624,51 @@
             document.getElementById('sum-player').innerText = player;
             document.getElementById('sum-score').innerText = score;
             
-            let dbType = gameType;
-            if(gameType === '100') dbType = '100high'; 
-            
-            const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => {
-                let val = r.result.score || r.result; 
-                if(typeof r.result === 'object' && r.result.darts) val = r.result.darts;
-                return parseInt(val);
-            });
-            recs.pop(); 
-            
-            let oldBest = "-";
-            let msg = "";
-            let diff = "-";
+            // Only calc PB if Ranked mode, otherwise hide PB info
+            if(currentSessionIsRanked) {
+                let dbType = gameType;
+                if(gameType === '100') dbType = '100high'; 
+                
+                const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => {
+                    let val = r.result.score || r.result; 
+                    if(typeof r.result === 'object' && r.result.darts) val = r.result.darts;
+                    return parseInt(val);
+                });
+                recs.pop(); // Remove just added
+                
+                let oldBest = "-";
+                let msg = "";
+                let diff = "-";
 
-            if(recs.length > 0) {
-                oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
-                const current = parseInt(score);
-                if ((metric==='max' && current > oldBest) || (metric==='min' && current < oldBest)) {
-                    msg = "🎉 NIEUW RECORD! 🎉";
-                    diff = "Verbeterd!";
-                    sfx.win(); triggerConfetti();
+                if(recs.length > 0) {
+                    oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
+                    const current = parseInt(score);
+                    if ((metric==='max' && current > oldBest) || (metric==='min' && current < oldBest)) {
+                        msg = "🎉 NIEUW RECORD! 🎉";
+                        diff = "Verbeterd!";
+                        sfx.win(); triggerConfetti();
+                    } else {
+                        let delta = current - oldBest;
+                        diff = (delta > 0 ? "+" : "") + delta;
+                        msg = "Goed gespeeld!";
+                    }
                 } else {
-                    let delta = current - oldBest;
-                    diff = (delta > 0 ? "+" : "") + delta;
-                    msg = "Goed gespeeld!";
+                    msg = "Eerste ranked spel!";
                 }
+                document.getElementById('sum-pb').innerText = oldBest;
+                document.getElementById('sum-diff').innerText = diff;
+                document.getElementById('sum-msg').innerText = msg;
             } else {
-                msg = "Eerste spel!";
+                document.getElementById('sum-pb').innerText = "N/A";
+                document.getElementById('sum-diff').innerText = "N/A";
+                document.getElementById('sum-msg').innerText = "Practice Mode - Niet Opgeslagen";
             }
-
-            document.getElementById('sum-pb').innerText = oldBest;
-            document.getElementById('sum-diff').innerText = diff;
-            document.getElementById('sum-msg').innerText = msg;
 
             const modal = document.getElementById('modal-summary');
             modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
 
-        // --- STATS LOGIC FOR MODAL ---
+        // --- STATS LOGIC ---
         function refreshGameStats() {
             const player = document.getElementById('stats-modal-player').value;
             let type = selectedGameType;
@@ -666,8 +748,11 @@
 
         // --- GAME LOGIC ---
         function saveRec(type, player, res) {
-            history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
-            localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            // ONLY SAVE IF RANKED
+            if(currentSessionIsRanked) {
+                history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
+                localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+            }
         }
         function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
         function hardReset() { if(confirm("ALLES WISSEN?")) { localStorage.clear(); location.reload(); } }
@@ -731,7 +816,6 @@
         function startDoublesGame(mode) {
             undoStack = [];
             activePlayers.forEach(p => {
-                // Determine order
                 let queue = [...standardTargets]; // 1-20+Bull
                 if (mode === 'random') queue.sort(() => Math.random() - 0.5);
                 doublesState[p] = { idx:0, curDarts:0, queue: queue };
@@ -767,12 +851,6 @@
             activePlayers.forEach(p=> {
                 let queue = [...standardTargets]; // 1-20+Bull
                 if (mode === 'random') queue.sort(() => Math.random() - 0.5);
-                // We use 'queue' similar to doubles, but for singles we just need to know the current target.
-                // However, previous Logic used random sorting EVERY turn for singles.
-                // Let's adopt the 'Random' vs 'Clock' logic here too.
-                // If random, we create a shuffled queue. If clock, ordered queue.
-                // BUT: Singles usually implies random popups in training apps.
-                // Let's stick to the Queue system for consistency.
                 singlesState[p]={ queue: queue, idx:0, score:0 };
             });
             curPIdx=0; updateSinglesUI(); showScreen('screen-game-singles'); 
