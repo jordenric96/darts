@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade: Visual Stats</title>
+    <title>Yarni's Darts Arcade: Pro Stats</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -119,15 +119,33 @@
         .keypad button { padding: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.05); margin: 0; border-radius: 15px; }
         .keypad button:active { background: var(--c-cyan); color: black; }
 
-        /* VISUAL STATS BARS */
-        .stat-group { margin-bottom: 25px; }
-        .stat-group h3 { text-align: left; color: var(--c-yellow); font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px; }
+        /* ADVANCED STATS VISUALS */
+        .stat-grid-header { display:grid; grid-template-columns: 40px 1fr 1fr; gap:10px; font-size:0.8rem; color:var(--c-yellow); margin-bottom:10px; text-transform:uppercase; font-weight:bold; text-align:center;}
         
-        .skill-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
-        .skill-label { width: 40px; font-weight: bold; color: var(--c-cyan); text-align: right; margin-right: 10px; }
-        .skill-bar-bg { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; position: relative; }
-        .skill-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease-out; }
-        .skill-value { width: 60px; text-align: right; margin-left: 10px; color: #aaa; font-size: 0.8rem; }
+        .stat-number-row {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .stat-label { 
+            font-size: 1.2rem; font-weight: 900; color: white; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            height: 40px; display:flex; align-items:center; justify-content:center;
+        }
+
+        .stat-bar-container { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .stat-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top:5px;}
+        .stat-bar-fill { height: 100%; border-radius: 4px; }
+        
+        .stat-info { font-size: 0.7rem; color: #aaa; display: flex; justify-content: space-between; width: 100%; margin-top:2px; }
+        .stat-highlight { color: white; font-weight: bold; }
 
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
@@ -494,7 +512,7 @@
         }
         function handleDoublesMiss() { sfx.error(); doublesState[activePlayers[curPIdx]].curDarts += 3; nextTurn(); updateDoublesUI(); }
 
-        // SINGLES
+        // SINGLES (Updated for Per Number Stats)
         function setupSingles() {
             gameMode = 'singles'; 
             activePlayers.forEach(p => singlesState[p] = { q: Array.from({length:20},(_,i)=>i+1).concat([25]).sort(()=>Math.random()-0.5), idx: 0, score: 0 });
@@ -515,7 +533,16 @@
                 showModal("SPEL AFGELOPEN", p, s.score + " Hits", pb);
             }
         }
-        function handleSinglesInput(hits) { sfx.click(); singlesState[activePlayers[curPIdx]].score += hits; singlesState[activePlayers[curPIdx]].idx++; nextTurn(); updateSinglesUI(); }
+        function handleSinglesInput(hits) { 
+            sfx.click(); 
+            const p = activePlayers[curPIdx]; 
+            const s = singlesState[p];
+            // SAVE DETAILED STAT
+            const target = s.q[s.idx];
+            saveRec('singles_stat', p, { target: target, hits: hits });
+            
+            s.score += hits; s.idx++; nextTurn(); updateSinglesUI(); 
+        }
 
         // X01
         function setupX01() {
@@ -645,20 +672,6 @@
                 if(!rs.length) return '-'; return mode==='max' ? Math.max(...rs) : Math.min(...rs);
             };
 
-            // Doubles Calculation
-            let dTotals = {};
-            recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)).forEach(i => {
-                const t = i.result ? i.result.target : i.target; const d = i.result ? i.result.darts : i.darts;
-                if(!dTotals[t]) dTotals[t] = {sum:0, c:0}; dTotals[t].sum += d; dTotals[t].c++;
-            });
-
-            // Singles Calculation
-            let sTotals = { hits:0, turns:0 };
-            recs.filter(r => r.gameType === 'singles').forEach(i => {
-                sTotals.hits += parseInt(i.result); sTotals.turns += 21; // 21 turns in a round
-            });
-            let singleAvg = sTotals.turns > 0 ? ((sTotals.hits / (sTotals.turns * 3)) * 100).toFixed(1) + '%' : '0%';
-
             // BUILD HTML
             let html = `
             <div class="stat-group">
@@ -671,39 +684,62 @@
             </div>
 
             <div class="stat-group">
-                <h3>🎯 Singles Nauwkeurigheid</h3>
-                <div class="skill-item">
-                    <span class="skill-label">Hit %</span>
-                    <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${singleAvg}; background:var(--c-cyan);"></div></div>
-                    <span class="skill-value">${singleAvg}</span>
+                <div class="stat-grid-header">
+                    <div>#</div>
+                    <div>Singles (Hits/Thrown)</div>
+                    <div>Doubles (Avg Pijlen)</div>
                 </div>
-            </div>
-
-            <div class="stat-group">
-                <h3>🕰️ Doubles (Gem. Pijlen)</h3>
-                <div style="max-height:300px; overflow-y:auto; padding-right:5px;">`;
+                <div style="max-height:400px; overflow-y:auto; padding-right:5px;">`;
             
-            boardOrder.forEach(n => {
-                const label = n===25?"BULL":"D"+n;
-                const s = dTotals[n];
-                let val = 0, width = "0%", color = "#555", text = "-";
+            // Generate List 20 -> 1 + Bull
+            const nums = [...Array(20).keys()].map(i=>i+1).reverse();
+            nums.push(25);
+
+            nums.forEach(n => {
+                const label = n===25?"BULL":n;
                 
-                if(s) {
-                    val = s.sum / s.c;
-                    text = val.toFixed(1);
-                    // Visual logic: 3.0 is best (full bar green), > 15 is bad (full bar red)
-                    // Let's invert logic for "efficiency": Short bar = Good.
-                    // Bar length = (val / 15) * 100. Cap at 100.
-                    let pct = Math.min((val / 15) * 100, 100);
-                    width = pct + "%";
-                    color = val <= 3 ? "var(--c-cyan)" : (val <= 9 ? "var(--c-yellow)" : "var(--c-pink)");
-                }
+                // --- SINGLES DATA ---
+                const sRecs = recs.filter(r => r.gameType === 'singles_stat' && r.result.target === n);
+                let sThrown = sRecs.length * 3;
+                let sHits = sRecs.reduce((a,b) => a + parseInt(b.result.hits), 0);
+                let sPct = sThrown > 0 ? (sHits/sThrown*100) : 0;
                 
+                let sColor = sPct >= 60 ? "var(--c-green)" : (sPct >= 30 ? "var(--c-yellow)" : "var(--c-pink)");
+                if(sThrown === 0) sColor = "#444";
+
+                // --- DOUBLES DATA ---
+                const dRecs = recs.filter(r => r.gameType === 'doubles' && r.result.target === n);
+                let dHits = dRecs.length;
+                let dThrown = dRecs.reduce((a,b) => a + parseInt(b.result.darts), 0);
+                let dAvg = dHits > 0 ? (dThrown/dHits).toFixed(1) : "-";
+                
+                // Doubles bar length (Visual trick: shorter bar is better for efficiency)
+                // Let's say 3.0 avg is 100% full green bar. 15.0 avg is 20% red bar.
+                // Formula: (3 / avg) * 100
+                let dVal = dHits > 0 ? (dThrown/dHits) : 99;
+                let dBarW = dVal <= 0 ? 0 : Math.min((3/dVal)*100, 100);
+                let dColor = dVal <= 3 ? "var(--c-cyan)" : (dVal <= 9 ? "var(--c-yellow)" : "var(--c-pink)");
+                if(dHits === 0) { dBarW = 0; dColor = "#444"; }
+
                 html += `
-                <div class="skill-item">
-                    <span class="skill-label">${label}</span>
-                    <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${width}; background:${color}"></div></div>
-                    <span class="skill-value">${text}</span>
+                <div class="stat-number-row">
+                    <div class="stat-label">${label}</div>
+                    
+                    <div class="stat-bar-container">
+                        <div class="stat-info">
+                            <span class="stat-highlight">${sHits}/${sThrown}</span>
+                            <span>${sPct.toFixed(0)}%</span>
+                        </div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${sPct}%; background:${sColor}"></div></div>
+                    </div>
+
+                    <div class="stat-bar-container">
+                        <div class="stat-info">
+                            <span>Eff.</span>
+                            <span class="stat-highlight">${dAvg}</span>
+                        </div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${dBarW}%; background:${dColor}"></div></div>
+                    </div>
                 </div>`;
             });
             html += `</div></div>`;
