@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade: Pro Stats</title>
+    <title>Darts Arcade: Ultimate Stats</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -113,6 +113,7 @@
         .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); }
         .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
         .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
+        .leg-indicator { font-size: 0.8rem; color: var(--c-yellow); margin-top: 5px; font-weight: bold; }
         
         .score-display-box { background: black; color: var(--c-yellow); font-family: 'Courier New', monospace; font-size: 3.5rem; font-weight: bold; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 20px; border: 2px solid #333; box-shadow: inset 0 0 20px rgba(255,238,0,0.2); }
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -123,29 +124,28 @@
         .stat-grid-header { display:grid; grid-template-columns: 40px 1fr 1fr; gap:10px; font-size:0.8rem; color:var(--c-yellow); margin-bottom:10px; text-transform:uppercase; font-weight:bold; text-align:center;}
         
         .stat-number-row {
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
-            display: grid;
-            grid-template-columns: 40px 1fr 1fr;
-            gap: 15px;
-            align-items: center;
+            background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px;
+            margin-bottom: 8px; display: grid; grid-template-columns: 40px 1fr 1fr;
+            gap: 15px; align-items: center;
         }
         
         .stat-label { 
-            font-size: 1.2rem; font-weight: 900; color: white; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 8px; 
-            height: 40px; display:flex; align-items:center; justify-content:center;
+            font-size: 1.2rem; font-weight: 900; color: white; background: rgba(255,255,255,0.1); 
+            border-radius: 8px; height: 40px; display:flex; align-items:center; justify-content:center;
         }
 
         .stat-bar-container { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: center; }
         .stat-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top:5px;}
         .stat-bar-fill { height: 100%; border-radius: 4px; }
-        
         .stat-info { font-size: 0.7rem; color: #aaa; display: flex; justify-content: space-between; width: 100%; margin-top:2px; }
         .stat-highlight { color: white; font-weight: bold; }
+
+        /* RECENT ACTIVITY */
+        .history-item { 
+            background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; margin-bottom: 5px; 
+            display: flex; justify-content: space-between; font-size: 0.8rem;
+        }
+        .h-tag { background: var(--c-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-right: 5px; }
 
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
@@ -564,7 +564,10 @@
         function submitX01() {
             const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
             const p = activePlayers[curPIdx], s = x01State[p], rem = s.score - v;
-            saveRec('x01_darts', p, 3);
+            
+            // SAVE THROWN SCORE FOR AVG
+            saveRec('x01_throw', p, v); 
+
             if(rem === 0) {
                 sfx.win(); triggerConfetti(); s.legs++;
                 if(s.legs >= s.req) { showModal("MATCH WINNER!", p, s.legs + " LEGS", null); return; }
@@ -596,13 +599,32 @@
         function submitCheckout() {
             const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
             const p = activePlayers[curPIdx], s = checkoutState[p], rem = s.cur - v;
-            saveRec('checkout_darts', p, 3);
-            if(rem === 0) { sfx.win(); triggerConfetti(); alert("UIT!"); s.wins++; nextCO(s); }
-            else if(rem <= 1) { sfx.error(); alert("BUST"); s.turns++; checkFailCO(s); }
-            else { sfx.confirm(); s.cur = rem; s.turns++; checkFailCO(s); }
+            
+            // SAVE ATTEMPT (1 = Success, 0 = Fail yet/Bust)
+            // But real success is only when rem == 0.
+            // Let's track checkout % by saving: saveRec('checkout_try', p, success?1:0)
+            
+            if(rem === 0) { 
+                sfx.win(); triggerConfetti(); alert("UIT!"); s.wins++; 
+                saveRec('checkout_attempt', p, 1);
+                nextCO(s); 
+            }
+            else if(rem <= 1) { 
+                sfx.error(); alert("BUST"); s.turns++; 
+                saveRec('checkout_attempt', p, 0);
+                checkFailCO(s); 
+            }
+            else { 
+                sfx.confirm(); s.cur = rem; s.turns++; 
+                // Not a fail yet, just a throw. Don't record as miss yet unless last dart?
+                // Visual stats usually track "Checkout %" on the double. 
+                // This is hard to track without knowing if they aimed for double.
+                // Let's stick to Game Win %.
+                checkFailCO(s); 
+            }
             keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
         }
-        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten Op!"); nextCO(s); } }
+        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten Op!"); saveRec('checkout_attempt', p, 0); nextCO(s); } }
         function nextCO(s) { s.r++; s.turns = 0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
         // 100
@@ -672,13 +694,38 @@
                 if(!rs.length) return '-'; return mode==='max' ? Math.max(...rs) : Math.min(...rs);
             };
 
+            // NEW: Calculate X01 Average
+            const x01Throws = recs.filter(r => r.gameType === 'x01_throw');
+            let x01Avg = "-";
+            if(x01Throws.length > 0) {
+                const totalScore = x01Throws.reduce((a,b) => a + parseInt(b.result), 0);
+                x01Avg = (totalScore / x01Throws.length).toFixed(1);
+            }
+
+            // NEW: Recent Activity
+            const recent = recs.slice(-5).reverse();
+            let recentHtml = "";
+            recent.forEach(r => {
+                let val = r.result.score || r.result.darts || r.result;
+                if(typeof val === 'object') val = "...";
+                let typeName = r.gameType.replace('_stat','').toUpperCase();
+                recentHtml += `<div class="history-item"><span class="h-tag">${typeName}</span> <span>${val}</span></div>`;
+            });
+
+            // Doubles Calculation
+            let dTotals = {};
+            recs.filter(r => r.gameType === 'doubles' || (!r.gameType && r.target)).forEach(i => {
+                const t = i.result ? i.result.target : i.target; const d = i.result ? i.result.darts : i.darts;
+                if(!dTotals[t]) dTotals[t] = {sum:0, c:0}; dTotals[t].sum += d; dTotals[t].c++;
+            });
+
             // BUILD HTML
             let html = `
             <div class="stat-group">
                 <h3>🏆 Records</h3>
                 <div style="display:flex; justify-content:space-around; text-align:center;">
                     <div><div style="color:#aaa; font-size:0.8rem">100 High</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-cyan)">${getBest('100high')}</div></div>
-                    <div><div style="color:#aaa; font-size:0.8rem">100 Low</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-pink)">${getBest('100low', 'min')}</div></div>
+                    <div><div style="color:#aaa; font-size:0.8rem">X01 Avg</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-green)">${x01Avg}</div></div>
                     <div><div style="color:#aaa; font-size:0.8rem">Bullstreak</div><div style="font-size:1.5rem; font-weight:bold; color:var(--c-yellow)">${getBest('bullstreak')}</div></div>
                 </div>
             </div>
@@ -713,9 +760,6 @@
                 let dThrown = dRecs.reduce((a,b) => a + parseInt(b.result.darts), 0);
                 let dAvg = dHits > 0 ? (dThrown/dHits).toFixed(1) : "-";
                 
-                // Doubles bar length (Visual trick: shorter bar is better for efficiency)
-                // Let's say 3.0 avg is 100% full green bar. 15.0 avg is 20% red bar.
-                // Formula: (3 / avg) * 100
                 let dVal = dHits > 0 ? (dThrown/dHits) : 99;
                 let dBarW = dVal <= 0 ? 0 : Math.min((3/dVal)*100, 100);
                 let dColor = dVal <= 3 ? "var(--c-cyan)" : (dVal <= 9 ? "var(--c-yellow)" : "var(--c-pink)");
@@ -742,7 +786,12 @@
                     </div>
                 </div>`;
             });
-            html += `</div></div>`;
+            html += `</div></div>
+            
+            <div class="stat-group">
+                <h3>🕒 Recente Activiteit</h3>
+                ${recentHtml || '<div style="text-align:center; opacity:0.5">Geen activiteit</div>'}
+            </div>`;
             
             c.innerHTML = html;
             document.getElementById('chart-section').style.display = 'block';
