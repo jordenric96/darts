@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yarni's Darts Arcade: Rockets Edition</title>
+    <title>Yarni's Darts Arcade: Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
@@ -18,6 +19,7 @@
             --c-pink: #ff00aa;
             --c-yellow: #ffee00;
             --c-purple: #bc13fe;
+            --c-red: #ff3b3b;
             
             --text-color: #ffffff;
             --btn-bg: rgba(255, 255, 255, 0.1);
@@ -36,6 +38,7 @@
             flex-direction: column;
             align-items: center;
             padding: 15px;
+            overflow-x: hidden; /* Voorkom scrollbalken door confetti */
         }
 
         h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
@@ -49,6 +52,7 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 25px; 
             text-shadow: 0 0 30px rgba(255,0,170,0.3);
+            cursor: pointer;
         }
 
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
@@ -70,30 +74,37 @@
             border: none; border-radius: 50px; padding: 15px 25px;
             font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem;
             cursor: pointer; width: 100%; margin-bottom: 12px;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
             background: var(--btn-bg); color: white;
             border: 1px solid rgba(255,255,255,0.05);
             text-transform: uppercase; letter-spacing: 1px;
+            user-select: none;
+            touch-action: manipulation;
         }
-        button:active { transform: scale(0.97); }
+        button:active { transform: scale(0.95); filter: brightness(1.2); }
         
         .btn-cyan { background: linear-gradient(90deg, #00f3ff, #0099ff); color: #000; border:none; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3); }
         .btn-pink { background: linear-gradient(90deg, #ff00aa, #ff4d4d); color: #fff; border:none; box-shadow: 0 4px 15px rgba(255, 0, 170, 0.3); }
         .btn-yellow { background: linear-gradient(90deg, #ffee00, #ffaa00); color: #000; border:none; box-shadow: 0 4px 15px rgba(255, 238, 0, 0.3); }
         .btn-purple { background: linear-gradient(90deg, #bc13fe, #7a00ff); color: #fff; border:none; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
+        
+        .btn-delete {
+            background: rgba(255, 59, 59, 0.2); color: var(--c-red);
+            width: 40px; height: 40px; padding: 0;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; margin: 0; border: 1px solid var(--c-red);
+        }
+        .btn-delete:hover { background: var(--c-red); color: white; }
 
         .btn-chart-toggle { width: auto; display: inline-block; padding: 8px 16px; font-size: 0.8rem; margin: 0 5px 5px 0; border-radius: 8px; }
         .btn-chart-toggle.active-chart { background: white; color: black; box-shadow: 0 0 15px white; }
 
-        /* INPUTS - NU MET ARCADE STYLE */
+        /* INPUTS - ARCADE STYLE */
         input {
             width: 100%; padding: 15px; border-radius: 12px;
-            border: 2px solid #333; 
-            background: black;
-            color: var(--c-cyan); 
-            margin-bottom: 10px; font-size: 1.5rem; text-align: center;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            border: 2px solid #333; background: black;
+            color: var(--c-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center;
+            font-family: 'Courier New', monospace; font-weight: bold;
             box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
         }
         input::placeholder { color: #555; font-size: 1rem; font-family: 'Montserrat', sans-serif; }
@@ -128,8 +139,7 @@
         .chart-container {
             position: relative; height: 350px; width: 100%;
             background: rgba(0,0,0,0.4); border-radius: 15px; padding: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.05); margin-top: 20px;
         }
 
         /* TABLES */
@@ -140,15 +150,15 @@
         /* UI UTILS */
         .screen { display: none; }
         .active { display: block; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 8px; }
-        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
+        .player-select-checkbox { width: 25px; height: 25px; accent-color: var(--c-pink); margin-right: 15px; }
         
         @keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
     </style>
 </head>
 <body>
 
-    <div class="logo">🚀 Darts Arcade</div>
+    <div class="logo" onclick="sfx.win()">🚀 Yarni's Darts Arcade</div>
 
     <div class="container">
 
@@ -288,9 +298,7 @@
             <h2>Jouw Progressie</h2>
             <select id="stats-player-select" onchange="renderStats()" style="width:100%; padding:15px; border-radius:15px; margin-bottom:20px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--c-cyan);">
             </select>
-            
             <div id="stats-content"></div>
-            
             <div id="chart-section" style="display:none; margin-top:30px;">
                 <h3 style="color:var(--c-cyan); text-align:left;">📈 Evolutie</h3>
                 <div style="display:flex; flex-wrap:wrap;">
@@ -298,21 +306,68 @@
                     <button class="btn-chart-toggle" onclick="updateChart('100low')">100 Low</button>
                     <button class="btn-chart-toggle" onclick="updateChart('bullstreak')">Bullstreak</button>
                 </div>
-                <div class="chart-container">
-                    <canvas id="progressChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="progressChart"></canvas></div>
             </div>
-
             <button onclick="showScreen('screen-menu')" style="margin-top:25px; background:transparent; border:1px solid rgba(255,255,255,0.2)">Terug naar Menu</button>
         </div>
 
     </div>
 
     <script>
-        // --- DATA ---
+        // --- 0. AUDIO SYSTEM (Synthesizer) ---
+        const sfx = {
+            ctx: new (window.AudioContext || window.webkitAudioContext)(),
+            playTone: (freq, type, duration) => {
+                const osc = sfx.ctx.createOscillator();
+                const gain = sfx.ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(sfx.ctx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, sfx.ctx.currentTime + duration);
+                osc.stop(sfx.ctx.currentTime + duration);
+            },
+            click: () => sfx.playTone(600, 'sine', 0.1),
+            confirm: () => { sfx.playTone(400, 'square', 0.1); setTimeout(()=>sfx.playTone(600, 'square', 0.2), 100); },
+            error: () => sfx.playTone(150, 'sawtooth', 0.3),
+            win: () => {
+                sfx.playTone(500, 'triangle', 0.1);
+                setTimeout(()=>sfx.playTone(600, 'triangle', 0.1), 100);
+                setTimeout(()=>sfx.playTone(800, 'triangle', 0.2), 200);
+                setTimeout(()=>sfx.playTone(1000, 'square', 0.4), 300);
+            }
+        };
+
+        // Initialize Audio context on first interaction
+        document.body.addEventListener('click', () => { if(sfx.ctx.state === 'suspended') sfx.ctx.resume(); }, {once:true});
+
+        // --- 1. VISUAL EFFECTS ---
+        function triggerConfetti() {
+            var duration = 2000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#00f3ff', '#ff00aa', '#ffee00']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#00f3ff', '#ff00aa', '#ffee00']
+                });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        // --- 2. DATA ---
         let allPlayers = JSON.parse(localStorage.getItem('dartsPlayers')) || [];
         let history = JSON.parse(localStorage.getItem('dartsHistoryV3')) || [];
-        
         let activePlayers = [];
         let curPIdx = 0;
         let gameMode = ''; 
@@ -321,15 +376,13 @@
         let myChart = null;
         const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
 
-        // --- GLOBAL LISTENERS (KEYBOARD) ---
+        // --- 3. INPUT HANDLING ---
         document.addEventListener('keydown', e => {
             const k = e.key;
-            // 1. Enter op startscherm voor naam toevoegen
             if (document.getElementById('screen-players').classList.contains('active')) {
                 if (k === 'Enter') addPlayer();
                 return;
             }
-            // 2. Keypad input voor games
             if (document.querySelector('.screen.active .keypad')) {
                 if (!isNaN(k) && k !== ' ') kp(parseInt(k));
                 else if (k === 'Backspace') kp('BACK');
@@ -341,18 +394,23 @@
             }
         });
 
-        // --- PLAYER UI ---
+        // --- 4. PLAYER MANAGEMENT ---
         function renderPlayerList() {
             const l = document.getElementById('player-list'); l.innerHTML = '';
             if(!allPlayers.length) l.innerHTML = '<p style="text-align:center;opacity:0.5; margin-top:20px;">Nog geen spelers.</p>';
             allPlayers.forEach(n => {
-                l.innerHTML += `<div class="player-row">
-                    <span style="font-weight:bold; font-size:1.1rem; font-family:'Courier New'; color:var(--c-cyan)">${n}</span>
-                    <input type="checkbox" class="player-select-checkbox cb" value="${n}">
+                l.innerHTML += `
+                <div class="player-row">
+                    <div style="display:flex; align-items:center;">
+                        <input type="checkbox" class="player-select-checkbox cb" value="${n}">
+                        <span style="font-weight:bold; font-size:1.1rem; font-family:'Courier New'; color:var(--c-cyan)">${n}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deletePlayer('${n}')">✕</button>
                 </div>`;
             });
         }
         function addPlayer() {
+            sfx.confirm();
             const input = document.getElementById('new-player-name');
             const n = input.value.trim().toUpperCase();
             if(n && !allPlayers.includes(n)) { 
@@ -360,32 +418,40 @@
                 localStorage.setItem('dartsPlayers',JSON.stringify(allPlayers)); 
                 renderPlayerList(); 
             }
-            input.value = '';
-            input.focus();
+            input.value = ''; input.focus();
+        }
+        function deletePlayer(name) {
+            if(confirm("Weet je zeker dat je " + name + " wilt verwijderen?")) {
+                allPlayers = allPlayers.filter(p => p !== name);
+                localStorage.setItem('dartsPlayers', JSON.stringify(allPlayers));
+                renderPlayerList();
+            }
         }
         function confirmPlayers() {
+            sfx.click();
             activePlayers = Array.from(document.querySelectorAll('.cb:checked')).map(c=>c.value);
             if(!activePlayers.length) return alert("Selecteer minstens 1 speler!");
             document.getElementById('active-players-display').innerText = activePlayers.join(", ");
             showScreen('screen-menu');
         }
 
-        // --- NAVIGATION ---
+        // --- 5. NAVIGATION ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'screen-players') renderPlayerList();
+            sfx.click();
         }
         function quitGame() { if(confirm("Stoppen?")) showScreen('screen-menu'); }
         function nextTurn() { curPIdx = (curPIdx + 1) % activePlayers.length; }
-        
         function saveRec(type, player, res) {
             history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
             localStorage.setItem('dartsHistoryV3', JSON.stringify(history));
         }
 
-        // --- KEYPAD & DISPLAY ---
+        // --- 6. KEYPAD ---
         function kp(v) {
+            sfx.click();
             if (v==='BACK') keypadInput = keypadInput.slice(0,-1);
             else if (keypadInput.length < 3) keypadInput += v;
             updateDisplay();
@@ -398,8 +464,7 @@
             });
         }
 
-        // --- GAME LOGIC ---
-        // (Identieke logica als voorheen, maar nu met werkende addPlayer)
+        // --- 7. GAMES ---
         
         // DOUBLES
         function setupDoubles() {
@@ -418,14 +483,19 @@
             document.getElementById('doubles-darts-count').innerText = doublesState[activePlayers[curPIdx]].curDarts;
         }
         function handleDoublesInput(d) {
+            sfx.click();
             const p = activePlayers[curPIdx], s = doublesState[p];
             s.totDarts += (s.curDarts + d); s.hits++;
             saveRec('doubles', p, { target: boardOrder[s.idx], darts: s.curDarts+d });
             s.idx++; s.curDarts = 0;
-            if(s.idx >= boardOrder.length) { alert(p + " WINT!"); showScreen('screen-menu'); return; }
+            if(s.idx >= boardOrder.length) { 
+                sfx.win(); triggerConfetti();
+                alert(p + " WINT!"); showScreen('screen-menu'); return; 
+            }
             nextTurn(); updateDoublesUI();
         }
         function handleDoublesMiss() {
+            sfx.error();
             const p = activePlayers[curPIdx]; doublesState[p].curDarts += 3; doublesState[p].totDarts += 3;
             nextTurn(); updateDoublesUI();
         }
@@ -445,9 +515,12 @@
                 const v = s.q[s.idx], t = v===25?"BULL":v;
                 sb.innerHTML += `<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${t}</div><div class="p-avg">Hits: ${s.score}</div></div>`;
             });
-            if(singlesState[activePlayers[curPIdx]].idx >= singlesState[activePlayers[curPIdx]].q.length) { alert("Klaar!"); showScreen('screen-menu'); }
+            if(singlesState[activePlayers[curPIdx]].idx >= singlesState[activePlayers[curPIdx]].q.length) { 
+                sfx.win(); triggerConfetti(); alert("Klaar!"); showScreen('screen-menu'); 
+            }
         }
         function handleSinglesInput(h) {
+            sfx.click();
             const p = activePlayers[curPIdx]; singlesState[p].score += h; singlesState[p].idx++;
             nextTurn(); updateSinglesUI();
         }
@@ -468,10 +541,13 @@
             updateDisplay();
         }
         function submitX01() {
-            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return alert("Ongeldig");
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return alert("Ongeldig"); }
             const p = activePlayers[curPIdx], s = x01State[p], n = s.score - v;
-            if (n === 0) { alert(p + " WINT!"); showScreen('screen-menu'); return; }
-            if (n > 1) s.score = n; else alert("BUST");
+            if (n === 0) { 
+                sfx.win(); triggerConfetti();
+                alert(p + " WINT!"); showScreen('screen-menu'); return; 
+            }
+            if (n > 1) { sfx.confirm(); s.score = n; } else { sfx.error(); alert("BUST"); }
             s.darts += 3; keypadInput = ""; nextTurn(); updateX01UI();
         }
 
@@ -486,7 +562,7 @@
         }
         function updateCheckoutUI() {
             const p = activePlayers[curPIdx], s = checkoutState[p];
-            if(s.r > 10) { alert("Klaar!"); showScreen('screen-menu'); return; }
+            if(s.r > 10) { sfx.win(); triggerConfetti(); alert("Klaar!"); showScreen('screen-menu'); return; }
             const sb = document.getElementById('checkout-scoreboard'); sb.innerHTML = '';
             activePlayers.forEach((pl,i) => {
                 const w = checkoutState[pl].hist.filter(x=>x).length;
@@ -499,14 +575,14 @@
             updateDisplay();
         }
         function submitCheckout() {
-            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) return;
+            const v = parseInt(keypadInput); if(isNaN(v) || v > 180) { sfx.error(); return; }
             const p = activePlayers[curPIdx], s = checkoutState[p], n = s.cur - v;
-            if (n === 0) { alert("UIT!"); s.hist.push(true); nextRoundCO(s); }
-            else if (n <= 1) { alert("BUST"); s.turns++; checkFailCO(s); }
-            else { s.cur = n; s.turns++; checkFailCO(s); }
+            if (n === 0) { sfx.win(); triggerConfetti(); alert("UIT!"); s.hist.push(true); nextRoundCO(s); }
+            else if (n <= 1) { sfx.error(); alert("BUST"); s.turns++; checkFailCO(s); }
+            else { sfx.confirm(); s.cur = n; s.turns++; checkFailCO(s); }
             keypadInput = ""; if(s.cur > 0) nextTurn(); updateCheckoutUI();
         }
-        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { alert("Beurten op!"); s.hist.push(false); nextRoundCO(s); } }
+        function checkFailCO(s) { if(s.turns >= 2 && s.cur > 0) { sfx.error(); alert("Beurten op!"); s.hist.push(false); nextRoundCO(s); } }
         function nextRoundCO(s) { s.r++; s.turns=0; s.tStart = Math.floor(Math.random()*(s.max-s.min+1)+s.min); s.cur = s.tStart; }
 
         // 100 PIJLEN
@@ -532,8 +608,10 @@
             let dartsThisTurn = (100 - s.dartsThrown === 1) ? 1 : 3;
             if (dartsThisTurn === 1 && v > 60) return alert("Max 60 voor 1 pijl!");
             if (isNaN(v) || v > 180) return alert("Ongeldig");
+            sfx.confirm();
             s.score += v; s.dartsThrown += dartsThisTurn; keypadInput = "";
             if (s.dartsThrown >= 100) {
+                sfx.win(); triggerConfetti();
                 alert(`${p} Klaar! Score: ${s.score}`);
                 saveRec(mode100 === 'high' ? '100high' : '100low', p, s.score);
                 if(curPIdx === activePlayers.length -1) { showScreen('screen-menu'); return; }
@@ -561,13 +639,14 @@
         }
         function handleBullResult(hit) {
             const p = activePlayers[curPIdx], s = stateBull[p];
-            if(hit) { s.streak++; if(s.streak > s.best) s.best = s.streak; }
-            else { alert(`Helaas! Streak: ${s.streak}`); saveRec('bullstreak', p, s.streak); s.alive = false; }
+            if(hit) { sfx.confirm(); s.streak++; if(s.streak > s.best) s.best = s.streak; }
+            else { sfx.error(); alert(`Helaas! Streak: ${s.streak}`); saveRec('bullstreak', p, s.streak); s.alive = false; }
             curPIdx = (curPIdx + 1) % activePlayers.length; updateBullUI();
         }
 
-        // STATS
+        // STATS & CHARTS
         function showStats() {
+            sfx.click();
             const s = document.getElementById('stats-player-select'); s.innerHTML = '<option value="">-- Kies Speler --</option>';
             allPlayers.forEach(p => s.innerHTML += `<option value="${p}">${p}</option>`);
             document.getElementById('stats-content').innerHTML = '';
@@ -623,6 +702,7 @@
         }
 
         function updateChart(metricType) {
+            sfx.click();
             const p = document.getElementById('stats-player-select').value;
             if(!p) return;
             document.querySelectorAll('.btn-chart-toggle').forEach(b => b.classList.remove('active-chart'));
