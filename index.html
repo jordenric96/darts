@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darts Double Tracker</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --accent-red: #e93f33;
+            --accent-green: #4caf50;
+            --accent-gold: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin-top: 20px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--accent-red); }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Menu Scherm */
+        #menu-screen button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1.2rem;
+            background: var(--card-bg);
+            color: white;
+            border: 1px solid var(--accent-green);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        #menu-screen button:hover { background: var(--accent-green); color: black; }
+
+        /* Game Scherm */
+        .game-panel { display: none; }
+        
+        .target-display {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255,193,7,0.3);
+        }
+
+        .current-darts {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-hit {
+            padding: 20px;
+            font-size: 1.5rem;
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-miss {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5rem;
+            background-color: var(--accent-red);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Stats Tabel */
+        .stats-container {
+            margin-top: 40px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #444; text-align: center; }
+        th { color: var(--accent-gold); }
+        .best-stat { color: var(--accent-green); font-weight: bold; }
+        .worst-stat { color: var(--accent-red); }
+
+        .hidden { display: none; }
+        .btn-secondary { background: #555; font-size: 0.9rem; padding: 10px; margin-top: 20px; width: auto; border: none; color: white; border-radius: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <h1>🎯 Double Tracker</h1>
+
+    <div class="container">
+        <div id="menu-screen">
+            <p>Kies je oefening:</p>
+            <button onclick="startGame('board')">Bord Volgorde (20, 1, 18...)</button>
+            <button onclick="startGame('random')">Random Volgorde</button>
+            <div class="stats-container">
+                <h3>Jouw Statistieken (Gemiddeld aantal pijlen)</h3>
+                <table id="stats-table">
+                    <thead>
+                        <tr><th>Dubbel</th><th>Gem. Pijlen</th><th>Beurten</th></tr>
+                    </thead>
+                    <tbody id="stats-body"></tbody>
+                </table>
+                <button class="btn-secondary" onclick="resetStats()">Reset Statistieken</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="game-panel">
+            <div>DOELWIT:</div>
+            <div class="target-display" id="current-target">D20</div>
+            <div class="current-darts">Pijlen deze sessie: <span id="session-darts">0</span></div>
+
+            <p>Raak gegooid met pijl:</p>
+            <div class="input-grid">
+                <button class="btn-hit" onclick="handleInput(1)">1</button>
+                <button class="btn-hit" onclick="handleInput(2)">2</button>
+                <button class="btn-hit" onclick="handleInput(3)">3</button>
+            </div>
+            
+            <p>Gemist (3 pijlen):</p>
+            <button class="btn-miss" onclick="handleMiss()">0 (Volgende Beurt)</button>
+
+            <button class="btn-secondary" onclick="stopGame()">Stoppen & Terug</button>
+        </div>
+    </div>
+
+    <script>
+        // DATA
+        // De standaard bord volgorde (Top -> Rechts -> Rond)
+        const boardOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5, 25];
+        let gameQueue = [];
+        let currentTargetIndex = 0;
+        let currentDartsForTarget = 0; // Hoeveel pijlen al gegooid op dit doelwit
+        
+        // Laad geschiedenis of maak nieuw aan
+        let historyData = JSON.parse(localStorage.getItem('dartsHistory')) || {};
+
+        // INIT
+        renderStats();
+
+        // FUNCTIES
+        function startGame(mode) {
+            gameQueue = mode === 'board' ? [...boardOrder] : shuffle([...boardOrder]);
+            currentTargetIndex = 0;
+            currentDartsForTarget = 0;
+            
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            updateUI();
+        }
+
+        function stopGame() {
+            document.getElementById('menu-screen').style.display = 'block';
+            document.getElementById('game-screen').style.display = 'none';
+            renderStats();
+        }
+
+        function updateUI() {
+            if (currentTargetIndex >= gameQueue.length) {
+                alert("Training voltooid! Goed geworpen.");
+                stopGame();
+                return;
+            }
+            const target = gameQueue[currentTargetIndex];
+            const label = target === 25 ? "BULL" : "D" + target;
+            document.getElementById('current-target').innerText = label;
+            document.getElementById('session-darts').innerText = currentDartsForTarget;
+        }
+
+        // Als je mist (0 drukt), tel je 3 pijlen op, maar ga je NIET naar volgende getal
+        function handleMiss() {
+            currentDartsForTarget += 3;
+            updateUI();
+        }
+
+        // Als je raakt (1, 2 of 3), sla op en ga naar volgende
+        function handleInput(dartNum) {
+            const totalDartsUsed = currentDartsForTarget + dartNum;
+            const target = gameQueue[currentTargetIndex];
+
+            saveStat(target, totalDartsUsed);
+            
+            // Reset voor volgende
+            currentDartsForTarget = 0;
+            currentTargetIndex++;
+            updateUI();
+        }
+
+        function saveStat(target, count) {
+            if (!historyData[target]) {
+                historyData[target] = { totalDarts: 0, hits: 0 };
+            }
+            historyData[target].totalDarts += count;
+            historyData[target].hits += 1;
+            
+            localStorage.setItem('dartsHistory', JSON.stringify(historyData));
+        }
+
+        function renderStats() {
+            const tbody = document.getElementById('stats-body');
+            tbody.innerHTML = '';
+            
+            // Sorteer op beste gemiddelde
+            const targets = boardOrder; // Of sorteer op prestatie
+            
+            targets.forEach(num => {
+                const label = num === 25 ? "Bull" : "D" + num;
+                const data = historyData[num];
+                let avg = "-";
+                let count = 0;
+                let rowClass = "";
+
+                if (data && data.hits > 0) {
+                    const rawAvg = data.totalDarts / data.hits;
+                    avg = rawAvg.toFixed(1);
+                    count = data.hits;
+                    
+                    // Kleurcodering
+                    if (rawAvg <= 3) rowClass = "best-stat"; // Erg goed
+                    else if (rawAvg > 9) rowClass = "worst-stat"; // Werk aan de winkel
+                }
+
+                const tr = `<tr>
+                    <td>${label}</td>
+                    <td class="${rowClass}">${avg}</td>
+                    <td>${count}</td>
+                </tr>`;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        function resetStats() {
+            if(confirm("Weet je zeker dat je alle geschiedenis wilt wissen?")) {
+                localStorage.removeItem('dartsHistory');
+                historyData = {};
+                renderStats();
+            }
+        }
+
+        // Fisher-Yates Shuffle
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>
