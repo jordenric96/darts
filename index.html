@@ -3,26 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Flight Darts</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Neon Flight: TDT Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            /* NEON FLIGHT (Tietema Style) */
-            --bg-gradient: radial-gradient(circle at top, #1a1625 0%, #050505 100%);
-            --glass-bg: rgba(20, 20, 30, 0.92);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            /* TOUR DE TIETEMA KLEUREN */
+            --c-yellow: #FFED00;
+            --c-pink: #E6007E;
+            --c-cyan: #009FE3;
             
-            --c-cyan: #00f3ff;
-            --c-pink: #ff00aa;
-            --c-yellow: #ffee00;
+            --c-purple: #9b59b6;
             --c-red: #ff3b3b;
-            --c-green: #00e676;
+            --c-green: #2ecc71;
+            
+            --bg-gradient: linear-gradient(135deg, #2b1055 0%, #7597de 100%);
+            --glass-bg: rgba(20, 20, 30, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.15);
             
             --text-color: #ffffff;
-            --btn-bg: rgba(255, 255, 255, 0.08);
+            --btn-bg: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,22 +47,22 @@
             user-select: none;
         }
 
-        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; }
+        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
         
         .logo { 
             font-size: 2.5rem; font-weight: 900; font-style: italic;
             background: -webkit-linear-gradient(0deg, var(--c-yellow), var(--c-pink), var(--c-cyan));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,0,170,0.3);
+            margin-bottom: 25px; text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
             cursor: pointer;
         }
 
         .container { width: 100%; max-width: 800px; padding-bottom: 80px; }
 
         .card {
-            background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: var(--glass-bg); backdrop-filter: blur(12px);
             border: var(--glass-border); border-radius: 20px; padding: 20px;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); margin-bottom: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); margin-bottom: 20px;
             animation: slideUp 0.4s ease-out;
             position: relative;
         }
@@ -66,10 +71,22 @@
         .status-badge {
             position: absolute; top: -12px; right: 20px;
             padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 900;
-            text-transform: uppercase; box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 5;
+            text-transform: uppercase; box-shadow: 0 5px 15px rgba(0,0,0,0.4); z-index: 5;
         }
         .badge-ranked { background: var(--c-yellow); color: black; border: 2px solid white; }
-        .badge-practice { background: #666; color: white; border: 2px solid #999; }
+        .badge-practice { background: #555; color: white; border: 2px solid #777; }
+
+        /* FULLSCREEN BUTTON (Nieuw) */
+        .btn-fullscreen {
+            position: fixed; top: 15px; right: 15px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(0,0,0,0.5); color: var(--c-cyan);
+            border: 2px solid var(--c-cyan); font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; transition: 0.2s; cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 159, 227, 0.5);
+        }
+        .btn-fullscreen:active { transform: scale(0.9); background: var(--c-cyan); color: #000; }
 
         /* UNDO BUTTON */
         .btn-undo {
@@ -86,18 +103,19 @@
             border: none; border-radius: 12px; padding: 15px 25px;
             font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem;
             cursor: pointer; width: 100%; margin-bottom: 12px;
-            transition: all 0.1s ease; background: var(--btn-bg); color: white;
+            transition: all 0.2s ease; background: var(--btn-bg); color: white;
             border: 1px solid rgba(255,255,255,0.1); text-transform: uppercase; letter-spacing: 1px;
-            touch-action: manipulation;
+            user-select: none; touch-action: manipulation;
         }
         button:active { transform: scale(0.96); filter: brightness(1.3); }
         button:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(100%); }
         
-        .btn-cyan { color: #000; background: linear-gradient(90deg, #00f3ff, #0099ff); }
-        .btn-pink { color: #fff; background: linear-gradient(90deg, #ff00aa, #ff4d4d); }
-        .btn-yellow { color: #000; background: linear-gradient(90deg, #ffee00, #ffaa00); }
-        .btn-purple { color: #fff; background: linear-gradient(90deg, #bc13fe, #7a00ff); }
-        .btn-green { background: linear-gradient(90deg, #00e676, #00c853); color: #000; }
+        /* KLEUREN KNOPPEN */
+        .btn-cyan { color: #fff; background: linear-gradient(90deg, #009FE3, #00c3ff); border:none; }
+        .btn-pink { color: #fff; background: linear-gradient(90deg, #E6007E, #ff4da6); border:none; }
+        .btn-yellow { color: #000; background: linear-gradient(90deg, #FFED00, #fffaaa); border:none; }
+        .btn-purple { color: #fff; background: linear-gradient(90deg, #9b59b6, #8e44ad); border:none; }
+        .btn-green { background: linear-gradient(90deg, #2ecc71, #27ae60); color: #000; border: none; }
         
         .btn-delete {
             background: rgba(255, 59, 59, 0.2); color: var(--c-red); width: 40px; height: 40px; padding: 0;
@@ -122,7 +140,7 @@
         
         .scoreboard { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         .p-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; min-width: 100px; text-align: center; transition: 0.3s; }
-        .p-card.active-turn { background: rgba(0, 243, 255, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
+        .p-card.active-turn { background: rgba(0, 159, 227, 0.1); border: 2px solid var(--c-cyan); transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 159, 227, 0.4); }
         .p-name { font-size: 0.8rem; font-weight: 700; color: #aaa; margin-bottom: 5px; }
         .p-score { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
         .leg-indicator { font-size: 0.8rem; color: var(--c-yellow); margin-top: 5px; font-weight: bold; }
@@ -136,7 +154,7 @@
         /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content { background: #1a1c2c; border: 2px solid var(--c-cyan); border-radius: 25px; padding: 30px; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 243, 255, 0.2); transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: #1a1c2c; border: 2px solid var(--c-cyan); border-radius: 25px; padding: 30px; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 159, 227, 0.3); transform: scale(0.8); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.show .modal-content { transform: scale(1); }
         
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -161,6 +179,8 @@
     </style>
 </head>
 <body>
+
+    <button class="btn-fullscreen" onclick="toggleFullScreen()">⛶</button>
 
     <div class="logo" onclick="sfx.win()">🚀 Neon Flight</div>
 
@@ -222,17 +242,6 @@
                 <button onclick="preSelectVariant('100', '100 Low', 'low', desc.p100)" class="option-btn btn-pink"><span class="option-icon">⬇️</span> Laagste</button>
             </div>
             <button onclick="showScreen('screen-menu')" style="margin-top:20px;">Terug</button>
-        </div>
-
-        <div id="screen-checkout-setup" class="screen card">
-            <h2>Checkout</h2>
-            <label>Range:</label>
-            <div style="display:flex; gap:10px; margin: 15px 0;">
-                <input type="number" id="co-min" value="60">
-                <input type="number" id="co-max" value="100">
-            </div>
-            <button class="btn-purple" onclick="preSelectVariant('checkout', 'Checkout Challenge', 'standard', desc.checkout)" style="margin-top:10px;">Volgende</button>
-            <button onclick="showScreen('screen-menu')" style="background:transparent;">Annuleren</button>
         </div>
 
         <div id="modal-options" class="modal-overlay">
@@ -438,7 +447,7 @@
             singles: "<b>DOEL:</b> Train je precisie. Haal een zo hoog mogelijk percentage op de enkele getallen.<br><br><b>HOE:</b> De app geeft een getal. Gooi 3 pijlen. Geef aan hoeveel er in het juiste vak zaten (single, double of triple telt allemaal als raak).",
             bobs: "<b>DOEL:</b> Eindig met een zo hoog mogelijke score en zak niet onder 0.<br><br><b>HOE:</b> Je start met 27 punten. Gooi op volgorde (D1 t/m D20, Bull).<br>Raak = waarde erbij.<br>Mis (alle 3) = waarde eraf.",
             x01: "<b>DOEL:</b> Win de wedstrijd door als eerste het aantal legs te pakken.<br><br><b>HOE:</b> Klassiek 501/301. Gooi punten weg tot exact 0. Eindigen moet met een dubbel.",
-            checkout: "<b>DOEL:</b> Train je finishes. Haal 10 finishes.<br><br><b>HOE:</b> Je krijgt een random getal (bv. 82). Je hebt 6 pijlen (2 beurten) om uit te gooien. Lukt het niet? Dan heb je gefaald.",
+            checkout: "<b>DOEL:</b> Train je finishes. Haal 10 finishes.<br><br><b>HOE:</b> Je krijgt een random getal (60-120). Je hebt 6 pijlen (2 beurten) om uit te gooien. Lukt het niet? Dan heb je gefaald.",
             p100: "<b>DOEL:</b> Zet een topscore neer in 100 worpen.<br><br><b>HOE:</b> Kies 'Hoog' (bvb Triple 20 trainen) of 'Laag' (bvb T1 trainen). Gooi 100 pijlen en voer telkens je score in.",
             bull: "<b>DOEL:</b> Een zo lang mogelijke reeks (streak) neerzetten.<br><br><b>HOE:</b> Gooi 3 pijlen per beurt. Je MOET minstens één Bull (groen of rood) raken om in het spel te blijven."
         };
@@ -527,12 +536,27 @@
             showScreen('screen-menu');
         }
 
+        // --- MENU & MODALS ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'screen-players') renderPlayerList();
         }
 
+        // --- FULL SCREEN ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // CHECK IF PLAYED TODAY
         function hasPlayedToday(player, gameType) {
             const today = new Date().toISOString().slice(0,10);
             const key = getSaveKey(selectedGameType, currentVariant); 
@@ -543,15 +567,20 @@
             );
         }
 
+        // CORRECT SAVE KEY MAPPER
         function getSaveKey(type, variant) {
             if(type === 'doubles' || type === 'singles') return type + '_' + variant;
             if(type === '100') return '100' + variant;
-            return type; 
+            if(type === 'bull' || type === 'bullstreak') return 'bullstreak'; // Normalized
+            if(type === 'checkout') return 'checkout_wins';
+            if(type === 'x01') return 'x01_throw';
+            return type; // bobs27
         }
 
         function preSelectVariant(gameType, title, variant, description) {
             selectedGameType = gameType;
             currentVariant = variant;
+            
             document.getElementById('opt-title').innerText = title;
             document.getElementById('opt-desc').innerHTML = description;
             
@@ -568,7 +597,7 @@
             if(played) {
                 rankedBtn.disabled = true;
                 msgDiv.style.display = 'block';
-                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al gespeeld.`;
+                msgDiv.innerText = `⛔ ${who} heeft dit vandaag al voor het 'echt' gespeeld.`;
             } else {
                 rankedBtn.disabled = false;
                 msgDiv.style.display = 'none';
@@ -602,6 +631,7 @@
             else if(t === 'checkout') startCheckoutGame();
             else if(t === '100') start100Game();
             else if(t === 'bull') startBullstreak();
+            else if(t === 'bullstreak') startBullstreak(); // Safety
         }
 
         function restartGame() {
@@ -654,23 +684,25 @@
                 // If ranked, you CANNOT replay. Only menu.
                 controlsDiv.innerHTML = `<button onclick="closeModal('modal-summary'); showScreen('screen-menu');" style="background:transparent; border:1px solid #555;">MENU 🏠</button>`;
                 
-                const recs = history.filter(h => h.player === player && h.gameType === gameType).map(r => parseInt(r.result.score || r.result));
+                const dbType = gameType; // Already passed correctly usually
+                const recs = history.filter(h => h.player === player && h.gameType === dbType).map(r => parseInt(r.result.score || r.result));
                 
-                // Recs now includes the current score as last item.
+                // recs includes the current score as the last item because it was just saved.
                 if(recs.length > 1) {
-                    const currentVal = recs.pop(); 
+                    const currentVal = recs.pop(); // Remove current to compare with previous best
                     oldBest = metric==='max' ? Math.max(...recs) : Math.min(...recs);
                     
-                    // Min metric logic fix (for doubles/darts count)
+                    // Logic fix: For min metrics (like doubles darts count), lower is better
                     if (metric === 'min') {
                         if (currentVal < oldBest) { msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti(); }
-                        else { msg = "Game Voltooid"; }
+                        else { msg = "Game Voltooid"; diff = `+${currentVal - oldBest}`; }
                     } else {
                         if (currentVal > oldBest) { msg = "🎉 NIEUW RECORD!"; diff = "Verbeterd!"; sfx.win(); triggerConfetti(); }
-                        else { msg = "Game Voltooid"; }
+                        else { msg = "Game Voltooid"; diff = `${currentVal - oldBest}`; }
                     }
                 } else { msg = "Eerste Ranked Game!"; }
             } else {
+                // If practice, allow replay
                 msg = "Oefenmodus (Niet opgeslagen)";
                 controlsDiv.innerHTML = `
                     <button class="btn-cyan" onclick="restartGame()">SPEEL OPNIEUW ↻</button>
@@ -720,7 +752,7 @@
             showScreen('screen-records');
         }
 
-        // --- GAME UTILS ---
+        // --- GAME LOGIC ---
         function saveRec(type, player, res) {
             if(currentSessionIsRanked) {
                 history.push({ date: new Date().toISOString(), gameType: type, player: player, result: res });
@@ -775,13 +807,12 @@
                 const s=doublesState[p]; const tv=s.queue[s.idx]; const txt=s.idx>=s.queue.length?"WIN":(tv===25?"BULL":"D"+tv);
                 sb.innerHTML+=`<div class="p-card ${i===curPIdx?'active-turn':''}"><div class="p-name">${p}</div><div class="p-score">${txt}</div></div>`;
             });
-            document.getElementById('doubles-darts-count').innerText=doublesState[activePlayers[curPIdx]].curDarts;
+            document.getElementById('doubles-darts-count').innerText=s.totalGameDarts + s.curDarts;
         }
         function handleDoublesInput(d) {
             snapshotState(); const p=activePlayers[curPIdx], s=doublesState[p];
-            s.totalGameDarts += (s.curDarts + d); // Add correct amount to running total
+            s.totalGameDarts += (s.curDarts + d); 
             
-            // Only save hit details if ranked
             if(currentSessionIsRanked) {
                 history.push({ date: new Date().toISOString(), gameType: 'doubles_stat', player: p, result: {target:s.queue[s.idx], darts:s.curDarts+d} });
                 localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
@@ -789,9 +820,8 @@
             s.idx++; s.curDarts=0;
             if(s.idx >= s.queue.length) {
                 let saveKey = 'doubles_'+currentVariant;
-                // SAVE FINAL SCORE (Total darts used)
                 saveRec(saveKey, p, s.totalGameDarts);
-                showSummary(p, s.totalGameDarts + " Pijlen", saveKey, 'min', "Voltooid!");
+                showSummary(p, s.totalGameDarts + " Pijlen", saveKey, 'min', "Totaal aantal pijlen");
                 return;
             }
             nextTurn(); updateDoublesUI();
@@ -818,7 +848,7 @@
                 const tt = singlesState[activePlayers[curPIdx]].totalThrows;
                 const pct = tt>0 ? ((fs/tt)*100).toFixed(1) : 0;
                 saveRec('singles_'+currentVariant, activePlayers[curPIdx], fs);
-                showSummary(activePlayers[curPIdx], fs + " Hits", 'singles_'+currentVariant, 'max', `Hitrate: ${pct}%`);
+                showSummary(activePlayers[curPIdx], fs, 'singles_'+currentVariant, 'max', `Hitrate: ${pct}%`);
             }
         }
         function handleSinglesInput(h) {
@@ -850,7 +880,7 @@
             const targetVal = bobsTargets[s.idx] === 25 ? 25 : bobsTargets[s.idx]; const points = targetVal * 2;
             if(hits > 0) s.score += (points * hits); else { s.score -= points; document.getElementById('screen-game-bobs27').classList.add('flash-red'); setTimeout(()=>document.getElementById('screen-game-bobs27').classList.remove('flash-red'), 500); }
             if(s.score < 0) { 
-                s.alive = false; sfx.play(150, 'sawtooth', 0.5); alert(`${p} is AF!`); 
+                s.alive = false; sfx.win(); alert(`${p} is AF!`); 
                 if(activePlayers.every(pl => !bobsState[pl].alive)) { showScreen('screen-menu'); }
             } 
             else if(s.idx >= bobsTargets.length - 1) { 
@@ -870,17 +900,17 @@
             document.getElementById('x01-display').innerText=keypadInput||"0";
         }
         function submitX01() {
-            const v=parseInt(keypadInput); if(isNaN(v)||v>180) return sfx.play(150,'sawtooth',0.2);
+            const v=parseInt(keypadInput); if(isNaN(v)||v>180) return alert("Fout");
             snapshotState(); const p=activePlayers[curPIdx], s=x01State[p], r=s.score-v;
             if(currentSessionIsRanked) { history.push({ date: new Date().toISOString(), gameType: 'x01_throw', player: p, result: v }); localStorage.setItem(KEY_HISTORY, JSON.stringify(history)); }
             if(r===0){ s.legs++; if(s.legs>=s.req){ showSummary(p, s.legs + " LEGS", 'x01', 'max', "Wedstrijd gewonnen"); return; }else{sfx.win(); alert("Leg win!"); activePlayers.forEach(pl=>x01State[pl].score=x01State[pl].start);} }
-            else if(r<=1) { sfx.play(150,'sawtooth',0.3); alert("BUST"); } else { sfx.click(); s.score=r; }
+            else if(r<=1) alert("BUST"); else s.score=r;
             keypadInput=""; nextTurn(); updateX01UI();
         }
 
         // CHECKOUT
         function startCheckoutGame() {
-            let mn=parseInt(document.getElementById('co-min').value), mx=parseInt(document.getElementById('co-max').value);
+            let mn=60, mx=120; // FIXED RANGE
             undoStack=[]; gameMode='checkout'; activePlayers.forEach(p=>checkoutState[p]={r:1,wins:0,t:Math.floor(Math.random()*(mx-mn+1)+mn),cur:0,tr:0,mn:mn,mx:mx}); activePlayers.forEach(p=>checkoutState[p].cur=checkoutState[p].t); curPIdx=0; updateCheckoutUI(); showScreen('screen-game-checkout');
         }
         function updateCheckoutUI() {
@@ -892,7 +922,7 @@
         function submitCheckout() {
             const v=parseInt(keypadInput); if(isNaN(v)) return;
             snapshotState(); const p=activePlayers[curPIdx], s=checkoutState[p], r=s.cur-v;
-            if(r===0){ sfx.win(); s.wins++; nextCO(s); } else if(r<=1){ sfx.play(150,'sawtooth',0.3); s.tr++; checkFailCO(s); } else { sfx.click(); s.cur=r; s.tr++; checkFailCO(s); }
+            if(r===0){ s.wins++; nextCO(s); } else if(r<=1){ s.tr++; checkFailCO(s); } else { s.cur=r; s.tr++; checkFailCO(s); }
             keypadInput=""; if(s.cur>0) nextTurn(); updateCheckoutUI();
         }
         function checkFailCO(s) { if(s.tr>=2 && s.cur>0) nextCO(s); }
@@ -909,7 +939,7 @@
             const v=parseInt(keypadInput); if(isNaN(v)||v>180) return;
             snapshotState(); const p=activePlayers[curPIdx], s=state100[p];
             let dTurn = (100-s.darts===1)?1:3; if(dTurn===1&&v>60) return alert("Max 60");
-            sfx.click(); s.score+=v; s.darts+=dTurn; keypadInput="";
+            s.score+=v; s.darts+=dTurn; keypadInput="";
             if(s.darts>=100){ 
                 const saveKey = '100'+currentVariant;
                 saveRec(saveKey,p,s.score); showSummary(p, s.score, saveKey, currentVariant==='high'?'max':'min', "Score"); 
@@ -929,9 +959,8 @@
         }
         function handleBullResult(h){
             snapshotState(); const p=activePlayers[curPIdx]; 
-            if(h) { sfx.click(); stateBull[p].streak++; } 
+            if(h) { sfx.win(); stateBull[p].streak++; } 
             else { 
-                sfx.play(150,'sawtooth',0.5);
                 saveRec('bullstreak',p,stateBull[p].streak); stateBull[p].alive=false; 
                 showSummary(p, stateBull[p].streak + " Beurten", 'bullstreak', 'max', "Streak");
             }
