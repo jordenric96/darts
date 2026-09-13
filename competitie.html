@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Competitie Details</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="has-bottom-bar">
+
+    <!-- Top Navigatie -->
+    <header class="top-header">
+        <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
+        <h2 id="comp-titel">Laden...</h2>
+    </header>
+
+    <main id="main-content">
+        <!-- TAB 1: Klassement -->
+        <section id="tab-klassement" class="tab-content active">
+            <h3 style="color: var(--c-yellow); margin-top: 0;">Klassement</h3>
+            <div id="klassement-container">Laden...</div>
+        </section>
+
+        <!-- TAB 2: Kalender -->
+        <section id="tab-kalender" class="tab-content">
+            <h3 style="color: var(--c-cyan); margin-top: 0;">Speelkalender</h3>
+            <div id="kalender-container">Laden...</div>
+        </section>
+
+        <!-- TAB 3: Ploegen -->
+        <section id="tab-ploegen" class="tab-content">
+            <h3 style="color: var(--c-pink); margin-top: 0;">Adressen & Lokaal</h3>
+            <div id="ploegen-container">Laden...</div>
+        </section>
+
+        <!-- TAB 4: Stats -->
+        <section id="tab-stats" class="tab-content">
+            <h3 style="color: #2ecc71; margin-top: 0;">Ere-galerij (Stats)</h3>
+            <div class="dashboard-card" style="margin-top: 0;">
+                <p>Spelerstatistieken (180's, High Finishes) komen hier zodra uitslagen worden ingegeven.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Bar Menu (WhatsApp-stijl) -->
+    <nav class="bottom-bar">
+        <button class="nav-item active" onclick="switchTab('klassement', this)">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-text">Stand</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('kalender', this)">
+            <span class="nav-icon">📅</span>
+            <span class="nav-text">Kalender</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('ploegen', this)">
+            <span class="nav-icon">📍</span>
+            <span class="nav-text">Ploegen</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('stats', this)">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Stats</span>
+        </button>
+    </nav>
+
+    <!-- Scripts inladen -->
+    <script src="js/supabase.js"></script>
+    <script src="js/competitie.js"></script>
+</body>
+</html>
