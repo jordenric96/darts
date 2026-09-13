@@ -59,3 +59,46 @@ h1.dashboard-title { text-align: center; color: var(--c-cyan); }
 .ploeg-card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 10px; }
 .ploeg-card h4 { margin: 0 0 5px 0; color: white; display: flex; justify-content: space-between; }
 .divisie-badge { background: var(--c-cyan); color: black; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; }
+
+
+/* --- NIEUW: Menu Raster (Blokken) --- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.menu-block {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 30px 10px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.menu-block:active, .menu-block:hover {
+    background: rgba(0, 159, 227, 0.15);
+    transform: scale(0.97);
+    border-color: var(--c-cyan);
+}
+
+.menu-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    filter: drop-shadow(0px 4px 5px rgba(0,0,0,0.5));
+}
+
+.menu-text {
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
