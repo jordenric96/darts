@@ -5,8 +5,8 @@ async function fetchCompetities() {
     container.innerHTML = '<p style="color: #aaa;">Laden...</p>';
 
     try {
-        // Haal alle rijen op uit de tabel 'competitions'
-        const { data, error } = await supabase
+        // GEWIJZIGD: We gebruiken hier nu supabaseClient
+        const { data, error } = await supabaseClient
             .from('competitions')
             .select('*');
 
