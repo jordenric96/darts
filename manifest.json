@@ -1,14 +1,14 @@
 {
-  "name": "Darts Competitie Beheer",
-  "short_name": "Darts App",
-  "start_url": "/",
+  "name": "Darts Competitie",
+  "short_name": "Darts",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1a202c",
   "theme_color": "#1a202c",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/assets/icon.png",
+      "src": "assets/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
