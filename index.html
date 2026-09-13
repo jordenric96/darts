@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Darts Competitie Beheer</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    <style>
+        body { font-family: system-ui, sans-serif; background: #1a202c; color: white; padding: 20px; margin: 0; }
+    </style>
+</head>
+<body>
+    <h1>Darts Competitie</h1>
+    <p>Live scores en rangschikkingen laden...</p>
+
+    <script>
+        // Registreer de Service Worker voor PWA functionaliteit
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('Service Worker geregistreerd'))
+                .catch(err => console.error('Service Worker registratie mislukt:', err));
+        }
+    </script>
+</body>
+</html>
