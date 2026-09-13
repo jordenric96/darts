@@ -1,3 +1,5 @@
+/* css/style.css */
+
 /* Globale Reset & Basis */
 * { 
     box-sizing: border-box; 
@@ -8,6 +10,12 @@ body {
     margin: 0;
     min-height: 100vh;
     font-family: system-ui, -apple-system, sans-serif;
+    background: #1a202c; 
+    color: white; 
+    padding: 20px; 
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 button { 
@@ -27,3 +35,31 @@ button:disabled {
 /* Standaard Navigatie & Schermbeheer */
 .screen { display: none; }
 .active { display: block; }
+
+/* --- Specifieke Dashboard Styling (index.html) --- */
+h1.dashboard-title { 
+    text-align: center; 
+    color: #009FE3; 
+}
+
+.dashboard-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.btn-trainer {
+    background: linear-gradient(90deg, #E6007E, #ff4da6); 
+    color: white; 
+    padding: 15px 25px; 
+    border-radius: 12px; 
+    width: 100%; 
+    font-weight: bold; 
+    font-size: 1.1rem; 
+    margin-top: 20px; 
+    text-transform: uppercase; 
+    box-shadow: 0 4px 15px rgba(230, 0, 126, 0.4);
+}
