@@ -4,65 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Darts Competitie Beheer</title>
+    
+    <!-- PWA Link -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a202c">
-    <style>
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background: #1a202c; 
-            color: white; 
-            padding: 20px; 
-            margin: 0; 
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        h1 { text-align: center; color: #009FE3; }
-        .dashboard-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .btn-trainer {
-            background: linear-gradient(90deg, #E6007E, #ff4da6); 
-            color: white; 
-            border: none; 
-            padding: 15px 25px; 
-            border-radius: 12px; 
-            width: 100%; 
-            font-family: inherit; 
-            font-weight: bold; 
-            font-size: 1.1rem; 
-            margin-top: 20px; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            box-shadow: 0 4px 15px rgba(230, 0, 126, 0.4);
-        }
-    </style>
+    
+    <!-- Link naar de centrale CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- SUPABASE CLIENT INLADEN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <h1>Darts Competitie</h1>
+    <h1 class="dashboard-title">Darts Competitie</h1>
     
     <div class="dashboard-card">
-        <h3>Live Competitie</h3>
-        <p style="color: #aaa;">Connectie met Supabase maken... (binnenkort)</p>
+        <h3>Mijn Competities</h3>
+        <!-- Hier wordt de data uit js/app.js ingeladen -->
+        <div id="competitie-lijst">
+            <p style="color: #aaa;">Verbinden met database...</p>
+        </div>
     </div>
 
-    <!-- Knop naar de Trainer App -->
+    <!-- Knop naar de Trainer -->
     <button class="btn-trainer" onclick="window.location.href='trainer.html'">
         🎯 Oefen in de Neon Trainer
     </button>
 
+    <!-- Laad jouw eigen scripts in de juiste volgorde in -->
+    <script src="js/supabase.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Service Worker voor de App-ervaring -->
     <script>
-        // Registreer de Service Worker voor PWA functionaliteit
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker geregistreerd'))
-                    .catch(err => console.error('Service Worker registratie mislukt:', err));
+                navigator.serviceWorker.register('sw.js');
             });
         }
     </script>
