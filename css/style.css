@@ -1,1 +1,29 @@
-test
+/* Globale Reset & Basis */
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+button { 
+    cursor: pointer; 
+    user-select: none; 
+    touch-action: manipulation; 
+    border: none;
+    font-family: inherit;
+}
+
+button:disabled { 
+    opacity: 0.4; 
+    cursor: not-allowed; 
+    filter: grayscale(100%); 
+}
+
+/* Standaard Navigatie & Schermbeheer */
+.screen { display: none; }
+.active { display: block; }
