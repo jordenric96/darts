@@ -1,16 +1,20 @@
 /* css/style.css */
 
-/* Globale Reset & Basis */
-* { 
-    box-sizing: border-box; 
-    -webkit-tap-highlight-color: transparent; 
+:root {
+    --c-cyan: #009FE3;
+    --c-pink: #E6007E;
+    --c-yellow: #FFED00;
+    --bg-color: #1a202c;
+    --card-bg: rgba(255,255,255,0.05);
 }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
     margin: 0;
     min-height: 100vh;
     font-family: system-ui, -apple-system, sans-serif;
-    background: #1a202c; 
+    background: var(--bg-color); 
     color: white; 
     padding: 20px; 
     max-width: 600px;
@@ -18,48 +22,40 @@ body {
     margin-right: auto;
 }
 
-button { 
-    cursor: pointer; 
-    user-select: none; 
-    touch-action: manipulation; 
-    border: none;
-    font-family: inherit;
-}
+/* Voor pagina's met een menubalk onderaan (zoals competitie.html) */
+body.has-bottom-bar { padding-bottom: 80px; padding-top: 10px; }
 
-button:disabled { 
-    opacity: 0.4; 
-    cursor: not-allowed; 
-    filter: grayscale(100%); 
-}
+button { cursor: pointer; user-select: none; border: none; font-family: inherit; }
 
-/* Standaard Navigatie & Schermbeheer */
-.screen { display: none; }
+.screen, .tab-content { display: none; }
 .active { display: block; }
 
-/* --- Specifieke Dashboard Styling (index.html) --- */
-h1.dashboard-title { 
-    text-align: center; 
-    color: #009FE3; 
-}
+/* Dashboard Startscherm */
+h1.dashboard-title { text-align: center; color: var(--c-cyan); }
+.dashboard-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: center; }
+.btn-trainer { background: linear-gradient(90deg, var(--c-pink), #ff4da6); color: white; padding: 15px 25px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 1.1rem; margin-top: 20px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(230, 0, 126, 0.4); }
 
-.dashboard-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 20px;
-    text-align: center;
-}
+/* --- NIEUW: Top Header & Bottom Bar (Competitie detail) --- */
+.top-header { display: flex; align-items: center; margin-bottom: 20px; gap: 15px; }
+.btn-back { background: var(--card-bg); color: var(--c-cyan); border: 1px solid var(--c-cyan); border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+.top-header h2 { margin: 0; font-size: 1.3rem; color: white; }
 
-.btn-trainer {
-    background: linear-gradient(90deg, #E6007E, #ff4da6); 
-    color: white; 
-    padding: 15px 25px; 
-    border-radius: 12px; 
-    width: 100%; 
-    font-weight: bold; 
-    font-size: 1.1rem; 
-    margin-top: 20px; 
-    text-transform: uppercase; 
-    box-shadow: 0 4px 15px rgba(230, 0, 126, 0.4);
-}
+.bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(20, 20, 30, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+.nav-item { background: transparent; color: #888; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; width: 25%; }
+.nav-icon { font-size: 1.5rem; margin-bottom: 3px; }
+.nav-item.active { color: var(--c-cyan); }
+.nav-item.active .nav-icon { filter: drop-shadow(0 0 5px var(--c-cyan)); }
+
+/* --- NIEUW: Tabellen en Kaarten --- */
+.neon-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.neon-table th { text-align: left; padding: 10px; border-bottom: 2px solid var(--c-cyan); color: var(--c-cyan); font-size: 0.9rem; text-transform: uppercase; }
+.neon-table td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+.match-card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--c-pink); }
+.match-day { font-size: 0.8rem; color: var(--c-yellow); margin-bottom: 5px; font-weight: bold; }
+.match-teams { font-size: 1.1rem; font-weight: bold; }
+.match-teams span { font-size: 0.9rem; color: #888; font-weight: normal; margin: 0 5px; }
+
+.ploeg-card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+.ploeg-card h4 { margin: 0 0 5px 0; color: white; display: flex; justify-content: space-between; }
+.divisie-badge { background: var(--c-cyan); color: black; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; }
