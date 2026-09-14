@@ -3,22 +3,65 @@
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
+// We houden de uitzonderingen bij in deze array
+let excludedDates = [];
+
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-back-hub').onclick = () => window.location.href = `beheer-hub.html?id=${compId}`;
     
-    // Zet de datum op vandaag als standaard
+    // Zet de startdatum op vandaag als standaard
     const vandaag = new Date().toISOString().split('T')[0];
     document.getElementById('inp-startdatum').value = vandaag;
+
+    renderUitzonderingen();
 });
+
+// --- UITZONDERINGEN BEHEREN ---
+
+function voegUitzonderingToe() {
+    const dateVal = document.getElementById('inp-uitzondering').value;
+    if (!dateVal) return;
+    
+    if (!excludedDates.includes(dateVal)) {
+        excludedDates.push(dateVal);
+        excludedDates.sort(); // Sorteer chronologisch
+        renderUitzonderingen();
+    }
+    document.getElementById('inp-uitzondering').value = ''; // Maak veld leeg
+}
+
+function verwijderUitzondering(dateStr) {
+    excludedDates = excludedDates.filter(d => d !== dateStr);
+    renderUitzonderingen();
+}
+
+function renderUitzonderingen() {
+    const container = document.getElementById('uitzonderingen-lijst');
+    if (excludedDates.length === 0) {
+        container.innerHTML = '<span style="color: #aaa; font-size: 0.85rem;">Geen uitzonderingen toegevoegd.</span>';
+        return;
+    }
+
+    container.innerHTML = excludedDates.map(d => `
+        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--c-pink); font-size: 0.9rem;">
+            <span>🚫 ${d.split('-').reverse().join('-')}</span>
+            <span style="color: #ff3b3b; cursor: pointer; font-weight: bold; font-size: 1.1rem;" onclick="verwijderUitzondering('${d}')">✕</span>
+        </div>
+    `).join('');
+}
+
+// --- KALENDER GENERATIE ---
 
 async function genereerKalender() {
     const startDatumString = document.getElementById('inp-startdatum').value;
+    const startUurString = document.getElementById('inp-startuur').value;
     const intervalWeken = parseInt(document.getElementById('inp-interval').value);
+    
     const msg = document.getElementById('msg-box');
     const btn = document.getElementById('btn-generate');
 
-    if (!startDatumString) {
-        toonMelding("Kies een geldige startdatum.", "red");
+    if (!startDatumString || !startUurString) {
+        toonMelding("Kies een geldige startdatum en startuur.", "red");
         return;
     }
 
@@ -27,7 +70,7 @@ async function genereerKalender() {
     toonMelding("Kalender wordt berekend...", "white");
 
     try {
-        // 1. Controleer of er al een kalender is (voorkom dubbele generatie)
+        // 1. Controleer of er al een kalender is
         const { data: bestaandeMatchen } = await supabaseClient
             .from('matches')
             .select('id')
@@ -42,7 +85,6 @@ async function genereerKalender() {
                 toonMelding("Geannuleerd.", "white");
                 return;
             }
-            // Wis oude kalender
             await supabaseClient.from('matches').delete().eq('competition_id', compId);
         }
 
@@ -55,7 +97,24 @@ async function genereerKalender() {
         if (ploegenError) throw ploegenError;
         if (!ploegen || ploegen.length < 2) throw new Error("Er zijn niet genoeg ploegen om een kalender te maken.");
 
-        // 3. Groepeer ploegen per divisie
+        // 3. Bereken vooraf een lijst van geldige speeldatums (die NIET in de uitzonderingen vallen)
+        let validDates = [];
+        let testDate = new Date(startDatumString);
+        
+        // We berekenen max 60 speeldagen (ruim voldoende voor de grootste reeksen)
+        while (validDates.length < 60) {
+            let dateString = testDate.toISOString().split('T')[0];
+            
+            // Als deze dag NIET in onze uitsluitingen zit, is het een geldige dartsdag
+            if (!excludedDates.includes(dateString)) {
+                validDates.push(dateString);
+            }
+            
+            // Tel de weken op voor de volgende test (afhankelijk van het interval)
+            testDate.setDate(testDate.getDate() + (7 * intervalWeken));
+        }
+
+        // 4. Groepeer ploegen per divisie
         const divisies = [...new Set(ploegen.map(p => p.division))];
         let alleWedstrijden = [];
 
@@ -63,11 +122,9 @@ async function genereerKalender() {
             const divPloegen = ploegen.filter(p => p.division === divNaam);
             const schema = genereerRoundRobin(divPloegen);
             
-            // Zet het gemaakte schema om naar Supabase rijen
             schema.forEach(speeldag => {
-                // Bereken de datum
-                const matchDatum = new Date(startDatumString);
-                matchDatum.setDate(matchDatum.getDate() + ((speeldag.matchday - 1) * 7 * intervalWeken));
+                // Haal de juiste veilige datum op uit onze lijst (speeldag 1 = index 0)
+                const speelDatumVeilig = validDates[speeldag.matchday - 1];
 
                 speeldag.matches.forEach(match => {
                     // Sla matchen tegen "Vrij" niet op in de database
@@ -78,7 +135,8 @@ async function genereerKalender() {
                             matchday: speeldag.matchday,
                             home_team_id: match.home.id,
                             away_team_id: match.away.id,
-                            play_date: matchDatum.toISOString().split('T')[0],
+                            play_date: speelDatumVeilig,
+                            play_time: startUurString,
                             status: 'scheduled'
                         });
                     }
@@ -86,14 +144,14 @@ async function genereerKalender() {
             });
         }
 
-        // 4. Sla alle matchen in één keer op in Supabase
+        // 5. Sla alle matchen in één keer op in Supabase
         const { error: insertError } = await supabaseClient
             .from('matches')
             .insert(alleWedstrijden);
 
         if (insertError) throw insertError;
 
-        toonMelding(`Succes! ${alleWedstrijden.length} matchen zijn succesvol ingepland.`, "lime");
+        toonMelding(`Succes! ${alleWedstrijden.length} matchen zijn succesvol ingepland, rekening houdend met je rustweken!`, "lime");
         btn.innerText = "✅ Kalender Opgeslagen";
 
     } catch (err) {
@@ -125,7 +183,6 @@ function genereerRoundRobin(ploegen) {
     const halfSize = teams.length / 2;
     let schema = [];
     
-    // Array rotatie voorbereiding
     let currentTeams = [...teams];
     currentTeams.shift(); // Eerste ploeg blijft altijd vast staan
 
@@ -136,20 +193,17 @@ function genereerRoundRobin(ploegen) {
         let team1 = teams[0];
         let team2 = currentTeams[currentTeams.length - 1];
         
-        // Wissel thuis/uit voor de vaste ploeg zodat ze niet enkel thuis spelen
         if (day % 2 === 0) {
             round.matches.push({ home: team1, away: team2 });
         } else {
             round.matches.push({ home: team2, away: team1 });
         }
 
-        // Koppel de overige ploegen
         for (let i = 0; i < halfSize - 1; i++) {
             round.matches.push({ home: currentTeams[i], away: currentTeams[currentTeams.length - 2 - i] });
         }
         schema.push(round);
         
-        // Roteer de ploegen met de klok mee voor de volgende speeldag
         currentTeams.unshift(currentTeams.pop());
     }
 
@@ -158,7 +212,6 @@ function genereerRoundRobin(ploegen) {
         let round = { matchday: numDays + day + 1, matches: [] };
         let heenRound = schema[day];
         
-        // Keer thuis en uit simpelweg om
         heenRound.matches.forEach(match => {
             round.matches.push({ home: match.away, away: match.home });
         });
