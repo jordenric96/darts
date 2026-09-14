@@ -4,28 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beheerders Dashboard</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a202c">
-    
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .admin-badge {
-            background: var(--c-pink);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 5px;
-        }
+        .admin-badge { background: var(--c-pink); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-
     <header class="top-header">
         <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
         <div>
@@ -35,39 +20,23 @@
     </header>
 
     <main>
-        <!-- HET BEHEERDERS RASTER -->
         <div class="menu-grid" id="menu-grid" style="display: none;">
-            
             <a href="#" id="link-instellingen" class="menu-block" style="border-color: #888;">
                 <span class="menu-icon">⚙️</span>
                 <span class="menu-text">Instellingen</span>
-                <span style="font-size: 0.7rem; color: #888; margin-top: 5px;">Regels & Format</span>
             </a>
-            
             <a href="#" id="link-ploegen" class="menu-block">
                 <span class="menu-icon">🛡️</span>
-                <span class="menu-text">Ploegen</span>
-                <span style="font-size: 0.7rem; color: #888; margin-top: 5px;">Toevoegen & Lokaal</span>
+                <span class="menu-text">Ploegen beheren</span>
             </a>
-            
             <a href="#" id="link-spelers" class="menu-block">
                 <span class="menu-icon">👤</span>
-                <span class="menu-text">Spelers</span>
-                <span style="font-size: 0.7rem; color: #888; margin-top: 5px;">Rosters beheren</span>
+                <span class="menu-text">Spelers (Rosters)</span>
             </a>
-
-            <a href="#" id="link-nieuws" class="menu-block" style="border-color: var(--c-pink);">
-                <span class="menu-icon">🚨</span>
-                <span class="menu-text">Nieuws & Info</span>
-                <span style="font-size: 0.7rem; color: #888; margin-top: 5px;">Meldingen sturen</span>
-            </a>
-            
-            <a href="#" id="link-kalender-maken" class="menu-block" style="grid-column: span 2; border-color: var(--c-cyan);">
+            <a href="#" id="link-kalender" class="menu-block" style="border-color: var(--c-cyan);">
                 <span class="menu-icon">📅</span>
-                <span class="menu-text">Kalender Genereren</span>
-                <span style="font-size: 0.7rem; color: #888; margin-top: 5px;">Speeldagen en matchen plannen</span>
+                <span class="menu-text">Kalender & Matchen</span>
             </a>
-
         </div>
     </main>
 
