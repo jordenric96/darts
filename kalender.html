@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kalender</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .filter-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
+        
+        .matchday-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+        .matchday-header { background: var(--c-cyan); color: black; font-weight: bold; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .match-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
+        .match-row:last-child { border-bottom: none; }
+        .team-name { flex: 1; font-weight: bold; color: white; }
+        .team-home { text-align: right; }
+        .team-away { text-align: left; }
+        .vs-badge { background: rgba(255,255,255,0.1); color: var(--c-yellow); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; margin: 0 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <button class="btn-back" id="btn-back-hub">⬅</button>
+        <h2 style="color: white; font-size: 1.2rem;">Kalender</h2>
+    </header>
+
+    <main style="padding-top: 10px;">
+        
+        <!-- FILTER OP REEKS -->
+        <div class="filter-card">
+            <label style="display: block; margin-bottom: 5px; color: var(--c-cyan); font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">Kies Reeks</label>
+            <select id="select-divisie" onchange="renderKalender()">
+                <option value="">Laden...</option>
+            </select>
+        </div>
+
+        <!-- KALENDER LIJST -->
+        <div id="kalender-container">
+            <p style="text-align: center; color: #aaa;">Even geduld, matchen worden opgehaald...</p>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/kalender.js"></script>
+</body>
+</html>
