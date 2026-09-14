@@ -1,4 +1,4 @@
-const CACHE_NAME = 'darts-app-v2';
+const CACHE_NAME = 'darts-app-v3';
 
 // Bestanden die we offline willen bewaren
 const URLS_TO_CACHE = [
