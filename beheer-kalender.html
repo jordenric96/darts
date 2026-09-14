@@ -14,7 +14,7 @@
         .admin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: var(--c-cyan); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
-        input[type="date"], input[type="time"], input[type="number"] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
+        input[type="date"], input[type="time"], input[type="number"], input[type="text"] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
         
         .btn-add { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; margin-top: 10px; cursor: pointer; border: none; font-size: 1rem; }
         .btn-small { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
@@ -33,7 +33,7 @@
     <main style="padding-top: 10px;">
         <div class="info-box">
             <strong>Automatische Planning</strong><br>
-            De motor berekent een heen- en terugronde voor elke reeks. Ploegen spelen 1x thuis en 1x uit. <strong>Uitzonderingen</strong> (zoals feestdagen) worden automatisch overgeslagen.
+            De motor berekent een heen- en terugronde voor elke reeks. Ploegen spelen 1x thuis en 1x uit. <strong>Uitzonderingen</strong> worden overgeslagen.
         </div>
 
         <div class="admin-card">
@@ -56,18 +56,21 @@
             </div>
         </div>
 
+        <!-- VERNIEUWDE UITZONDERINGEN SECTIE -->
         <div class="admin-card">
             <h3 style="margin-top: 0; color: var(--c-pink);">Uitzonderingen (Geen Darts)</h3>
             
-            <div class="form-group">
-                <label>Voeg een rustdatum toe</label>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label>Datum Uitzondering</label>
+                <input type="date" id="inp-uitzondering" style="margin-bottom: 8px;">
+                
                 <div class="flex-row">
-                    <input type="date" id="inp-uitzondering" style="flex: 1;">
+                    <input type="text" id="inp-reden" placeholder="Reden (bv. Carnaval Halle)" style="flex: 1;">
                     <button class="btn-small" onclick="voegUitzonderingToe()" style="flex: 0 0 100px;">Toevoegen</button>
                 </div>
             </div>
 
-            <div id="uitzonderingen-lijst" style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;">
+            <div id="uitzonderingen-lijst" style="display: flex; flex-direction: column; gap: 5px; margin-top: 15px;">
                 <!-- Hier komen de geselecteerde uitsluitingen -->
             </div>
         </div>
