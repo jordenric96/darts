@@ -7,7 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Initialiseer het verslepen van de gelijke stand (Tiebreakers)
     const tiebreakerList = document.getElementById('tiebreaker-list');
     new Sortable(tiebreakerList, {
-        handle: '.drag-handle', // Enkel verslepen als je de 3 streepjes vastpakt
+        handle: '.drag-handle',
         animation: 150,
         ghostClass: 'sortable-ghost'
     });
@@ -118,7 +118,7 @@ async function maakCompetitie() {
     // Het ultieme Rules JSON Object!
     const rulesJson = {
         scoring: scoringRules,
-        tiebreakers: tiebreakers, // Hier steken we de opgeslagen volgorde in!
+        tiebreakers: tiebreakers,
         format: matchFormat
     };
 
@@ -155,8 +155,8 @@ async function maakCompetitie() {
 
         if (divError) throw divError;
 
-        // Gelukt! Stuur de beheerder direct naar het ploegen-beheer
-        window.location.href = `beheer-ploegen.html?id=${nieuweCompId}`;
+        // Gelukt! Stuur de beheerder direct naar het Dashboard (Hub) van deze competitie
+        window.location.href = `beheer-hub.html?id=${nieuweCompId}`;
 
     } catch (err) {
         console.error(err);
