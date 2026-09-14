@@ -3,13 +3,12 @@
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
-// We houden de uitzonderingen bij in deze array
+// We houden de uitzonderingen bij als objecten: { date: "...", reason: "..." }
 let excludedDates = [];
 
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-back-hub').onclick = () => window.location.href = `beheer-hub.html?id=${compId}`;
     
-    // Zet de startdatum op vandaag als standaard
     const vandaag = new Date().toISOString().split('T')[0];
     document.getElementById('inp-startdatum').value = vandaag;
 
@@ -20,18 +19,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function voegUitzonderingToe() {
     const dateVal = document.getElementById('inp-uitzondering').value;
+    const reasonVal = document.getElementById('inp-reden').value.trim() || 'Vrije week'; // Default tekst als het leeg is
+
     if (!dateVal) return;
     
-    if (!excludedDates.includes(dateVal)) {
-        excludedDates.push(dateVal);
-        excludedDates.sort(); // Sorteer chronologisch
+    // Check of deze datum nog niet in de lijst zit
+    if (!excludedDates.some(e => e.date === dateVal)) {
+        excludedDates.push({ date: dateVal, reason: reasonVal });
+        // Sorteer chronologisch op datum
+        excludedDates.sort((a, b) => a.date.localeCompare(b.date));
         renderUitzonderingen();
     }
-    document.getElementById('inp-uitzondering').value = ''; // Maak veld leeg
+    
+    // Maak velden leeg voor de volgende
+    document.getElementById('inp-uitzondering').value = '';
+    document.getElementById('inp-reden').value = '';
 }
 
 function verwijderUitzondering(dateStr) {
-    excludedDates = excludedDates.filter(d => d !== dateStr);
+    excludedDates = excludedDates.filter(e => e.date !== dateStr);
     renderUitzonderingen();
 }
 
@@ -42,10 +48,13 @@ function renderUitzonderingen() {
         return;
     }
 
-    container.innerHTML = excludedDates.map(d => `
-        <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--c-pink); font-size: 0.9rem;">
-            <span>🚫 ${d.split('-').reverse().join('-')}</span>
-            <span style="color: #ff3b3b; cursor: pointer; font-weight: bold; font-size: 1.1rem;" onclick="verwijderUitzondering('${d}')">✕</span>
+    container.innerHTML = excludedDates.map(e => `
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--c-pink);">
+            <div>
+                <div style="font-weight: bold; font-size: 0.95rem;">🚫 ${e.date.split('-').reverse().join('-')}</div>
+                <div style="color: #aaa; font-size: 0.8rem; margin-top: 3px;">ℹ️ ${e.reason}</div>
+            </div>
+            <span style="color: #ff3b3b; cursor: pointer; font-weight: bold; font-size: 1.2rem; padding: 5px;" onclick="verwijderUitzondering('${e.date}')">✕</span>
         </div>
     `).join('');
 }
@@ -97,20 +106,21 @@ async function genereerKalender() {
         if (ploegenError) throw ploegenError;
         if (!ploegen || ploegen.length < 2) throw new Error("Er zijn niet genoeg ploegen om een kalender te maken.");
 
-        // 3. Bereken vooraf een lijst van geldige speeldatums (die NIET in de uitzonderingen vallen)
+        // 3. Bereken vooraf een lijst van geldige speeldatums
         let validDates = [];
         let testDate = new Date(startDatumString);
         
-        // We berekenen max 60 speeldagen (ruim voldoende voor de grootste reeksen)
         while (validDates.length < 60) {
             let dateString = testDate.toISOString().split('T')[0];
             
-            // Als deze dag NIET in onze uitsluitingen zit, is het een geldige dartsdag
-            if (!excludedDates.includes(dateString)) {
+            // Kijk of deze dag in onze uitzonderingen object-array zit
+            let isExcluded = excludedDates.some(e => e.date === dateString);
+            
+            if (!isExcluded) {
                 validDates.push(dateString);
             }
             
-            // Tel de weken op voor de volgende test (afhankelijk van het interval)
+            // Tel weken op
             testDate.setDate(testDate.getDate() + (7 * intervalWeken));
         }
 
@@ -123,7 +133,6 @@ async function genereerKalender() {
             const schema = genereerRoundRobin(divPloegen);
             
             schema.forEach(speeldag => {
-                // Haal de juiste veilige datum op uit onze lijst (speeldag 1 = index 0)
                 const speelDatumVeilig = validDates[speeldag.matchday - 1];
 
                 speeldag.matches.forEach(match => {
@@ -144,7 +153,7 @@ async function genereerKalender() {
             });
         }
 
-        // 5. Sla alle matchen in één keer op in Supabase
+        // 5. Sla alle matchen op
         const { error: insertError } = await supabaseClient
             .from('matches')
             .insert(alleWedstrijden);
@@ -174,7 +183,6 @@ function toonMelding(tekst, kleur) {
 function genereerRoundRobin(ploegen) {
     let teams = [...ploegen];
     
-    // Bij oneven aantal ploegen voegen we een 'BYE' (Vrij) toe
     if (teams.length % 2 !== 0) {
         teams.push({ id: null, name: 'VRIJ' });
     }
@@ -184,9 +192,8 @@ function genereerRoundRobin(ploegen) {
     let schema = [];
     
     let currentTeams = [...teams];
-    currentTeams.shift(); // Eerste ploeg blijft altijd vast staan
+    currentTeams.shift(); 
 
-    // DEEL 1: HEENRONDE
     for (let day = 0; day < numDays; day++) {
         let round = { matchday: day + 1, matches: [] };
         
@@ -207,7 +214,6 @@ function genereerRoundRobin(ploegen) {
         currentTeams.unshift(currentTeams.pop());
     }
 
-    // DEEL 2: TERUGRONDE
     for (let day = 0; day < numDays; day++) {
         let round = { matchday: numDays + day + 1, matches: [] };
         let heenRound = schema[day];
