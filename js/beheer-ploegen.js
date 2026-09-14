@@ -2,53 +2,102 @@ const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
 window.addEventListener('DOMContentLoaded', async () => {
+    // Terugknop instellen
     document.getElementById('btn-back-hub').onclick = () => window.location.href = `beheer-hub.html?id=${compId}`;
+    
     await laadDivisies();
     await laadPloegen();
 });
 
 async function laadDivisies() {
     const select = document.getElementById('inp-divisie');
-    const { data } = await supabaseClient.from('divisions').select('*').eq('competition_id', compId).order('rank_order');
-    select.innerHTML = data ? data.map(d => `<option value="${d.name}">${d.name}</option>`).join('') : '';
+    try {
+        const { data } = await supabaseClient
+            .from('divisions')
+            .select('*')
+            .eq('competition_id', compId)
+            .order('rank_order');
+            
+        select.innerHTML = data ? data.map(d => `<option value="${d.name}">${d.name}</option>`).join('') : '';
+    } catch (err) {
+        console.error("Fout bij laden divisies:", err);
+    }
 }
 
 async function laadPloegen() {
     const container = document.getElementById('ploegen-lijst');
-    const { data } = await supabaseClient.from('teams').select('*').eq('competition_id', compId).order('division').order('name');
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = "<p style='color:#aaa;'>Nog geen ploegen.</p>";
-        return;
-    }
+    try {
+        const { data } = await supabaseClient
+            .from('teams')
+            .select('*')
+            .eq('competition_id', compId)
+            .order('division')
+            .order('name');
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = "<p style='color:#aaa;'>Nog geen ploegen toegevoegd.</p>";
+            return;
+        }
 
-    container.innerHTML = data.map(team => `
-        <div class="team-list-item">
-            <h4 style="margin:0 0 5px 0; color:white;">${team.name} <span style="background:var(--c-cyan); color:black; padding:2px 6px; border-radius:5px; font-size:0.7rem;">${team.division}</span></h4>
-            <p style="margin:0; font-size:0.8rem; color:#aaa;">📍 ${team.home_location || 'Geen lokaal'}</p>
-        </div>
-    `).join('');
+        container.innerHTML = data.map(team => `
+            <div class="team-list-item">
+                <div class="team-info">
+                    <h4>${team.name} <span style="background:var(--c-cyan); color:black; padding:2px 6px; border-radius:5px; font-size:0.7rem;">${team.division}</span></h4>
+                    <p>📍 ${team.home_location || 'Geen lokaal'}</p>
+                    <p style="font-size: 0.75rem; color: #888;">${team.address || 'Geen adres ingegeven'}</p>
+                </div>
+                <button class="btn-small" onclick="window.location.href='beheer-spelers.html?teamid=${team.id}&compid=${compId}'">Spelers 👤</button>
+            </div>
+        `).join('');
+    } catch (err) {
+        container.innerHTML = "<p style='color:red;'>Fout bij laden van de ploegen.</p>";
+    }
 }
 
 async function voegPloegToe() {
     const naam = document.getElementById('inp-ploegnaam').value.trim();
     const divisie = document.getElementById('inp-divisie').value;
     const lokaal = document.getElementById('inp-lokaal').value.trim();
+    const adres = document.getElementById('inp-adres').value.trim(); // Adres uitlezen
     const msg = document.getElementById('msg-box');
 
-    if (!naam) { msg.innerText = "Naam verplicht!"; msg.style.color = "red"; msg.style.display = "block"; return; }
+    if (!naam) { 
+        msg.innerText = "De naam van de ploeg is verplicht!"; 
+        msg.style.color = "#ff3b3b"; 
+        msg.style.display = "block"; 
+        return; 
+    }
 
-    msg.innerText = "Bezig..."; msg.style.color = "white"; msg.style.display = "block";
+    msg.innerText = "Bezig met opslaan..."; 
+    msg.style.color = "white"; 
+    msg.style.display = "block";
 
-    const { error } = await supabaseClient.from('teams').insert([{ competition_id: compId, name: naam, division: divisie, home_location: lokaal }]);
+    try {
+        const { error } = await supabaseClient.from('teams').insert([{ 
+            competition_id: compId, 
+            name: naam, 
+            division: divisie, 
+            home_location: lokaal,
+            address: adres // Adres meesturen naar de database
+        }]);
 
-    if (error) {
-        msg.innerText = "Fout bij opslaan."; msg.style.color = "red";
-    } else {
+        if (error) throw error;
+
+        // Formulier leegmaken na succes
         document.getElementById('inp-ploegnaam').value = '';
         document.getElementById('inp-lokaal').value = '';
-        msg.innerText = "Succes!"; msg.style.color = "lime";
-        setTimeout(() => msg.style.display = 'none', 2000);
+        document.getElementById('inp-adres').value = '';
+        
+        msg.innerText = "Ploeg succesvol toegevoegd!"; 
+        msg.style.color = "lime";
+        
+        setTimeout(() => msg.style.display = 'none', 2500);
+        
+        // De lijst onmiddellijk updaten
         laadPloegen();
+        
+    } catch (err) {
+        msg.innerText = "Fout bij opslaan: " + err.message; 
+        msg.style.color = "#ff3b3b";
     }
 }
