@@ -21,9 +21,9 @@ async function laadCompetitieMenu() {
 
         if (compInfo) {
             document.getElementById('comp-titel').innerText = compInfo.name;
-            document.getElementById('menu-grid').style.display = 'grid'; // Toon de blokken
+            document.getElementById('menu-grid').style.display = 'grid';
 
-            // Toon de nieuwsbanner als het bestuur dit heeft ingevuld (wordt later gebouwd)
+            // Toon de nieuwsbanner als het bestuur dit heeft ingevuld
             if (compInfo.latest_news && compInfo.latest_news.trim() !== '') {
                 document.getElementById('news-content').innerText = compInfo.latest_news;
                 document.getElementById('news-section').style.display = 'block';
@@ -42,6 +42,7 @@ async function laadCompetitieMenu() {
         document.getElementById('link-beker').href = `beker.html?id=${compId}`;
         document.getElementById('link-stats').href = `statistieken.html?id=${compId}`;
         document.getElementById('link-bestuur').href = `bestuur.html?id=${compId}`;
+        document.getElementById('link-reglement').href = `reglement.html?id=${compId}`;
 
     } catch (err) {
         console.error("Fout bij het laden:", err);
