@@ -1,54 +1,68 @@
-// js/competitie.js
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Competitie Hub</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
 
-const urlParams = new URLSearchParams(window.location.search);
-const compId = urlParams.get('id');
+    <header class="top-header">
+        <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
+        <h2 id="comp-titel" style="color: var(--c-cyan);">Laden...</h2>
+    </header>
 
-async function laadCompetitieMenu() {
-    if (!compId) {
-        document.getElementById('comp-titel').innerText = "Fout: Geen competitie geselecteerd";
-        return;
-    }
+    <main>
+        <!-- LAATSTE NIEUWS / MEDEDELINGEN BANNER -->
+        <div id="news-section" class="news-banner" style="display: none;">
+            <div class="news-title">🚨 Laatste Nieuws & Mededelingen</div>
+            <p id="news-content" class="news-text">Laden...</p>
+        </div>
 
-    try {
-        // Haal alle data van de competitie op
-        const { data: compInfo, error } = await supabaseClient
-            .from('competitions')
-            .select('*')
-            .eq('id', compId)
-            .single();
+        <!-- HET BLOKKEN-MENU (SPELERS HUB) -->
+        <div class="menu-grid" id="menu-grid" style="display: none;">
             
-        if (error) throw error;
+            <a href="#" id="link-klassement" class="menu-block">
+                <span class="menu-icon">🏆</span>
+                <span class="menu-text">Klassement</span>
+            </a>
+            
+            <a href="#" id="link-kalender" class="menu-block">
+                <span class="menu-icon">📅</span>
+                <span class="menu-text">Kalender</span>
+            </a>
+            
+            <a href="#" id="link-ploegen" class="menu-block">
+                <span class="menu-icon">📍</span>
+                <span class="menu-text">Ploegen</span>
+            </a>
 
-        if (compInfo) {
-            document.getElementById('comp-titel').innerText = compInfo.name;
-            document.getElementById('menu-grid').style.display = 'grid'; // Toon de blokken
+            <a href="#" id="link-beker" class="menu-block">
+                <span class="menu-icon">🎯</span>
+                <span class="menu-text">Beker</span>
+            </a>
+            
+            <a href="#" id="link-stats" class="menu-block">
+                <span class="menu-icon">📊</span>
+                <span class="menu-text">Statistieken</span>
+            </a>
 
-            // 1. Laatste nieuws tonen (als het is ingevuld)
-            if (compInfo.latest_news && compInfo.latest_news.trim() !== '') {
-                document.getElementById('news-content').innerText = compInfo.latest_news;
-                document.getElementById('news-section').style.display = 'block';
-            }
+            <a href="#" id="link-bestuur" class="menu-block">
+                <span class="menu-icon">✉️</span>
+                <span class="menu-text">Bestuur</span>
+            </a>
 
-            // 2. Modulair: Verberg de beker als deze uit staat
-            if (compInfo.has_cup === false) {
-                document.getElementById('link-beker').style.display = 'none';
-            }
-        }
+        </div>
+    </main>
 
-        // 3. Vul alle knoppen in met de juiste link
-        document.getElementById('link-klassement').href = `klassement.html?id=${compId}`;
-        document.getElementById('link-kalender').href = `kalender.html?id=${compId}`;
-        document.getElementById('link-ploegen').href = `ploegen.html?id=${compId}`;
-        document.getElementById('link-stats').href = `statistieken.html?id=${compId}`;
-        
-        // Voor het bestuur en de beker geven we het ID ook mee
-        if(compInfo.has_cup) document.getElementById('link-beker').href = `beker.html?id=${compId}`;
-        document.getElementById('link-bestuur').href = `bestuur.html?id=${compId}`;
-
-    } catch (err) {
-        console.error("Fout bij het laden:", err);
-        document.getElementById('comp-titel').innerText = "Oeps, er ging iets mis.";
-    }
-}
-
-window.addEventListener('DOMContentLoaded', laadCompetitieMenu);
+    <!-- Scripts inladen -->
+    <script src="js/supabase.js"></script>
+    <script src="js/competitie.js"></script>
+</body>
+</html>
