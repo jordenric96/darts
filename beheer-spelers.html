@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spelers Beheren</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .admin-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--c-cyan); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
+        
+        .btn-add { background: var(--c-cyan); color: black; font-weight: bold; padding: 12px; border-radius: 10px; width: 100%; text-transform: uppercase; margin-top: 10px; }
+        .btn-delete { background: rgba(255, 59, 59, 0.2); border: 1px solid #ff3b3b; color: #ff3b3b; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
+        
+        .player-list-item { background: rgba(0,0,0,0.3); padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--c-yellow); }
+        .player-name { margin: 0; color: white; font-weight: bold; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <button class="btn-back" id="btn-back-hub">⬅</button>
+        <h2 style="color: white; font-size: 1.2rem;">Spelers (Rosters)</h2>
+    </header>
+
+    <main style="padding-top: 10px;">
+        
+        <!-- SELECTEER PLOEG -->
+        <div class="admin-card">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="color: var(--c-pink);">Kies een ploeg om te beheren</label>
+                <select id="select-ploeg" onchange="laadSpelers()"></select>
+            </div>
+        </div>
+
+        <!-- SPELER TOEVOEGEN FORMULIER -->
+        <div class="admin-card">
+            <h3 style="margin-top: 0; color: var(--c-cyan);">+ Speler Toevoegen</h3>
+            
+            <div class="form-group">
+                <label>Naam Speler *</label>
+                <input type="text" id="inp-speler-naam" placeholder="bv. Jorden Ricour">
+            </div>
+
+            <p id="msg-box" style="display: none; font-weight: bold; text-align: center; margin-bottom: 10px;"></p>
+            
+            <button class="btn-add" onclick="voegSpelerToe()">Speler Opslaan</button>
+        </div>
+
+        <!-- SPELERSLIJST VAN DE GESELECTEERDE PLOEG -->
+        <div class="admin-card">
+            <h3 style="margin-top: 0; color: var(--c-yellow);">Huidige Selectie</h3>
+            <div id="spelers-lijst">
+                <p style="color: #aaa;">Kies eerst een ploeg...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/beheer-spelers.js"></script>
+</body>
+</html>
