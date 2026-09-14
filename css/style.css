@@ -102,3 +102,48 @@ h1.dashboard-title { text-align: center; color: var(--c-cyan); }
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+/* --- Drag & Drop Blokjes (Gelijke Stand) --- */
+#tiebreaker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    counter-reset: tiebreaker; /* Automatische nummering */
+}
+
+.drag-item {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    counter-increment: tiebreaker;
+}
+
+/* Voegt automatisch "1. ", "2. " toe aan het blokje */
+.drag-item::before {
+    content: counter(tiebreaker) ". ";
+    color: var(--c-yellow);
+    font-size: 1.1rem;
+    margin-right: 10px;
+    width: 20px;
+}
+
+.drag-handle {
+    margin-right: 15px;
+    color: var(--c-cyan);
+    font-size: 1.5rem;
+    cursor: grab;
+    touch-action: none; /* Voorkomt scrollen op gsm tijdens slepen */
+}
+
+.drag-item.sortable-ghost {
+    opacity: 0.4;
+    background: rgba(0, 159, 227, 0.2);
+}
+
