@@ -8,24 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .form-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: left; }
-        .form-section h3 { margin-top: 0; color: var(--c-cyan); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .form-section h3 { margin-top: 0; color: var(--c-cyan); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: white; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
         
-        input[type="text"], select { 
-            width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
             background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem;
         }
         input:focus, select:focus { border-color: var(--c-cyan); outline: none; }
         
-        /* File upload knop styling */
-        input[type="file"] { background: transparent; padding: 10px 0; font-size: 0.9rem; color: #aaa; }
-        
-        .toggle-group { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-top: 10px; }
-        .toggle-label { font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; }
-        input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--c-pink); cursor: pointer; }
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        .toggle-label { font-weight: bold; color: white; font-size: 0.9rem; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--c-pink); cursor: pointer; }
 
-        .division-inputs { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-top: 10px;}
+        .flex-row > div { flex: 1; }
+        
+        .builder-row { display: flex; gap: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; align-items: center; }
+        .builder-num { font-weight: bold; color: var(--c-yellow); width: 25px; }
     </style>
 </head>
 <body>
@@ -40,28 +41,19 @@
         <!-- STAP 1: BASISINFO -->
         <div class="form-section">
             <h3>1. Algemene Info</h3>
-            
             <div class="form-group">
                 <label>Naam Competitie *</label>
                 <input type="text" id="inp-naam" placeholder="bv. Pajottenland Darts Liga">
             </div>
-
             <div class="form-group">
                 <label>Seizoen</label>
                 <input type="text" id="inp-seizoen" placeholder="bv. 2026/2027" value="2026/2027">
             </div>
-
-            <div class="form-group">
-                <label>Logo van de Liga</label>
-                <input type="file" id="inp-logo" accept="image/*">
-                <p style="margin: 5px 0 0 0; font-size: 0.75rem; color: #888;">(Foto-opslag wordt later geactiveerd)</p>
-            </div>
         </div>
 
-        <!-- STAP 2: STRUCTUUR (DIVISIES) -->
+        <!-- STAP 2: REEKSEN -->
         <div class="form-section">
             <h3>2. Structuur & Reeksen</h3>
-            
             <div class="form-group">
                 <label>Aantal Divisies / Reeksen</label>
                 <select id="inp-div-count" onchange="updateDivisionFields()">
@@ -71,51 +63,64 @@
                     <option value="4">4 Reeksen</option>
                 </select>
             </div>
-
-            <!-- Hier verschijnen de tekstvakken voor de reeksnamen via Javascript -->
-            <div id="division-fields-container" class="division-inputs">
-                <input type="text" id="div-naam-1" placeholder="Naam Reeks 1 (bv. Ere-Afdeling)" value="1ste Afdeling">
+            <div id="division-fields-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Wordt gevuld via JS -->
             </div>
         </div>
 
-        <!-- STAP 3: REGLEMENTEN -->
+        <!-- STAP 3: KLASSEMENT REGELS -->
         <div class="form-section">
-            <h3>3. Wedstrijd Reglementen</h3>
+            <h3>3. Klassement Puntentelling</h3>
             
-            <div class="form-group">
-                <label>Puntentelling Klassement</label>
-                <select id="inp-punten">
-                    <option value="2-1-0">Standaard (2 ptn winst, 1 ptn gelijk, 0 ptn verlies)</option>
-                    <option value="per-leg">Per gewonnen game (bv. uitslag 6-3 = 6 punten in klassement)</option>
-                    <option value="3-1-0">Voetbal systeem (3 ptn winst, 1 ptn gelijk)</option>
-                </select>
+            <div class="flex-row">
+                <div>
+                    <label>Ptn Winst</label>
+                    <input type="number" id="ptn-win" value="2" min="0">
+                </div>
+                <div>
+                    <label>Ptn Verlies</label>
+                    <input type="number" id="ptn-loss" value="0" min="0">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Format per avond</label>
-                <select id="inp-format">
-                    <option value="4s-4d-1t">9 Games: 4 Singles, 4 Doubles, 1 Teamgame</option>
-                    <option value="6s-3d">9 Games: 6 Singles, 3 Doubles</option>
-                    <option value="8s">8 Games: 8 Singles</option>
-                    <option value="custom">Ander format (Later in te stellen)</option>
-                </select>
+            <label class="toggle-group" style="margin-top: 15px;">
+                <div class="toggle-label">Gelijkspel mogelijk?</div>
+                <input type="checkbox" id="allow-draw" onchange="toggleDrawField()">
+            </label>
+
+            <div class="form-group" id="draw-field" style="display: none; margin-top: 10px;">
+                <label style="color: var(--c-pink);">Ptn Gelijkspel</label>
+                <input type="number" id="ptn-draw" value="1" min="0">
             </div>
         </div>
 
-        <!-- STAP 4: EXTRA MODULES -->
+        <!-- STAP 4: WEDSTRIJD FORMAT BUILDER -->
         <div class="form-section">
-            <h3>4. Extra Modules</h3>
+            <h3>4. Wedstrijd Format</h3>
+            <div class="form-group">
+                <label>Aantal matchen per avond</label>
+                <input type="number" id="inp-game-count" value="9" min="1" max="20" onchange="generateMatchBuilder()">
+            </div>
+
+            <label style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px; display: block;">Stel hieronder elke match in:</label>
+            <div id="match-builder-container">
+                <!-- Wordt gevuld via JS -->
+            </div>
+        </div>
+
+        <!-- STAP 5: EXTRA MODULES -->
+        <div class="form-section">
+            <h3>5. Extra Modules</h3>
             <label class="toggle-group">
-                <div class="toggle-label"><span style="font-size: 1.5rem;">🎯</span> Bekercompetitie Activeren</div>
+                <div class="toggle-label"><span style="font-size: 1.2rem; margin-right: 10px;">🎯</span> Bekercompetitie</div>
                 <input type="checkbox" id="inp-beker" checked>
             </label>
-            <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">Speel een apart bekertoernooi over alle reeksen heen.</p>
         </div>
 
         <p id="error-msg" style="color: #ff3b3b; font-weight: bold; display: none; text-align: center;"></p>
 
         <button class="btn-trainer" onclick="maakCompetitie()" id="btn-save" style="margin-bottom: 40px;">
-            COMPETITIE AANMAKEN
+            OPSLAAN & AANMAKEN
         </button>
     </main>
 
