@@ -11,27 +11,53 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: var(--c-cyan); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; }
+        
         .btn-add { background: var(--c-cyan); color: black; font-weight: bold; padding: 12px; border-radius: 10px; width: 100%; text-transform: uppercase; margin-top: 10px; }
-        .team-list-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--c-pink); }
+        .btn-small { background: rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .team-list-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--c-pink); }
+        .team-info h4 { margin: 0 0 5px 0; color: white; }
+        .team-info p { margin: 0; font-size: 0.8rem; color: #aaa; }
     </style>
 </head>
 <body>
     <header class="top-header">
-        <!-- De terugknop gaat nu slim terug naar de Hub van deze competitie -->
         <button class="btn-back" id="btn-back-hub">⬅</button>
         <h2 style="color: white; font-size: 1.2rem;">Ploegen Beheren</h2>
     </header>
 
     <main style="padding-top: 10px;">
+        <!-- PLOEG TOEVOEGEN FORMULIER -->
         <div class="admin-card">
             <h3 style="margin-top: 0; color: var(--c-cyan);">+ Nieuwe Ploeg</h3>
-            <div class="form-group"><label>Naam Ploeg *</label><input type="text" id="inp-ploegnaam"></div>
-            <div class="form-group"><label>Reeks / Divisie *</label><select id="inp-divisie"></select></div>
-            <div class="form-group"><label>Lokaal (Café)</label><input type="text" id="inp-lokaal"></div>
-            <p id="msg-box" style="display: none; font-weight: bold; text-align: center;"></p>
+            
+            <div class="form-group">
+                <label>Naam Ploeg *</label>
+                <input type="text" id="inp-ploegnaam" placeholder="bv. DC De Valk">
+            </div>
+            
+            <div class="form-group">
+                <label>Reeks / Divisie *</label>
+                <select id="inp-divisie"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Lokaal (Café)</label>
+                <input type="text" id="inp-lokaal" placeholder="bv. Café De Valk">
+            </div>
+
+            <!-- NIEUW: Adresveld -->
+            <div class="form-group">
+                <label>Adres Lokaal</label>
+                <input type="text" id="inp-adres" placeholder="bv. Dorpstraat 12, Lennik">
+            </div>
+
+            <p id="msg-box" style="display: none; font-weight: bold; text-align: center; margin-bottom: 10px;"></p>
+            
             <button class="btn-add" onclick="voegPloegToe()">Toevoegen</button>
         </div>
 
+        <!-- PLOEGENLIJST -->
         <div class="admin-card">
             <h3 style="margin-top: 0; color: var(--c-yellow);">Ingeschreven Ploegen</h3>
             <div id="ploegen-lijst"><p style="color: #aaa;">Laden...</p></div>
