@@ -1,91 +1,131 @@
-// js/maak-competitie.js
-
-// Zorgt dat het aantal invulvakjes klopt met de dropdown
-function updateDivisionFields() {
-    const count = parseInt(document.getElementById('inp-div-count').value);
-    const container = document.getElementById('division-fields-container');
-    container.innerHTML = ''; // Maak leeg
-
-    for (let i = 1; i <= count; i++) {
-        let defaultName = i === 1 ? '1ste Afdeling' : (i === 2 ? '2de Afdeling' : `${i}de Afdeling`);
-        if (count > 1 && i === 1) defaultName = 'Ere-Afdeling'; // Veelvoorkomende dartsterm
-
-        container.innerHTML += `
-            <input type="text" id="div-naam-${i}" placeholder="Naam Reeks ${i}" value="${defaultName}">
-        `;
-    }
-}
-
-async function maakCompetitie() {
-    // Gegevens verzamelen
-    const naam = document.getElementById('inp-naam').value.trim();
-    const seizoen = document.getElementById('inp-seizoen').value.trim();
-    const heeftBeker = document.getElementById('inp-beker').checked;
-    const puntenSysteem = document.getElementById('inp-punten').value;
-    const format = document.getElementById('inp-format').value;
-    const divCount = parseInt(document.getElementById('inp-div-count').value);
-    
-    const errorMsg = document.getElementById('error-msg');
-    const btnSave = document.getElementById('btn-save');
-
-    if (!naam) {
-        errorMsg.innerText = "De naam van de competitie is verplicht!";
-        errorMsg.style.display = 'block';
-        return;
-    }
-
-    // Verzamel de namen van de divisies
-    let divisieNamen = [];
-    for (let i = 1; i <= divCount; i++) {
-        let divNaam = document.getElementById(`div-naam-${i}`).value.trim();
-        if (!divNaam) divNaam = `Reeks ${i}`;
-        divisieNamen.push({ name: divNaam, rank_order: i });
-    }
-
-    errorMsg.style.display = 'none';
-    btnSave.innerText = "Bezig met opslaan...";
-    btnSave.disabled = true;
-
-    try {
-        // 1. Sla de competitie op (zonder contactinfo en nieuws)
-        const { data: compData, error: compError } = await supabaseClient
-            .from('competitions')
-            .insert([
-                { 
-                    name: naam, 
-                    season: seizoen,
-                    points_system: puntenSysteem,
-                    match_format: format,
-                    has_cup: heeftBeker
-                }
-            ])
-            .select(); // Belangrijk: .select() geeft ons het aangemaakte ID terug!
-
-        if (compError) throw compError;
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nieuwe Competitie Aanmaken</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .form-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .form-section h3 { margin-top: 0; color: var(--c-cyan); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; color: white; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
         
-        const nieuweCompId = compData[0].id;
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem;
+        }
+        input:focus, select:focus { border-color: var(--c-cyan); outline: none; }
+        
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        .toggle-label { font-weight: bold; color: white; font-size: 0.9rem; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--c-pink); cursor: pointer; }
 
-        // 2. Sla de Divisies (Reeksen) op, gekoppeld aan de nieuwe competitie
-        const divisiesToInsert = divisieNamen.map(div => ({
-            competition_id: nieuweCompId,
-            name: div.name,
-            rank_order: div.rank_order
-        }));
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-top: 10px;}
+        .flex-row > div { flex: 1; }
+        
+        .builder-row { display: flex; gap: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; align-items: center; }
+        .builder-num { font-weight: bold; color: var(--c-yellow); width: 25px; }
+    </style>
+</head>
+<body>
 
-        const { error: divError } = await supabaseClient
-            .from('divisions')
-            .insert(divisiesToInsert);
+    <header class="top-header">
+        <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
+        <h2 style="color: white; font-size: 1.2rem;">Competitie Instellen</h2>
+    </header>
 
-        if (divError) throw divError;
+    <main style="padding-top: 10px;">
+        
+        <!-- STAP 1: BASISINFO -->
+        <div class="form-section">
+            <h3>1. Algemene Info</h3>
+            <div class="form-group">
+                <label>Naam Competitie *</label>
+                <input type="text" id="inp-naam" placeholder="bv. Pajottenland Darts Liga">
+            </div>
+            <div class="form-group">
+                <label>Seizoen</label>
+                <input type="text" id="inp-seizoen" placeholder="bv. 2026/2027" value="2026/2027">
+            </div>
+        </div>
 
-        // Gelukt! Terug naar de startpagina
-        window.location.href = 'index.html';
+        <!-- STAP 2: REEKSEN -->
+        <div class="form-section">
+            <h3>2. Structuur & Reeksen</h3>
+            <div class="form-group">
+                <label>Aantal Divisies / Reeksen</label>
+                <select id="inp-div-count" onchange="updateDivisionFields()">
+                    <option value="1">1 Reeks</option>
+                    <option value="2">2 Reeksen</option>
+                    <option value="3">3 Reeksen</option>
+                    <option value="4">4 Reeksen</option>
+                </select>
+            </div>
+            <div id="division-fields-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Wordt gevuld via JS -->
+            </div>
+        </div>
 
-    } catch (err) {
-        console.error(err);
-        errorMsg.innerText = "Fout bij opslaan: " + err.message;
-        errorMsg.style.display = 'block';
-        btnSave.innerText = "COMPETITIE AANMAKEN";
-        btnSave.disabled = false;
-    }
-}
+        <!-- STAP 3: KLASSEMENT REGELS -->
+        <div class="form-section">
+            <h3>3. Klassement Puntentelling</h3>
+            
+            <div class="flex-row">
+                <div>
+                    <label>Ptn Winst</label>
+                    <input type="number" id="ptn-win" value="2" min="0">
+                </div>
+                <div>
+                    <label>Ptn Verlies</label>
+                    <input type="number" id="ptn-loss" value="0" min="0">
+                </div>
+            </div>
+
+            <label class="toggle-group" style="margin-top: 15px;">
+                <div class="toggle-label">Gelijkspel mogelijk?</div>
+                <input type="checkbox" id="allow-draw" onchange="toggleDrawField()">
+            </label>
+
+            <div class="form-group" id="draw-field" style="display: none; margin-top: 10px;">
+                <label style="color: var(--c-pink);">Ptn Gelijkspel</label>
+                <input type="number" id="ptn-draw" value="1" min="0">
+            </div>
+        </div>
+
+        <!-- STAP 4: WEDSTRIJD FORMAT BUILDER -->
+        <div class="form-section">
+            <h3>4. Wedstrijd Format</h3>
+            <div class="form-group">
+                <label>Aantal matchen per avond</label>
+                <input type="number" id="inp-game-count" value="9" min="1" max="20" onchange="generateMatchBuilder()">
+            </div>
+
+            <label style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px; display: block;">Stel hieronder elke match in:</label>
+            <div id="match-builder-container">
+                <!-- Wordt gevuld via JS -->
+            </div>
+        </div>
+
+        <!-- STAP 5: EXTRA MODULES -->
+        <div class="form-section">
+            <h3>5. Extra Modules</h3>
+            <label class="toggle-group">
+                <div class="toggle-label"><span style="font-size: 1.2rem; margin-right: 10px;">🎯</span> Bekercompetitie</div>
+                <input type="checkbox" id="inp-beker" checked>
+            </label>
+        </div>
+
+        <p id="error-msg" style="color: #ff3b3b; font-weight: bold; display: none; text-align: center;"></p>
+
+        <button class="btn-trainer" onclick="maakCompetitie()" id="btn-save" style="margin-bottom: 40px;">
+            OPSLAAN & AANMAKEN
+        </button>
+    </main>
+
+    <!-- Scripts inladen -->
+    <script src="js/supabase.js"></script>
+    <script src="js/maak-competitie.js"></script>
+</body>
+</html>
