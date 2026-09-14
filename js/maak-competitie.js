@@ -1,9 +1,16 @@
 // js/maak-competitie.js
 
-// INITIALISATIE BIJ LADEN
 window.addEventListener('DOMContentLoaded', () => {
     updateDivisionFields();
     generateMatchBuilder();
+    
+    // Initialiseer het verslepen van de gelijke stand (Tiebreakers)
+    const tiebreakerList = document.getElementById('tiebreaker-list');
+    new Sortable(tiebreakerList, {
+        handle: '.drag-handle', // Enkel verslepen als je de 3 streepjes vastpakt
+        animation: 150,
+        ghostClass: 'sortable-ghost'
+    });
 });
 
 // --- UI FUNCTIES ---
@@ -32,15 +39,14 @@ function toggleDrawField() {
 function generateMatchBuilder() {
     let count = parseInt(document.getElementById('inp-game-count').value);
     if(isNaN(count) || count < 1) count = 1;
-    if(count > 30) count = 30; // Veiligheidslimiet
+    if(count > 30) count = 30; 
 
     const container = document.getElementById('match-builder-container');
     container.innerHTML = '';
 
     for(let i = 1; i <= count; i++) {
-        // Standaard gokje voor format: Eerst singles, dan doubles
         let defaultType = (i <= Math.ceil(count/2)) ? 'Single' : 'Double';
-        if (i === count) defaultType = 'Team'; // Vaak is de laatste een teamgame
+        if (i === count) defaultType = 'Team'; 
 
         container.innerHTML += `
             <div class="builder-row">
@@ -92,7 +98,13 @@ async function maakCompetitie() {
         allowDraws: allowDraw
     };
 
-    // 3. Verzamel Match Format
+    // 3. Verzamel Gelijke Stand Regels (Tiebreakers uitgelezen op basis van drag&drop)
+    let tiebreakers = [];
+    document.querySelectorAll('#tiebreaker-list .drag-item').forEach(item => {
+        tiebreakers.push(item.getAttribute('data-id'));
+    });
+
+    // 4. Verzamel Match Format
     const gameCount = parseInt(document.getElementById('inp-game-count').value);
     let matchFormat = [];
     for(let i=1; i<=gameCount; i++) {
@@ -103,19 +115,18 @@ async function maakCompetitie() {
         });
     }
 
-    // JSON Object maken met alle dynamische regels
+    // Het ultieme Rules JSON Object!
     const rulesJson = {
         scoring: scoringRules,
+        tiebreakers: tiebreakers, // Hier steken we de opgeslagen volgorde in!
         format: matchFormat
     };
 
-    // UI updaten
     errorMsg.style.display = 'none';
     btnSave.innerText = "Bezig met opslaan...";
     btnSave.disabled = true;
 
     try {
-        // A. Sla de competitie op
         const { data: compData, error: compError } = await supabaseClient
             .from('competitions')
             .insert([
@@ -132,7 +143,6 @@ async function maakCompetitie() {
         
         const nieuweCompId = compData[0].id;
 
-        // B. Sla de Divisies (Reeksen) op
         const divisiesToInsert = divisieNamen.map(div => ({
             competition_id: nieuweCompId,
             name: div.name,
@@ -145,8 +155,8 @@ async function maakCompetitie() {
 
         if (divError) throw divError;
 
-        // Gelukt! Terug naar hoofdmenu
-        window.location.href = 'index.html';
+        // Gelukt! Stuur de beheerder direct naar het ploegen-beheer
+        window.location.href = `beheer-ploegen.html?id=${nieuweCompId}`;
 
     } catch (err) {
         console.error(err);
