@@ -1,54 +1,78 @@
 // js/app.js
 
-async function fetchCompetities() {
+window.addEventListener('DOMContentLoaded', laadCompetities);
+
+async function laadCompetities() {
     const container = document.getElementById('competitie-lijst');
-    container.innerHTML = '<p style="color: #aaa;">Laden...</p>';
+    container.innerHTML = '<p style="color: #aaa;">Competities ophalen...</p>';
 
     try {
-        // We gebruiken supabaseClient (zoals ingesteld in supabase.js)
+        // Haal alle competities op, de nieuwste bovenaan
         const { data, error } = await supabaseClient
             .from('competitions')
-            .select('*');
+            .select('*')
+            .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        if (data.length === 0) {
-            container.innerHTML = '<p style="color: #aaa;">Nog geen competities gevonden.</p>';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p style="color: #aaa;">Er zijn nog geen competities aangemaakt.</p>';
             return;
         }
 
-        // Bouw de HTML op voor elke competitie
-        container.innerHTML = '';
-        data.forEach(comp => {
-            const div = document.createElement('div');
-            
-            // Nieuwe styling inclusief 'cursor: pointer' zodat het als een knop aanvoelt
-            div.style.cssText = 'background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: left; cursor: pointer; transition: transform 0.2s, background 0.2s;';
-            
-            // Hover effect toevoegen voor muisgebruikers (desktop besturen)
-            div.onmouseover = () => div.style.background = 'rgba(0, 159, 227, 0.1)';
-            div.onmouseout = () => div.style.background = 'rgba(255,255,255,0.05)';
-
-            // Zorg dat hij doorverwijst naar competitie.html met het juiste ID in de URL
-            div.onclick = () => window.location.href = `competitie.html?id=${comp.id}`;
-            
-            div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="margin: 0 0 5px 0; color: #009FE3;">${comp.name}</h3>
-                        <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Status: ${comp.status || 'Actief'}</p>
-                    </div>
-                    <div style="color: var(--c-cyan); font-size: 1.5rem;">›</div>
+        // Bouw de lijst op met knoppen direct op het startscherm
+        container.innerHTML = data.map(comp => `
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;">
+                
+                <div style="font-weight: bold; font-size: 1.1rem; color: white;">
+                    🏆 ${comp.name}
                 </div>
-            `;
-            container.appendChild(div);
-        });
+                
+                <div style="display: flex; gap: 8px;">
+                    <!-- Spelers knop -->
+                    <button onclick="window.location.href='competitie.html?id=${comp.id}'" style="flex: 1; background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        👉 Bekijken
+                    </button>
+                    
+                    <!-- Admin knop -->
+                    <button onclick="window.location.href='beheer-hub.html?id=${comp.id}'" style="flex: 1; background: var(--c-cyan); color: black; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        ⚙️ Beheren
+                    </button>
+                    
+                    <!-- Verwijder knop -->
+                    <button onclick="verwijderCompetitie('${comp.id}', '${comp.name}')" style="background: rgba(255, 59, 59, 0.2); border: 1px solid #ff3b3b; color: #ff3b3b; padding: 10px; border-radius: 8px; cursor: pointer;">
+                        🗑️
+                    </button>
+                </div>
+
+            </div>
+        `).join('');
 
     } catch (err) {
-        console.error('Fout bij ophalen competities:', err);
-        container.innerHTML = `<p style="color: #ff3b3b;">Fout: ${err.message}</p>`;
+        console.error(err);
+        container.innerHTML = `<p style="color: #ff3b3b;">Fout bij laden: ${err.message}</p>`;
     }
 }
 
-// Haal de data op zodra de startpagina volledig geladen is
-window.addEventListener('DOMContentLoaded', fetchCompetities);
+// Functie om direct vanaf het startscherm te verwijderen
+async function verwijderCompetitie(id, naam) {
+    // Vraag altijd om bevestiging zodat je niet per ongeluk klikt
+    const bevestiging = confirm(`🚨 OPGELET!\n\nBen je absoluut zeker dat je "${naam}" wil verwijderen?\n\nAlle ploegen en spelers in deze competitie worden gewist.`);
+    
+    if (!bevestiging) return; // Stop als we op annuleren klikken
+
+    try {
+        const { error } = await supabaseClient
+            .from('competitions')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        // Als het gelukt is, herlaad dan onmiddellijk de lijst op je scherm
+        laadCompetities();
+
+    } catch (err) {
+        alert("Fout bij verwijderen: " + err.message);
+    }
+}
