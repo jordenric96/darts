@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nieuwe Competitie</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--c-cyan); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+        input[type="text"], textarea { 
+            width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 1rem;
+        }
+        textarea { resize: vertical; min-height: 100px; }
+        
+        /* Strakke Checkbox Styling */
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; cursor: pointer; }
+        .toggle-label { font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; }
+        input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--c-pink); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
+        <h2 style="color: white;">Nieuwe Competitie</h2>
+    </header>
+
+    <main class="dashboard-card" style="margin-top: 10px;">
+        
+        <div class="form-group">
+            <label>Naam Competitie *</label>
+            <input type="text" id="inp-naam" placeholder="bv. Pajottenland Darts Liga">
+        </div>
+
+        <div class="form-group">
+            <label>Belangrijke Mededeling / Nieuws</label>
+            <textarea id="inp-nieuws" placeholder="bv. Lokaalwijziging DC De Valk naar Café De Toren..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Contactgegevens Bestuur</label>
+            <input type="text" id="inp-contact" placeholder="Email of gsm-nummer">
+        </div>
+
+        <!-- Modulaire Opties (Vinkjes) -->
+        <h3 style="color: var(--c-yellow); text-align: left; margin-top: 30px;">Modules Activeren</h3>
+        
+        <label class="toggle-group">
+            <div class="toggle-label"><span style="font-size: 1.5rem;">🎯</span> Bekercompetitie</div>
+            <input type="checkbox" id="inp-beker" checked>
+        </label>
+
+        <p id="error-msg" style="color: #ff3b3b; font-weight: bold; display: none;"></p>
+
+        <button class="btn-trainer" onclick="maakCompetitie()" id="btn-save">
+            AANMAKEN
+        </button>
+    </main>
+
+    <!-- Scripts inladen -->
+    <script src="js/supabase.js"></script>
+    <script src="js/maak-competitie.js"></script>
+</body>
+</html>
