@@ -10,65 +10,53 @@
     
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .menu-grid { display: grid; gap: 15px; margin-top: 20px; }
+        .btn-menu { background: var(--c-cyan); color: black; font-weight: bold; padding: 20px; border-radius: 12px; font-size: 1.1rem; text-transform: uppercase; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-login-speler { background: var(--c-pink); color: white; }
+        
+        /* Het digitale pasje voor ingelogde spelers */
+        .player-badge { background: rgba(236, 72, 153, 0.15); border: 2px solid var(--c-pink); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; display: none; }
+        .player-badge-title { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .player-badge-name { font-size: 1.3rem; font-weight: bold; color: var(--c-pink); margin: 0; }
+        .player-badge-team { font-size: 0.9rem; color: white; margin-top: 2px; }
+        .btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; font-size: 0.75rem; padding: 5px 10px; border-radius: 5px; margin-top: 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
     <header class="top-header">
         <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
-        <h2 id="comp-titel" style="color: var(--c-cyan);">Laden...</h2>
+        <h2 style="color: white; font-size: 1.2rem;" id="comp-title">Laden...</h2>
     </header>
 
-    <main>
-        <!-- LAATSTE NIEUWS / MEDEDELINGEN BANNER -->
-        <div id="news-section" class="news-banner" style="display: none;">
-            <div class="news-title">🚨 Laatste Nieuws & Mededelingen</div>
-            <p id="news-content" class="news-text">Laden...</p>
+    <main style="padding-top: 15px;">
+        
+        <!-- DIT IS HET DIGITALE PASJE (Verborgen als je niet bent ingelogd) -->
+        <div class="player-badge" id="player-badge">
+            <div class="player-badge-title">Digitaal Spelerspasje</div>
+            <div class="player-badge-name" id="badge-name">Naam</div>
+            <div class="player-badge-team" id="badge-team">Ploeg</div>
+            <button class="btn-logout" onclick="uitloggen()">Uitloggen</button>
         </div>
 
-        <!-- HET BLOKKEN-MENU (SPELERS HUB) -->
-        <div class="menu-grid" id="menu-grid" style="display: none;">
-            
-            <a href="#" id="link-klassement" class="menu-block">
-                <span class="menu-icon">🏆</span>
-                <span class="menu-text">Klassement</span>
-            </a>
-            
-            <a href="#" id="link-kalender" class="menu-block">
-                <span class="menu-icon">📅</span>
-                <span class="menu-text">Kalender</span>
-            </a>
-            
-            <a href="#" id="link-ploegen" class="menu-block">
-                <span class="menu-icon">📍</span>
-                <span class="menu-text">Ploegen</span>
-            </a>
+        <div class="menu-grid">
+            <!-- LOGIN KNOP (Verdwijnt als je al bent ingelogd) -->
+            <button class="btn-menu btn-login-speler" id="btn-login-knop" onclick="gaNaarLogin()">
+                👤 Inloggen als Speler
+            </button>
 
-            <a href="#" id="link-beker" class="menu-block">
-                <span class="menu-icon">🎯</span>
-                <span class="menu-text">Beker</span>
-            </a>
-            
-            <a href="#" id="link-stats" class="menu-block">
-                <span class="menu-icon">📊</span>
-                <span class="menu-text">Statistieken</span>
-            </a>
-
-            <a href="#" id="link-bestuur" class="menu-block">
-                <span class="menu-icon">✉️</span>
-                <span class="menu-text">Bestuur</span>
-            </a>
-
-            <!-- NIEUW: Reglement -->
-            <a href="#" id="link-reglement" class="menu-block" style="grid-column: span 2; border-color: #888;">
-                <span class="menu-icon">📜</span>
-                <span class="menu-text">Reglement</span>
-                <span style="font-size: 0.7rem; color: #aaa; margin-top: 5px;">Huisregels & Format</span>
-            </a>
-
+            <!-- PUBLIEKE KNOPPEN -->
+            <button class="btn-menu" onclick="gaNaar('kalender.html')">
+                📅 Match Center
+            </button>
+            <button class="btn-menu" style="background: rgba(255,255,255,0.1); color: white;" onclick="alert('Klassement komt eraan!')">
+                🏆 Klassement
+            </button>
         </div>
+
     </main>
 
-    <!-- Scripts inladen -->
     <script src="js/supabase.js"></script>
     <script src="js/competitie.js"></script>
 </body>
