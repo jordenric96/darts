@@ -11,16 +11,37 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .menu-grid { display: grid; gap: 15px; margin-top: 20px; }
-        .btn-menu { background: var(--c-cyan); color: black; font-weight: bold; padding: 20px; border-radius: 12px; font-size: 1.1rem; text-transform: uppercase; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-login-speler { background: var(--c-pink); color: white; }
+        /* Algemene styling voor de dashboard blokken */
+        .dashboard-block { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         
-        /* Het digitale pasje voor ingelogde spelers */
-        .player-badge { background: rgba(236, 72, 153, 0.15); border: 2px solid var(--c-pink); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; display: none; }
-        .player-badge-title { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .player-badge-name { font-size: 1.3rem; font-weight: bold; color: var(--c-pink); margin: 0; }
-        .player-badge-team { font-size: 0.9rem; color: white; margin-top: 2px; }
-        .btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; font-size: 0.75rem; padding: 5px 10px; border-radius: 5px; margin-top: 10px; cursor: pointer; }
+        /* LOGIN BLOK (Niet ingelogd) */
+        .login-block { display: flex; align-items: center; gap: 15px; border-left: 4px solid var(--c-pink); cursor: pointer; }
+        .login-block .icon { font-size: 2rem; }
+        .login-block .text h3 { margin: 0; color: white; font-size: 1.1rem; }
+        .login-block .text p { margin: 2px 0 0 0; color: #aaa; font-size: 0.8rem; }
+        .login-block .arrow { margin-left: auto; color: var(--c-pink); font-weight: bold; font-size: 1.2rem; }
+
+        /* SPELERSPASJE BLOK (Ingelogd) */
+        .player-block { display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--c-cyan); }
+        .player-info { display: flex; flex-direction: column; }
+        .badge-title { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-name { font-size: 1.2rem; font-weight: bold; color: white; margin: 2px 0; }
+        .badge-team { font-size: 0.85rem; color: var(--c-cyan); font-weight: bold; }
+        .btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+
+        /* NIEUWS BLOK */
+        .news-block { border-left: 4px solid var(--c-yellow); cursor: pointer; }
+        .news-header { display: flex; justify-content: space-between; font-size: 0.75rem; }
+        .news-label { background: rgba(255, 235, 59, 0.2); color: var(--c-yellow); padding: 3px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; }
+        .news-date { color: #888; margin-top: 4px; }
+        .news-title { margin: 10px 0 5px 0; font-size: 1.1rem; color: white; }
+        .news-content { color: #aaa; font-size: 0.9rem; margin-top: 10px; line-height: 1.5; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        .news-arrow { text-align: center; color: #888; font-size: 0.8rem; margin-top: 10px; font-weight: bold; }
+
+        /* GRID MENU VOOR DE REST */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .grid-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px 10px; text-align: center; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .grid-icon { font-size: 2.2rem; }
     </style>
 </head>
 <body>
@@ -33,26 +54,63 @@
     <main style="padding-top: 15px;">
         
         <!-- DIT IS HET DIGITALE PASJE (Verborgen als je niet bent ingelogd) -->
-        <div class="player-badge" id="player-badge">
-            <div class="player-badge-title">Digitaal Spelerspasje</div>
-            <div class="player-badge-name" id="badge-name">Naam</div>
-            <div class="player-badge-team" id="badge-team">Ploeg</div>
+        <div class="dashboard-block player-block" id="player-badge" style="display: none;">
+            <div class="player-info">
+                <span class="badge-title">Ingelogd als</span>
+                <span class="badge-name" id="badge-name">Naam</span>
+                <span class="badge-team" id="badge-team">Ploeg</span>
+            </div>
             <button class="btn-logout" onclick="uitloggen()">Uitloggen</button>
         </div>
 
-        <div class="menu-grid">
-            <!-- LOGIN KNOP (Verdwijnt als je al bent ingelogd) -->
-            <button class="btn-menu btn-login-speler" id="btn-login-knop" onclick="gaNaarLogin()">
-                👤 Inloggen als Speler
-            </button>
+        <!-- LOGIN KNOP (Verdwijnt als je al bent ingelogd) -->
+        <div class="dashboard-block login-block" id="btn-login-knop" onclick="gaNaarLogin()">
+            <div class="icon">👤</div>
+            <div class="text">
+                <h3>Koppel Spelerspas</h3>
+                <p>Log in om scores te beheren</p>
+            </div>
+            <div class="arrow">➔</div>
+        </div>
 
-            <!-- PUBLIEKE KNOPPEN -->
-            <button class="btn-menu" onclick="gaNaar('kalender.html')">
-                📅 Match Center
-            </button>
-            <button class="btn-menu" style="background: rgba(255,255,255,0.1); color: white;" onclick="alert('Klassement komt eraan!')">
-                🏆 Klassement
-            </button>
+        <!-- LAATSTE NIEUWS (Uitklapbaar) -->
+        <div class="dashboard-block news-block" onclick="toggleNieuws()">
+            <div class="news-header">
+                <span class="news-label">Bericht van het Bestuur</span>
+                <span class="news-date">15 September 2026</span>
+            </div>
+            <h3 class="news-title">Welkom in de nieuwe app! 🎯</h3>
+            
+            <div id="nieuws-inhoud" class="news-content" style="display: none;">
+                Beste spelers, het nieuwe seizoen is officieel van start gegaan. 
+                <br><br>
+                Belangrijk: De thuisploeg vult de eindscore in via het Match Center. De uitploeg moet deze score daarna altijd verifiëren en goedkeuren in hun eigen app. Succes allemaal!
+            </div>
+            
+            <div id="nieuws-pijl" class="news-arrow">Lees meer ▼</div>
+        </div>
+
+        <!-- DASHBOARD MENU -->
+        <div class="menu-grid">
+            <div class="grid-item" onclick="gaNaar('kalender.html')">
+                <div class="grid-icon">📅</div>
+                <div style="font-size: 0.9rem;">Match Center</div>
+            </div>
+            
+            <div class="grid-item" onclick="alert('Klassement is nog in opbouw!')">
+                <div class="grid-icon">🏆</div>
+                <div style="font-size: 0.9rem;">Klassement</div>
+            </div>
+            
+            <div class="grid-item" onclick="alert('Records functionaliteit komt later!')">
+                <div class="grid-icon">🎯</div>
+                <div style="font-size: 0.9rem;">Records (180's)</div>
+            </div>
+            
+            <div class="grid-item" onclick="alert('Contact: info@dartsliga.be')">
+                <div class="grid-icon">📞</div>
+                <div style="font-size: 0.9rem;">Bestuur</div>
+            </div>
         </div>
 
     </main>
