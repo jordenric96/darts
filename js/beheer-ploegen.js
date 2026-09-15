@@ -1,103 +1,135 @@
+// js/beheer-ploegen.js
+
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
-window.addEventListener('DOMContentLoaded', async () => {
-    // Terugknop instellen
-    document.getElementById('btn-back-hub').onclick = () => window.location.href = `beheer-hub.html?id=${compId}`;
-    
-    await laadDivisies();
-    await laadPloegen();
-});
-
-async function laadDivisies() {
-    const select = document.getElementById('inp-divisie');
-    try {
-        const { data } = await supabaseClient
-            .from('divisions')
-            .select('*')
-            .eq('competition_id', compId)
-            .order('rank_order');
-            
-        select.innerHTML = data ? data.map(d => `<option value="${d.name}">${d.name}</option>`).join('') : '';
-    } catch (err) {
-        console.error("Fout bij laden divisies:", err);
+window.addEventListener('DOMContentLoaded', () => {
+    if (!compId) {
+        alert("Fout: Geen competitie ID gevonden.");
+        return;
     }
-}
+    
+    // Terugknop naar het beheer dashboard
+    const btnBack = document.getElementById('btn-back-hub');
+    if (btnBack) {
+        btnBack.onclick = () => window.location.href = `beheer-hub.html?id=${compId}`;
+    }
+    
+    laadPloegen();
+});
 
 async function laadPloegen() {
     const container = document.getElementById('ploegen-lijst');
+    if (!container) return;
+    
     try {
-        const { data } = await supabaseClient
+        // Haal alle ploegen op, inclusief hun PIN-code
+        const { data, error } = await supabaseClient
             .from('teams')
             .select('*')
             .eq('competition_id', compId)
-            .order('division')
-            .order('name');
-        
+            .order('division', { ascending: true })
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+
         if (!data || data.length === 0) {
-            container.innerHTML = "<p style='color:#aaa;'>Nog geen ploegen toegevoegd.</p>";
+            container.innerHTML = "<p style='text-align: center; color: #aaa;'>Nog geen ploegen in deze competitie.</p>";
             return;
         }
 
-        container.innerHTML = data.map(team => `
-            <div class="team-list-item">
-                <div class="team-info">
-                    <h4>${team.name} <span style="background:var(--c-cyan); color:black; padding:2px 6px; border-radius:5px; font-size:0.7rem;">${team.division}</span></h4>
-                    <p>📍 ${team.home_location || 'Geen lokaal'}</p>
-                    <p style="font-size: 0.75rem; color: #888;">${team.address || 'Geen adres ingegeven'}</p>
+        container.innerHTML = data.map(ploeg => `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid var(--c-pink); border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                
+                <!-- LINKER KANT: Ploeg info -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <span style="font-weight: bold; font-size: 1.1rem; color: white;">${ploeg.name}</span>
+                        <span style="background: var(--c-cyan); color: black; font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 10px;">${ploeg.division}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #aaa;">
+                        📍 ${ploeg.home_location || 'Lokaal onbekend'}
+                    </div>
                 </div>
-                <button class="btn-small" onclick="window.location.href='beheer-spelers.html?teamid=${team.id}&compid=${compId}'">Spelers 👤</button>
+                
+                <!-- RECHTER KANT: PIN code + Spelers knop -->
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                    
+                    <!-- HET PIN BLOKJE -->
+                    <div style="background: rgba(255, 235, 59, 0.2); border: 1px solid var(--c-yellow); color: var(--c-yellow); padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 1rem; text-align: center;">
+                        <span style="font-size: 0.6rem; display: block; color: #fff; text-transform: uppercase;">Pin Code</span>
+                        ${ploeg.pin_code || '----'}
+                    </div>
+
+                    <!-- SPELERS KNOP -->
+                    <button style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;" onclick="window.location.href='beheer-spelers.html?team_id=${ploeg.id}&comp_id=${compId}'">
+                        Spelers 👤
+                    </button>
+                    
+                </div>
             </div>
         `).join('');
+
     } catch (err) {
-        container.innerHTML = "<p style='color:red;'>Fout bij laden van de ploegen.</p>";
+        console.error(err);
+        container.innerHTML = `<p style="color:#ff3b3b;">Fout bij laden: ${err.message}</p>`;
     }
 }
 
 async function voegPloegToe() {
-    const naam = document.getElementById('inp-ploegnaam').value.trim();
-    const divisie = document.getElementById('inp-divisie').value;
-    const lokaal = document.getElementById('inp-lokaal').value.trim();
-    const adres = document.getElementById('inp-adres').value.trim(); // Adres uitlezen
-    const msg = document.getElementById('msg-box');
+    // Checken op de velden. Pas de id's gerust aan als je HTML licht afwijkt.
+    const inpNaam = document.getElementById('inp-naam');
+    const inpDivisie = document.getElementById('inp-divisie');
+    const inpLokaal = document.getElementById('inp-lokaal');
 
-    if (!naam) { 
-        msg.innerText = "De naam van de ploeg is verplicht!"; 
-        msg.style.color = "#ff3b3b"; 
-        msg.style.display = "block"; 
-        return; 
+    const naam = inpNaam ? inpNaam.value.trim() : '';
+    const divisie = inpDivisie ? inpDivisie.value.trim() : '';
+    const lokaal = inpLokaal ? inpLokaal.value.trim() : '';
+
+    if (!naam || !divisie) {
+        toonMelding("Naam en Reeks zijn verplicht!", "red");
+        return;
     }
 
-    msg.innerText = "Bezig met opslaan..."; 
-    msg.style.color = "white"; 
-    msg.style.display = "block";
+    // Genereer meteen een willekeurige 4-cijferige PIN code bij het toevoegen van een nieuwe ploeg
+    const randomPin = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
 
     try {
-        const { error } = await supabaseClient.from('teams').insert([{ 
-            competition_id: compId, 
-            name: naam, 
-            division: divisie, 
-            home_location: lokaal,
-            address: adres // Adres meesturen naar de database
-        }]);
+        const { error } = await supabaseClient
+            .from('teams')
+            .insert([{
+                competition_id: compId,
+                name: naam,
+                division: divisie,
+                home_location: lokaal,
+                pin_code: randomPin
+            }]);
 
         if (error) throw error;
 
-        // Formulier leegmaken na succes
-        document.getElementById('inp-ploegnaam').value = '';
-        document.getElementById('inp-lokaal').value = '';
-        document.getElementById('inp-adres').value = '';
+        toonMelding("Ploeg succesvol toegevoegd!", "lime");
         
-        msg.innerText = "Ploeg succesvol toegevoegd!"; 
-        msg.style.color = "lime";
+        // Maak velden weer leeg
+        if (inpNaam) inpNaam.value = '';
+        if (inpLokaal) inpLokaal.value = '';
         
-        setTimeout(() => msg.style.display = 'none', 2500);
-        
-        // De lijst onmiddellijk updaten
+        // Herlaad de lijst, de nieuwe ploeg met code staat er meteen bij
         laadPloegen();
-        
+
     } catch (err) {
-        msg.innerText = "Fout bij opslaan: " + err.message; 
-        msg.style.color = "#ff3b3b";
+        console.error(err);
+        toonMelding("Fout: " + err.message, "#ff3b3b");
     }
+}
+
+function toonMelding(tekst, kleur) {
+    const msg = document.getElementById('msg-box');
+    if (!msg) return; // Als er geen msg-box in de HTML staat, voorkom dan een error
+    
+    msg.style.display = 'block';
+    msg.innerText = tekst;
+    msg.style.background = kleur === "lime" ? "rgba(0, 255, 0, 0.1)" : "rgba(255, 59, 59, 0.1)";
+    msg.style.color = kleur;
+    
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
 }
