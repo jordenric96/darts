@@ -3,164 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nieuwe Competitie Aanmaken</title>
+    <title>Nieuwe Competitie</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a202c">
     
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Supabase & SortableJS (Voor vlot slepen op GSM) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    
     <style>
-        .form-section { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: left; }
-        .form-section h3 { margin-top: 0; color: var(--c-cyan); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px; }
+        .form-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .form-card h3 { margin-top: 0; color: var(--c-cyan); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 8px; color: white; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 1rem; }
         
-        input[type="text"], input[type="number"], select { 
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); 
-            background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem;
-        }
-        input:focus, select:focus { border-color: var(--c-cyan); outline: none; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .toggle-group { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
-        .toggle-label { font-weight: bold; color: white; font-size: 0.9rem; }
-        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--c-pink); cursor: pointer; }
-
-        .flex-row { display: flex; gap: 10px; align-items: center; margin-top: 10px;}
-        .flex-row > div { flex: 1; }
-        
-        .builder-row { display: flex; gap: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; align-items: center; }
-        .builder-num { font-weight: bold; color: var(--c-yellow); width: 25px; text-align: right; }
-        
-        /* Drag & Drop Styling */
-        #tiebreaker-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; counter-reset: tiebreaker; }
-        .drag-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; display: flex; align-items: center; color: white; font-weight: bold; font-size: 0.9rem; counter-increment: tiebreaker; }
-        .drag-item::before { content: counter(tiebreaker) ". "; color: var(--c-yellow); font-size: 1.1rem; margin-right: 10px; width: 20px; }
-        .drag-handle { margin-right: 15px; color: var(--c-cyan); font-size: 1.5rem; cursor: grab; touch-action: none; }
-        .drag-item.sortable-ghost { opacity: 0.4; background: rgba(0, 159, 227, 0.2); }
+        .btn-submit { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 30px; }
     </style>
 </head>
 <body>
 
     <header class="top-header">
         <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
-        <h2 style="color: white; font-size: 1.2rem;">Competitie Instellen</h2>
+        <h2 style="color: white; font-size: 1.2rem;">Competitie Opstarten</h2>
     </header>
 
     <main style="padding-top: 10px;">
         
-        <!-- STAP 1: BASISINFO -->
-        <div class="form-section">
-            <h3>1. Algemene Info</h3>
+        <div class="form-card">
+            <h3>1. Basisgegevens</h3>
             <div class="form-group">
-                <label>Naam Competitie *</label>
-                <input type="text" id="inp-naam" placeholder="bv. Pajottenland Darts Liga">
-            </div>
-            <div class="form-group">
-                <label>Seizoen</label>
-                <input type="text" id="inp-seizoen" placeholder="bv. 2026/2027" value="2026/2027">
+                <label>Naam van de competitie</label>
+                <input type="text" id="inp-naam" placeholder="Bv. Zomerliga 2026 of Dartsliga">
             </div>
         </div>
 
-        <!-- STAP 2: REEKSEN -->
-        <div class="form-section">
-            <h3>2. Structuur & Reeksen</h3>
-            <div class="form-group">
-                <label>Aantal Divisies / Reeksen</label>
-                <select id="inp-div-count" onchange="updateDivisionFields()">
-                    <option value="1">1 Reeks</option>
-                    <option value="2">2 Reeksen</option>
-                    <option value="3">3 Reeksen</option>
-                    <option value="4">4 Reeksen</option>
-                </select>
-            </div>
-            <div id="division-fields-container" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- Wordt gevuld via JS -->
+        <div class="form-card">
+            <h3>2. Puntentelling (Klassement)</h3>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Winst</label>
+                    <input type="number" id="inp-pts-win" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Gelijk</label>
+                    <input type="number" id="inp-pts-draw" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Verlies</label>
+                    <input type="number" id="inp-pts-loss" value="0">
+                </div>
             </div>
         </div>
 
-        <!-- STAP 3: KLASSEMENT REGELS -->
-        <div class="form-section">
-            <h3>3. Klassement Puntentelling</h3>
+        <div class="form-card" style="border-left: 4px solid var(--c-pink);">
+            <h3 style="color: var(--c-pink);">3. Speler Statistieken</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Wat zijn de standaard limieten voor de persoonlijke statistieken in deze competitie?</p>
             
-            <div class="flex-row">
-                <div>
-                    <label>Ptn Winst</label>
-                    <input type="number" id="ptn-win" value="2" min="0">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>High Finish (Vanaf)</label>
+                    <input type="number" id="inp-hf" value="100">
                 </div>
-                <div>
-                    <label>Ptn Verlies</label>
-                    <input type="number" id="ptn-loss" value="0" min="0">
-                </div>
-            </div>
-
-            <label class="toggle-group" style="margin-top: 15px;">
-                <div class="toggle-label">Gelijkspel mogelijk?</div>
-                <input type="checkbox" id="allow-draw" onchange="toggleDrawField()">
-            </label>
-
-            <div class="form-group" id="draw-field" style="display: none; margin-top: 10px;">
-                <label style="color: var(--c-pink);">Ptn Gelijkspel</label>
-                <input type="number" id="ptn-draw" value="1" min="0">
-            </div>
-        </div>
-
-        <!-- STAP 4: GELIJKE STAND -->
-        <div class="form-section">
-            <h3>4. Regels bij Gelijke Stand</h3>
-            <p style="font-size: 0.8rem; color: #aaa; margin-top: 0;">Neem de knop met de 3 streepjes vast en versleep de blokken om de volgorde van belangrijkheid te bepalen in de rangschikking.</p>
-            
-            <div id="tiebreaker-list">
-                <div class="drag-item" data-id="gewonnen_matchen">
-                    <span class="drag-handle">☰</span> Meeste gewonnen matchen
-                </div>
-                <div class="drag-item" data-id="onderling_duel">
-                    <span class="drag-handle">☰</span> Onderling duel (Head-to-head)
-                </div>
-                <div class="drag-item" data-id="saldo_games">
-                    <span class="drag-handle">☰</span> Saldo gewonnen/verloren games (sets)
-                </div>
-                <div class="drag-item" data-id="saldo_legs">
-                    <span class="drag-handle">☰</span> Saldo gewonnen/verloren legs
+                <div class="form-group">
+                    <label>Short Leg (Onder)</label>
+                    <input type="number" id="inp-sl" value="20">
                 </div>
             </div>
         </div>
 
-        <!-- STAP 5: WEDSTRIJD FORMAT BUILDER -->
-        <div class="form-section">
-            <h3>5. Wedstrijd Format</h3>
-            <div class="form-group">
-                <label>Aantal matchen per avond</label>
-                <input type="number" id="inp-game-count" value="9" min="1" max="20" onchange="generateMatchBuilder()">
-            </div>
+        <p id="msg-box" style="display: none; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px;"></p>
 
-            <label style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px; display: block;">Stel hieronder elke match in:</label>
-            <div id="match-builder-container">
-                <!-- Wordt gevuld via JS -->
-            </div>
-        </div>
+        <button class="btn-submit" id="btn-submit" onclick="maakCompetitieAan()">Competitie Aanmaken 🚀</button>
 
-        <!-- STAP 6: EXTRA MODULES -->
-        <div class="form-section">
-            <h3>6. Extra Modules</h3>
-            <label class="toggle-group">
-                <div class="toggle-label"><span style="font-size: 1.2rem; margin-right: 10px;">🎯</span> Bekercompetitie</div>
-                <input type="checkbox" id="inp-beker" checked>
-            </label>
-        </div>
-
-        <p id="error-msg" style="color: #ff3b3b; font-weight: bold; display: none; text-align: center;"></p>
-
-        <button class="btn-trainer" onclick="maakCompetitie()" id="btn-save" style="margin-bottom: 40px;">
-            OPSLAAN & AANMAKEN
-        </button>
     </main>
 
-    <!-- Scripts inladen -->
     <script src="js/supabase.js"></script>
     <script src="js/maak-competitie.js"></script>
 </body>
