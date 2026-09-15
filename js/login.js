@@ -3,97 +3,99 @@
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
-window.addEventListener('DOMContentLoaded', () => {
+let alleSpelers = [];
+let geselecteerdeSpeler = null;
+
+window.addEventListener('DOMContentLoaded', async () => {
     if (!compId) {
         alert("Fout: Geen competitie geselecteerd.");
         return;
     }
-    
-    // We sturen de speler terug naar de publieke hub als ze op de pijl klikken
     document.getElementById('btn-back-hub').onclick = () => window.location.href = `competitie.html?id=${compId}`;
     
-    laadPloegen();
+    await laadAlleSpelers();
 });
 
-async function laadPloegen() {
+async function laadAlleSpelers() {
     try {
-        const { data: teams, error } = await supabaseClient
-            .from('teams')
-            .select('id, name, division')
-            .eq('competition_id', compId)
-            .order('name');
-            
+        // Haal in 1 keer alle spelers op mét de naam van hun ploeg
+        const { data, error } = await supabaseClient
+            .from('players')
+            .select(`
+                id, 
+                name, 
+                team_id, 
+                teams!inner (name, competition_id)
+            `)
+            .eq('teams.competition_id', compId);
+
         if (error) throw error;
         
-        const selectTeam = document.getElementById('select-team');
-        let html = '<option value="">Kies je ploeg...</option>';
-        teams.forEach(t => {
-            html += `<option value="${t.id}">${t.name} (${t.division})</option>`;
-        });
-        selectTeam.innerHTML = html;
-        
+        // Formatteer de data zodat we er makkelijk in kunnen zoeken
+        alleSpelers = data.map(p => ({
+            id: p.id,
+            naam: p.name,
+            teamId: p.team_id,
+            teamNaam: p.teams.name
+        }));
+
     } catch (err) {
-        console.error(err);
-        toonMelding("Fout bij het ophalen van de ploegen.", "red");
+        console.error("Fout bij laden spelers:", err);
     }
 }
 
-async function laadSpelers() {
-    const teamId = document.getElementById('select-team').value;
+// Wordt getriggerd elke keer als je een letter typt
+function zoekSpeler() {
+    const input = document.getElementById('inp-search').value.toLowerCase().trim();
+    const resultBox = document.getElementById('search-results');
     
-    // UI elementen ophalen
-    const groupPlayer = document.getElementById('group-player');
-    const groupPin = document.getElementById('group-pin');
-    const btnLogin = document.getElementById('btn-login');
-    const msgBox = document.getElementById('msg-box');
-    
-    // Reset en verberg bij lege selectie
-    if (!teamId) {
-        groupPlayer.style.display = 'none';
-        groupPin.style.display = 'none';
-        btnLogin.style.display = 'none';
-        msgBox.style.display = 'none';
+    // Begin pas te zoeken vanaf 2 getypte letters
+    if (input.length < 2) {
+        resultBox.style.display = 'none';
         return;
     }
 
-    try {
-        const { data: players, error } = await supabaseClient
-            .from('players')
-            .select('id, name')
-            .eq('team_id', teamId)
-            .order('name');
-            
-        if (error) throw error;
-
-        const selectPlayer = document.getElementById('select-player');
-        let html = '<option value="">Kies je naam...</option>';
-        players.forEach(p => {
-            html += `<option value="${p.id}">${p.name}</option>`;
-        });
-        selectPlayer.innerHTML = html;
-
-        // Toon de rest van het formulier!
-        groupPlayer.style.display = 'block';
-        groupPin.style.display = 'block';
-        btnLogin.style.display = 'block';
-
-    } catch (err) {
-        console.error(err);
-        toonMelding("Fout bij het inladen van spelers.", "red");
+    const matches = alleSpelers.filter(p => p.naam.toLowerCase().includes(input));
+    
+    if (matches.length === 0) {
+        resultBox.innerHTML = '<div class="autocomplete-item" style="color: #888;">Geen speler gevonden...</div>';
+    } else {
+        resultBox.innerHTML = matches.map(p => `
+            <div class="autocomplete-item" onclick="kiesSpeler('${p.id}', '${p.naam.replace(/'/g, "\\'")}', '${p.teamId}', '${p.teamNaam.replace(/'/g, "\\'")}')">
+                <div style="font-weight:bold; font-size: 1.05rem;">${p.naam}</div>
+                <div style="font-size:0.8rem; color:#aaa;">${p.teamNaam}</div>
+            </div>
+        `).join('');
     }
+    resultBox.style.display = 'block';
+}
+
+// Wordt uitgevoerd als de speler zijn naam aanklikt in de lijst
+function kiesSpeler(id, naam, teamId, teamNaam) {
+    geselecteerdeSpeler = { id, naam, teamId, teamNaam };
+    
+    // Vul de zoekbalk netjes in en verberg de dropdown
+    document.getElementById('inp-search').value = naam;
+    document.getElementById('search-results').style.display = 'none';
+    
+    // Toon het veld voor de PIN code
+    document.getElementById('team-hint').innerText = `Jij speelt voor: ${teamNaam}`;
+    document.getElementById('group-pin').style.display = 'block';
+    document.getElementById('btn-login').style.display = 'block';
+    
+    // Focus direct op het PIN veld voor gsm gebruikers
+    document.getElementById('inp-pin').focus();
 }
 
 async function login() {
-    const teamId = document.getElementById('select-team').value;
-    const playerId = document.getElementById('select-player').value;
-    let pin = document.getElementById('inp-pin').value;
+    if (!geselecteerdeSpeler) return;
     
-    if (!teamId || !playerId || !pin) {
-        toonMelding("Gelieve alle velden in te vullen.", "red");
+    let pin = document.getElementById('inp-pin').value;
+    if (!pin) {
+        toonMelding("Vul de 4-cijferige code in.", "red");
         return;
     }
 
-    // Maak de code altijd 4 cijfers lang (bv als de code 0492 is en ze typen 492 in)
     pin = pin.padStart(4, '0');
 
     const btn = document.getElementById('btn-login');
@@ -101,52 +103,34 @@ async function login() {
     btn.innerText = "Controleren... ⏳";
 
     try {
-        // HIER ZIT DE BEVEILIGING: We sturen de PIN naar de database kluis. 
-        // De browser krijgt de echte code nooit te zien.
+        // Veilige kluis-controle via database functie
         const { data: isGeldig, error: rpcError } = await supabaseClient
-            .rpc('check_team_pin', { t_id: teamId, p_code: pin });
+            .rpc('check_team_pin', { t_id: geselecteerdeSpeler.teamId, p_code: pin });
             
         if (rpcError) throw rpcError;
 
-        if (!isGeldig) {
-            throw new Error("Foutieve PIN-code! Vraag deze aan je ploegkapitein.");
-        }
+        if (!isGeldig) throw new Error("Foutieve PIN-code! Vraag deze aan je ploegkapitein.");
 
-        // Als de code klopt, halen we pas de naam van de ploeg op voor het pasje
-        const { data: teamData } = await supabaseClient
-            .from('teams')
-            .select('name')
-            .eq('id', teamId)
-            .single();
-
-        // Pak de naam van de speler uit de dropdown voor de welkomstboodschap
-        const playerSelect = document.getElementById('select-player');
-        const playerName = playerSelect.options[playerSelect.selectedIndex].text;
-
-        // HET DIGITALE PASJE (Opslaan in localStorage)
+        // Pasje aanmaken en opslaan in de telefoon
         const digitaalPasje = {
-            teamId: teamId,
-            teamName: teamData.name,
-            playerId: playerId,
-            playerName: playerName
+            teamId: geselecteerdeSpeler.teamId,
+            teamName: geselecteerdeSpeler.teamNaam,
+            playerId: geselecteerdeSpeler.id,
+            playerName: geselecteerdeSpeler.naam
         };
         
-        // Sla het op met een unieke sleutel per competitie
         localStorage.setItem(`darts_user_${compId}`, JSON.stringify(digitaalPasje));
 
-        toonMelding(`Pasje succesvol gekoppeld! Welkom ${playerName}.`, "lime");
+        toonMelding(`Pasje gekoppeld! Welkom ${geselecteerdeSpeler.naam}.`, "lime");
         btn.innerText = "✅ Ingelogd";
         
-        // Stuur ze na 1,5 seconde naar de publieke competitie pagina
-        setTimeout(() => {
-            window.location.href = `competitie.html?id=${compId}`;
-        }, 1500);
+        setTimeout(() => window.location.href = `competitie.html?id=${compId}`, 1500);
 
     } catch (err) {
         toonMelding(err.message, "#ff3b3b");
         btn.disabled = false;
         btn.innerText = "Inloggen 🔒";
-        document.getElementById('inp-pin').value = ''; // Maak veld weer leeg bij een foute poging
+        document.getElementById('inp-pin').value = ''; 
     }
 }
 
