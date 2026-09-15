@@ -11,19 +11,21 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .login-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 25px; margin-top: 20px; }
-        .form-group { margin-bottom: 20px; }
+        .login-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 25px; margin-top: 20px; position: relative; }
+        .form-group { margin-bottom: 20px; position: relative; }
         .form-group label { display: block; margin-bottom: 8px; color: var(--c-cyan); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
         
-        select, input[type="number"] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
         
-        /* Speciale styling voor de PIN invoer */
+        /* Auto-aanvullen lijst */
+        .autocomplete-list { background: #1a202c; border: 1px solid var(--c-cyan); border-radius: 8px; max-height: 200px; overflow-y: auto; position: absolute; width: 100%; margin-top: 5px; z-index: 10; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .autocomplete-item { padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; color: white; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:active { background: var(--c-cyan); color: black; }
+        
         input[type="number"] { text-align: center; font-size: 2rem; letter-spacing: 10px; font-weight: bold; color: var(--c-yellow); }
         
-        .btn-login { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
-        
-        /* Verberg de extra velden initieel */
-        #group-player, #group-pin, #btn-login { display: none; }
+        .btn-login { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -37,26 +39,19 @@
         
         <div class="login-card">
             <p style="color: #aaa; font-size: 0.9rem; margin-top: 0; margin-bottom: 25px; text-align: center;">
-                Selecteer je gegevens en geef de unieke code van je ploegkapitein in om scores te mogen invoeren.
+                Zoek je naam in de spelerslijst en geef de unieke code van je ploeg in.
             </p>
             
             <div class="form-group">
-                <label>1. Wat is jouw ploeg?</label>
-                <select id="select-team" onchange="laadSpelers()">
-                    <option value="">Laden...</option>
-                </select>
+                <label>1. Zoek jouw naam</label>
+                <input type="text" id="inp-search" placeholder="Typ je voor- of achternaam..." onkeyup="zoekSpeler()" autocomplete="off">
+                <div id="search-results" class="autocomplete-list"></div>
             </div>
 
-            <!-- Verschijnt pas als er een ploeg is gekozen -->
-            <div class="form-group" id="group-player">
-                <label>2. Wie ben jij?</label>
-                <select id="select-player">
-                    <option value="">Kies je naam...</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="group-pin">
-                <label>3. Ploeg PIN-code</label>
+            <!-- Verschijnt pas als de speler zijn naam heeft aangeklikt -->
+            <div class="form-group" id="group-pin" style="display: none;">
+                <label>2. Ploeg PIN-code</label>
+                <div id="team-hint" style="font-size: 0.85rem; color: var(--c-pink); margin-bottom: 8px; font-weight: bold;"></div>
                 <input type="number" id="inp-pin" placeholder="----" inputmode="numeric" pattern="[0-9]*">
             </div>
 
