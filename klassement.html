@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Klassement</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .filter-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-family: inherit; font-size: 1rem; }
+        label { display: block; margin-bottom: 5px; color: var(--c-cyan); font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
+
+        .table-container { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: center; color: white; font-size: 0.9rem; }
+        thead { background: rgba(255,255,255,0.1); color: var(--c-cyan); font-size: 0.8rem; text-transform: uppercase; }
+        th, td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:last-child td { border-bottom: none; }
+        
+        .col-ploeg { text-align: left; font-weight: bold; width: 40%; }
+        .col-ptn { font-weight: bold; color: var(--c-yellow); font-size: 1rem; background: rgba(255, 235, 59, 0.1); }
+        
+        /* Highlight voor nummer 1 en degradatiezone (optioneel) */
+        tr:nth-child(1) .col-ploeg { color: var(--c-yellow); }
+        
+        /* Highlight de eigen ploeg als ze ingelogd zijn */
+        .my-team-row { background: rgba(236, 72, 153, 0.15) !important; }
+        .my-team-row .col-ploeg { color: var(--c-pink) !important; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <button class="btn-back" id="btn-back-hub">⬅</button>
+        <h2 style="color: white; font-size: 1.2rem;">Klassement</h2>
+    </header>
+
+    <main style="padding-top: 10px;">
+        
+        <div class="filter-card">
+            <label>Kies Reeks</label>
+            <select id="select-divisie" onchange="renderKlassement()"></select>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">#</th>
+                        <th class="col-ploeg">Ploeg</th>
+                        <th title="Gespeeld">G</th>
+                        <th title="Gewonnen">W</th>
+                        <th title="Verloren">V</th>
+                        <th title="Punten Voor/Tegen">+/-</th>
+                        <th class="col-ptn" title="Punten">PTN</th>
+                    </tr>
+                </thead>
+                <tbody id="klassement-body">
+                    <tr><td colspan="7" style="padding: 20px; color: #aaa;">Klassement berekenen...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/klassement.js"></script>
+</body>
+</html>
