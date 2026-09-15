@@ -3,51 +3,67 @@
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
-async function laadCompetitieMenu() {
+window.addEventListener('DOMContentLoaded', async () => {
+    const titelVeld = document.getElementById('comp-title');
+    
     if (!compId) {
-        document.getElementById('comp-titel').innerText = "Fout: Geen competitie geselecteerd";
+        titelVeld.innerText = "Geen competitie gekozen";
         return;
     }
 
+    // 1. Haal de naam van de competitie op voor de header
     try {
-        // Haal de competitie info op uit de database
-        const { data: compInfo, error } = await supabaseClient
+        const { data, error } = await supabaseClient
             .from('competitions')
-            .select('*')
+            .select('name')
             .eq('id', compId)
             .single();
             
-        if (error) throw error;
-
-        if (compInfo) {
-            document.getElementById('comp-titel').innerText = compInfo.name;
-            document.getElementById('menu-grid').style.display = 'grid';
-
-            // Toon de nieuwsbanner als het bestuur dit heeft ingevuld
-            if (compInfo.latest_news && compInfo.latest_news.trim() !== '') {
-                document.getElementById('news-content').innerText = compInfo.latest_news;
-                document.getElementById('news-section').style.display = 'block';
-            }
-
-            // Verberg de beker-knop als het bestuur dit had uitgevinkt bij aanmaak
-            if (compInfo.has_cup === false) {
-                document.getElementById('link-beker').style.display = 'none';
-            }
+        if (error) {
+            console.error("Fout bij ophalen naam:", error.message);
+            titelVeld.innerText = "Competitie (Naam onbekend)";
+        } else if (data) {
+            titelVeld.innerText = data.name;
         }
-
-        // Vul alle knoppen in met de juiste link inclusief het ID
-        document.getElementById('link-klassement').href = `klassement.html?id=${compId}`;
-        document.getElementById('link-kalender').href = `kalender.html?id=${compId}`;
-        document.getElementById('link-ploegen').href = `ploegen-info.html?id=${compId}`;
-        document.getElementById('link-beker').href = `beker.html?id=${compId}`;
-        document.getElementById('link-stats').href = `statistieken.html?id=${compId}`;
-        document.getElementById('link-bestuur').href = `bestuur.html?id=${compId}`;
-        document.getElementById('link-reglement').href = `reglement.html?id=${compId}`;
-
     } catch (err) {
-        console.error("Fout bij het laden:", err);
-        document.getElementById('comp-titel').innerText = "Oeps, er ging iets mis.";
+        console.error("Systeemfout.", err);
+        titelVeld.innerText = "Competitie";
+    }
+
+    // 2. Controleer of de speler al is ingelogd
+    controleerLoginStatus();
+});
+
+function controleerLoginStatus() {
+    const opgeslagenData = localStorage.getItem(`darts_user_${compId}`);
+    const badge = document.getElementById('player-badge');
+    const loginKnop = document.getElementById('btn-login-knop');
+
+    if (opgeslagenData) {
+        const pasje = JSON.parse(opgeslagenData);
+        document.getElementById('badge-name').innerText = pasje.playerName;
+        document.getElementById('badge-team').innerText = pasje.teamName;
+        
+        badge.style.display = 'block';
+        loginKnop.style.display = 'none';
+    } else {
+        badge.style.display = 'none';
+        loginKnop.style.display = 'flex';
     }
 }
 
-window.addEventListener('DOMContentLoaded', laadCompetitieMenu);
+function uitloggen() {
+    const zeker = confirm("Ben je zeker dat je wil uitloggen? Je hebt je PIN-code opnieuw nodig om in te loggen.");
+    if (zeker) {
+        localStorage.removeItem(`darts_user_${compId}`);
+        controleerLoginStatus();
+    }
+}
+
+function gaNaarLogin() {
+    window.location.href = `login.html?id=${compId}`;
+}
+
+function gaNaar(pagina) {
+    window.location.href = `${pagina}?id=${compId}`;
+}
