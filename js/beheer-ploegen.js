@@ -61,8 +61,8 @@ async function laadPloegen() {
                         ${ploeg.pin_code || '----'}
                     </div>
 
-                    <!-- SPELERS KNOP -->
-                    <button style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;" onclick="window.location.href='beheer-spelers.html?team_id=${ploeg.id}&comp_id=${compId}'">
+                    <!-- SPELERS KNOP (Link is nu gecorrigeerd) -->
+                    <button style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;" onclick="window.location.href='beheer-spelers.html?id=${compId}&team_id=${ploeg.id}'">
                         Spelers 👤
                     </button>
                     
@@ -77,7 +77,7 @@ async function laadPloegen() {
 }
 
 async function voegPloegToe() {
-    // Checken op de velden. Pas de id's gerust aan als je HTML licht afwijkt.
+    // Checken op de velden.
     const inpNaam = document.getElementById('inp-naam');
     const inpDivisie = document.getElementById('inp-divisie');
     const inpLokaal = document.getElementById('inp-lokaal');
@@ -124,7 +124,7 @@ async function voegPloegToe() {
 
 function toonMelding(tekst, kleur) {
     const msg = document.getElementById('msg-box');
-    if (!msg) return; // Als er geen msg-box in de HTML staat, voorkom dan een error
+    if (!msg) return; 
     
     msg.style.display = 'block';
     msg.innerText = tekst;
