@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // We sturen ze voorlopig terug naar de hub
+    // We sturen de speler terug naar de publieke hub als ze op de pijl klikken
     document.getElementById('btn-back-hub').onclick = () => window.location.href = `competitie.html?id=${compId}`;
     
     laadPloegen();
@@ -41,7 +41,7 @@ async function laadPloegen() {
 async function laadSpelers() {
     const teamId = document.getElementById('select-team').value;
     
-    // UI elementen
+    // UI elementen ophalen
     const groupPlayer = document.getElementById('group-player');
     const groupPin = document.getElementById('group-pin');
     const btnLogin = document.getElementById('btn-login');
@@ -101,27 +101,32 @@ async function login() {
     btn.innerText = "Controleren... ⏳";
 
     try {
-        // Controleer de PIN code rechtstreeks in de database
-        const { data: team, error } = await supabaseClient
-            .from('teams')
-            .select('pin_code, name')
-            .eq('id', teamId)
-            .single();
+        // HIER ZIT DE BEVEILIGING: We sturen de PIN naar de database kluis. 
+        // De browser krijgt de echte code nooit te zien.
+        const { data: isGeldig, error: rpcError } = await supabaseClient
+            .rpc('check_team_pin', { t_id: teamId, p_code: pin });
             
-        if (error) throw error;
+        if (rpcError) throw rpcError;
 
-        if (team.pin_code !== pin) {
+        if (!isGeldig) {
             throw new Error("Foutieve PIN-code! Vraag deze aan je ploegkapitein.");
         }
 
-        // Pak de naam van de speler uit de dropdown voor een persoonlijke welkomstboodschap
+        // Als de code klopt, halen we pas de naam van de ploeg op voor het pasje
+        const { data: teamData } = await supabaseClient
+            .from('teams')
+            .select('name')
+            .eq('id', teamId)
+            .single();
+
+        // Pak de naam van de speler uit de dropdown voor de welkomstboodschap
         const playerSelect = document.getElementById('select-player');
         const playerName = playerSelect.options[playerSelect.selectedIndex].text;
 
         // HET DIGITALE PASJE (Opslaan in localStorage)
         const digitaalPasje = {
             teamId: teamId,
-            teamName: team.name,
+            teamName: teamData.name,
             playerId: playerId,
             playerName: playerName
         };
@@ -141,7 +146,7 @@ async function login() {
         toonMelding(err.message, "#ff3b3b");
         btn.disabled = false;
         btn.innerText = "Inloggen 🔒";
-        document.getElementById('inp-pin').value = ''; // Maak veld weer leeg
+        document.getElementById('inp-pin').value = ''; // Maak veld weer leeg bij een foute poging
     }
 }
 
