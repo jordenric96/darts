@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 1. Haal de naam van de competitie op voor de header
+    // 1. Haal de naam van de competitie op
     try {
         const { data, error } = await supabaseClient
             .from('competitions')
@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         titelVeld.innerText = "Competitie";
     }
 
-    // 2. Controleer of de speler al is ingelogd
+    // 2. Controleer Login Status
     controleerLoginStatus();
 });
 
@@ -44,7 +44,8 @@ function controleerLoginStatus() {
         document.getElementById('badge-name').innerText = pasje.playerName;
         document.getElementById('badge-team').innerText = pasje.teamName;
         
-        badge.style.display = 'block';
+        // Gebruik 'flex' omdat we een flexbox design gebruiken
+        badge.style.display = 'flex'; 
         loginKnop.style.display = 'none';
     } else {
         badge.style.display = 'none';
@@ -53,10 +54,24 @@ function controleerLoginStatus() {
 }
 
 function uitloggen() {
-    const zeker = confirm("Ben je zeker dat je wil uitloggen? Je hebt je PIN-code opnieuw nodig om in te loggen.");
+    const zeker = confirm("Ben je zeker dat je wil uitloggen? Je hebt de code van je ploeg opnieuw nodig om in te loggen.");
     if (zeker) {
         localStorage.removeItem(`darts_user_${compId}`);
         controleerLoginStatus();
+    }
+}
+
+// Uitklapfunctie voor het Nieuwsbericht
+function toggleNieuws() {
+    const inhoud = document.getElementById('nieuws-inhoud');
+    const pijl = document.getElementById('nieuws-pijl');
+    
+    if (inhoud.style.display === 'none') {
+        inhoud.style.display = 'block';
+        pijl.innerText = 'Klap dicht ▲';
+    } else {
+        inhoud.style.display = 'none';
+        pijl.innerText = 'Lees meer ▼';
     }
 }
 
