@@ -10,13 +10,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .form-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        .form-card h3 { margin-top: 0; color: var(--c-cyan); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; font-size: 1.1rem;}
+        .form-card h3 { margin-top: 0; color: var(--c-cyan); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;}
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; color: #aaa; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
         input[type="text"], input[type="number"], select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 1rem; font-family: inherit; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; color: white; font-size: 1rem; margin-top: 10px; }
+        .checkbox-group input { width: 20px; height: 20px; accent-color: var(--c-cyan); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .btn-submit { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 30px; }
+        .btn-submit { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 40px; }
     </style>
 </head>
 <body>
@@ -28,33 +30,56 @@
 
     <main style="padding-top: 10px;">
         
-        <!-- BLOK 1: Algemeen -->
+        <!-- BLOK 1: Basisgegevens -->
         <div class="form-card">
-            <h3>1. Basisgegevens</h3>
+            <h3>🏷️ 1. Basisgegevens</h3>
             <div class="form-group">
                 <label>Naam van de competitie *</label>
                 <input type="text" id="inp-naam" placeholder="Bv. Dartsliga Pajottenland">
             </div>
+            <div class="form-group">
+                <label>Logo (Plak een afbeeldings-link)</label>
+                <input type="text" id="inp-logo" placeholder="Bv. https://link-naar-logo.jpg">
+            </div>
             <div class="grid-2">
+                <div class="form-group"><label>Seizoen</label><input type="text" id="inp-seizoen" placeholder="Bv. 2026-2027"></div>
                 <div class="form-group">
-                    <label>Seizoen</label>
-                    <input type="text" id="inp-seizoen" placeholder="Bv. 2026-2027">
-                </div>
-                <div class="form-group">
-                    <label>Type Competitie</label>
+                    <label>Competitietype</label>
                     <select id="inp-type">
-                        <option value="competitie">Reguliere Competitie (Liga)</option>
-                        <option value="beker">Beker (Knock-out)</option>
+                        <option value="competitie">Reguliere Liga</option>
                         <option value="zomer">Zomercompetitie</option>
+                        <option value="beker">Beker (Knock-out)</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- BLOK 2: Wedstrijd Formaat -->
+        <!-- BLOK 2: Praktisch & Inschrijvingen -->
         <div class="form-card">
-            <h3>2. Wedstrijd Formaat</h3>
-            <div class="form-group">
+            <h3>📅 2. Praktische Info</h3>
+            <div class="grid-2">
+                <div class="form-group"><label>Vaste Speeldag</label><input type="text" id="inp-dagen" placeholder="Bv. Vrijdagavond"></div>
+                <div class="form-group"><label>Startuur Matchen</label><input type="text" id="inp-uur" placeholder="Bv. 20:00"></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label>Max ploegen per reeks</label><input type="number" id="inp-max-ploegen" placeholder="Bv. 12"></div>
+                <div class="form-group"><label>Inschrijvingsgeld (€)</label><input type="number" id="inp-geld" placeholder="Bv. 50"></div>
+            </div>
+        </div>
+
+        <!-- BLOK 3: Opbouw van een Wedstrijd -->
+        <div class="form-card">
+            <h3>🎯 3. Wedstrijd Formaat</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Uit hoeveel games bestaat 1 competitiewedstrijd?</p>
+            <div class="grid-2">
+                <div class="form-group"><label>Aantal Enkels</label><input type="number" id="inp-enkels" value="4"></div>
+                <div class="form-group"><label>Aantal Dubbels</label><input type="number" id="inp-dubbels" value="4"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="inp-teamgame"> 
+                <label for="inp-teamgame" style="margin: 0; color: white; text-transform: none;">Wordt er afgesloten met een gezamenlijke Teamgame / Captains game?</label>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
                 <label>Speltype</label>
                 <select id="inp-format">
                     <option value="501">501 Double Out</option>
@@ -64,36 +89,25 @@
             </div>
         </div>
 
-        <!-- BLOK 3: Puntentelling Klassement -->
-        <div class="form-card">
-            <h3>3. Puntentelling Klassement</h3>
-            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Hoeveel punten krijgt een ploeg voor het klassement?</p>
+        <!-- BLOK 4: Reglement (Punten & Stats) -->
+        <div class="form-card" style="border-left: 4px solid var(--c-pink);">
+            <h3 style="color: var(--c-pink);">📊 4. Reglement & Klassement</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Punten voor het ploegenklassement:</p>
             <div class="grid-3">
                 <div class="form-group"><label>Winst</label><input type="number" id="inp-pts-win" value="2"></div>
                 <div class="form-group"><label>Gelijk</label><input type="number" id="inp-pts-draw" value="1"></div>
                 <div class="form-group"><label>Verlies</label><input type="number" id="inp-pts-loss" value="0"></div>
             </div>
-        </div>
-
-        <!-- BLOK 4: Limieten Statistieken -->
-        <div class="form-card" style="border-left: 4px solid var(--c-pink);">
-            <h3 style="color: var(--c-pink);">4. Persoonlijke Statistieken</h3>
-            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Vanaf wanneer mogen spelers speciale prestaties noteren?</p>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 10px; margin-bottom: 5px;">Vanaf wanneer noteren we individuele topprestaties?</p>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>High Finish (Vanaf)</label>
-                    <input type="number" id="inp-hf" value="100">
-                </div>
-                <div class="form-group">
-                    <label>Short Leg (Onder pijlen)</label>
-                    <input type="number" id="inp-sl" value="20">
-                </div>
+                <div class="form-group"><label>High Finish (&gt;)</label><input type="number" id="inp-hf" value="100"></div>
+                <div class="form-group"><label>Short Leg (&lt;)</label><input type="number" id="inp-sl" value="20"></div>
             </div>
         </div>
 
         <p id="msg-box" style="display: none; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px;"></p>
 
-        <button class="btn-submit" id="btn-submit" onclick="maakCompetitieAan()">Competitie Aanmaken 🚀</button>
+        <button class="btn-submit" id="btn-submit" onclick="maakCompetitieAan()">Competitie Oprichten 🚀</button>
 
     </main>
 
