@@ -1,5 +1,3 @@
-// js/maak-competitie.js
-
 async function maakCompetitieAan() {
     const naam = document.getElementById('inp-naam').value.trim();
     const ptsWin = document.getElementById('inp-pts-win').value;
@@ -9,7 +7,7 @@ async function maakCompetitieAan() {
     const defSl = document.getElementById('inp-sl').value;
 
     if (!naam) {
-        toonMelding("Gelieve een naam op te geven voor de competitie.", "red");
+        toonMelding("Gelieve een naam in te vullen.", "red");
         return;
     }
 
@@ -33,19 +31,16 @@ async function maakCompetitieAan() {
 
         if (error) throw error;
 
-        toonMelding("Competitie succesvol aangemaakt!", "lime");
+        toonMelding("Succes! Je wordt doorgestuurd.", "lime");
         btn.innerText = "✅ Klaar!";
         
-        // Stuur beheerder onmiddellijk naar zijn gloednieuwe beheerders-dashboard
-        setTimeout(() => {
-            window.location.href = `beheer-hub.html?id=${data.id}`;
-        }, 1500);
+        setTimeout(() => { window.location.href = `beheer-hub.html?id=${data.id}`; }, 1500);
 
     } catch (err) {
         console.error(err);
         toonMelding("Fout: " + err.message, "#ff3b3b");
         btn.disabled = false;
-        btn.innerText = "Competitie Aanmaken 🚀";
+        btn.innerText = "Aanmaken 🚀";
     }
 }
 
