@@ -10,32 +10,64 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .form-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        .form-card h3 { margin-top: 0; color: var(--c-cyan); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .form-card h3 { margin-top: 0; color: var(--c-cyan); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; font-size: 1.1rem;}
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; color: #aaa; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 1rem; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 1rem; font-family: inherit; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-submit { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 30px; }
     </style>
 </head>
 <body>
+
     <header class="top-header">
         <button class="btn-back" onclick="window.location.href='index.html'">⬅</button>
         <h2 style="color: white; font-size: 1.2rem;">Competitie Opstarten</h2>
     </header>
 
     <main style="padding-top: 10px;">
+        
+        <!-- BLOK 1: Algemeen -->
         <div class="form-card">
             <h3>1. Basisgegevens</h3>
             <div class="form-group">
-                <label>Naam van de competitie</label>
-                <input type="text" id="inp-naam" placeholder="Bv. Zomerliga 2026">
+                <label>Naam van de competitie *</label>
+                <input type="text" id="inp-naam" placeholder="Bv. Dartsliga Pajottenland">
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Seizoen</label>
+                    <input type="text" id="inp-seizoen" placeholder="Bv. 2026-2027">
+                </div>
+                <div class="form-group">
+                    <label>Type Competitie</label>
+                    <select id="inp-type">
+                        <option value="competitie">Reguliere Competitie (Liga)</option>
+                        <option value="beker">Beker (Knock-out)</option>
+                        <option value="zomer">Zomercompetitie</option>
+                    </select>
+                </div>
             </div>
         </div>
 
+        <!-- BLOK 2: Wedstrijd Formaat -->
         <div class="form-card">
-            <h3>2. Puntentelling</h3>
+            <h3>2. Wedstrijd Formaat</h3>
+            <div class="form-group">
+                <label>Speltype</label>
+                <select id="inp-format">
+                    <option value="501">501 Double Out</option>
+                    <option value="301">301 Double Out</option>
+                    <option value="tactics">Tactics</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- BLOK 3: Puntentelling Klassement -->
+        <div class="form-card">
+            <h3>3. Puntentelling Klassement</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Hoeveel punten krijgt een ploeg voor het klassement?</p>
             <div class="grid-3">
                 <div class="form-group"><label>Winst</label><input type="number" id="inp-pts-win" value="2"></div>
                 <div class="form-group"><label>Gelijk</label><input type="number" id="inp-pts-draw" value="1"></div>
@@ -43,17 +75,26 @@
             </div>
         </div>
 
+        <!-- BLOK 4: Limieten Statistieken -->
         <div class="form-card" style="border-left: 4px solid var(--c-pink);">
-            <h3 style="color: var(--c-pink);">3. Statistieken Limieten</h3>
-            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Vanaf wanneer mogen spelers extra stats noteren?</p>
+            <h3 style="color: var(--c-pink);">4. Persoonlijke Statistieken</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Vanaf wanneer mogen spelers speciale prestaties noteren?</p>
             <div class="grid-2">
-                <div class="form-group"><label>High Finish (Vanaf)</label><input type="number" id="inp-hf" value="100"></div>
-                <div class="form-group"><label>Short Leg (Onder pijlen)</label><input type="number" id="inp-sl" value="20"></div>
+                <div class="form-group">
+                    <label>High Finish (Vanaf)</label>
+                    <input type="number" id="inp-hf" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Short Leg (Onder pijlen)</label>
+                    <input type="number" id="inp-sl" value="20">
+                </div>
             </div>
         </div>
 
         <p id="msg-box" style="display: none; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px;"></p>
-        <button class="btn-submit" id="btn-submit" onclick="maakCompetitieAan()">Aanmaken 🚀</button>
+
+        <button class="btn-submit" id="btn-submit" onclick="maakCompetitieAan()">Competitie Aanmaken 🚀</button>
+
     </main>
 
     <script src="js/supabase.js"></script>
