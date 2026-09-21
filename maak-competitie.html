@@ -18,17 +18,17 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         
-        /* Checkboxes voor dagen */
+        /* Checkboxes voor dagen & instellingen */
         .days-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
         .days-grid label { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); color: white; text-transform: none; font-size: 0.9rem; }
-        .days-grid input { accent-color: var(--c-cyan); width: 16px; height: 16px; }
+        .days-grid input, .checkbox-group input { accent-color: var(--c-cyan); width: 18px; height: 18px; }
+        
+        .checkbox-group { display: flex; align-items: center; gap: 10px; color: white; font-size: 0.95rem; margin-top: 10px; }
 
         /* Dynamische contact rijen */
         .contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2); margin-bottom: 10px; }
         .btn-add { background: transparent; border: 1px dashed var(--c-pink); color: var(--c-pink); padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
         
-        .checkbox-group { display: flex; align-items: center; gap: 10px; color: white; font-size: 1rem; margin-top: 10px; }
-        .checkbox-group input { width: 20px; height: 20px; accent-color: var(--c-cyan); }
         .btn-submit { background: var(--c-cyan); color: black; font-weight: bold; padding: 15px; border-radius: 10px; width: 100%; text-transform: uppercase; border: none; font-size: 1.1rem; cursor: pointer; margin-top: 10px; margin-bottom: 40px; }
     </style>
 </head>
@@ -91,7 +91,7 @@
             </div>
             
             <div class="form-group" style="margin-top: 20px;">
-                <label>Hoeveel individuele matchen worden er gegooid?</label>
+                <label>Hoeveel individuele matchen per speeldag?</label>
                 <input type="number" id="inp-total-matches" value="8" min="1" max="20" onchange="genereerMatchStructuur()">
             </div>
             
@@ -101,7 +101,7 @@
 
             <div class="checkbox-group" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                 <input type="checkbox" id="inp-teamgame"> 
-                <label for="inp-teamgame" style="margin: 0; text-transform: none; color: white;">Wordt er afgesloten met een gezamenlijke Teamgame?</label>
+                <label for="inp-teamgame">Extra gezamenlijke Teamgame toevoegen?</label>
             </div>
         </div>
 
@@ -116,7 +116,7 @@
                     <input type="text" class="c-email" placeholder="E-mailadres">
                 </div>
             </div>
-            <button class="btn-add" onclick="voegContactToe()">+ Extra Contactpersoon Toevoegen</button>
+            <button class="btn-add" onclick="voegContactToe()">+ Extra Contactpersoon</button>
         </div>
 
         <!-- BLOK 5: Reglement & Punten -->
@@ -127,11 +127,21 @@
                 <div class="form-group"><label>Gelijk</label><input type="number" id="inp-pts-draw" value="1"></div>
                 <div class="form-group"><label>Verlies</label><input type="number" id="inp-pts-loss" value="0"></div>
             </div>
-            <p style="font-size: 0.8rem; color: #888;">Persoonlijke statistieken noteren (voor elke reeks):</p>
+            <p style="font-size: 0.8rem; color: #888;">Persoonlijke statistieken noteren vanaf:</p>
             <div class="grid-2">
                 <div class="form-group"><label>High Finish (&gt;)</label><input type="number" id="inp-hf" value="100"></div>
                 <div class="form-group"><label>Short Leg (&lt; pijlen)</label><input type="number" id="inp-sl" value="20"></div>
             </div>
+        </div>
+
+        <!-- BLOK 6: Publieke Subklassementen -->
+        <div class="form-card" style="border-left: 4px solid var(--c-yellow);">
+            <h3 style="color: var(--c-yellow);">🏆 6. Publieke Klassementen</h3>
+            <p style="font-size: 0.85rem; color: #888; margin-top: 0;">Welke persoonlijke prestaties wil je publiek tonen? (Het speler-gemiddelde blijft sowieso altijd privé per ploeg).</p>
+            
+            <div class="checkbox-group"><input type="checkbox" id="chk-stat-180" checked> <label for="chk-stat-180">Klassement: Meeste 180's</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="chk-stat-hf" checked> <label for="chk-stat-hf">Klassement: Hoogste Finishes</label></div>
+            <div class="checkbox-group"><input type="checkbox" id="chk-stat-sl" checked> <label for="chk-stat-sl">Klassement: Short Legs</label></div>
         </div>
 
         <p id="msg-box" style="display: none; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px;"></p>
