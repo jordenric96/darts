@@ -1,11 +1,11 @@
 // js/maak-competitie.js
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Genereer de 8 matchen standaard bij het laden
+    // Genereer de standaard matchen bij het laden (Bv. 8 stuks)
     genereerMatchStructuur();
 });
 
-// Zorgt voor de dynamische lijst van matchen
+// Zorgt voor de dynamische lijst van matchen (Solo/Dubbel)
 function genereerMatchStructuur() {
     const container = document.getElementById('match-structure-container');
     const aantal = parseInt(document.getElementById('inp-total-matches').value) || 0;
@@ -75,12 +75,19 @@ async function maakCompetitieAan() {
         }
     });
 
-    // 5. Punten
+    // 5. Punten & Limieten
     const ptsWin = document.getElementById('inp-pts-win').value;
     const ptsDraw = document.getElementById('inp-pts-draw').value;
     const ptsLoss = document.getElementById('inp-pts-loss').value;
     const defHf = document.getElementById('inp-hf').value;
     const defSl = document.getElementById('inp-sl').value;
+
+    // 6. Publieke Subklassementen
+    const subKlassementen = {
+        toon_180s: document.getElementById('chk-stat-180').checked,
+        toon_hf: document.getElementById('chk-stat-hf').checked,
+        toon_sl: document.getElementById('chk-stat-sl').checked
+    };
 
     if (!naam) {
         toonMelding("Geef minstens een naam op voor de competitie.", "red");
@@ -99,22 +106,25 @@ async function maakCompetitieAan() {
                 logo_url: logoUrl || null,
                 season: seizoen || null,
                 num_divisions: parseInt(reeksen) || 1,
+                match_type: 'competitie', // Standaardwaarde
                 
                 play_days: JSON.stringify(speeldagen),
                 start_time: startUur || null,
                 registration_fee: geld ? parseFloat(geld) : null,
                 
                 game_format: format,
-                match_structure: matchStructuur,
+                match_structure: matchStructuur, // Dit wordt als JSON opgeslagen
                 format_teamgame: teamgame,
                 
-                contacts: contactenLijst,
+                contacts: contactenLijst, // Dit wordt als JSON opgeslagen
                 
                 pts_win: parseInt(ptsWin),
                 pts_draw: parseInt(ptsDraw),
                 pts_loss: parseInt(ptsLoss),
                 default_high_finish: parseInt(defHf),
-                default_short_leg: parseInt(defSl)
+                default_short_leg: parseInt(defSl),
+                
+                sub_classifications: subKlassementen // Dit wordt als JSON opgeslagen
             }])
             .select()
             .single();
@@ -124,7 +134,10 @@ async function maakCompetitieAan() {
         toonMelding("Competitie succesvol opgericht!", "lime");
         btn.innerText = "✅ Klaar!";
         
-        setTimeout(() => { window.location.href = `beheer-hub.html?id=${data.id}`; }, 1500);
+        // Na 1.5 seconde doorsturen naar de beheer-hub van deze competitie
+        setTimeout(() => {
+            window.location.href = `beheer-hub.html?id=${data.id}`;
+        }, 1500);
 
     } catch (err) {
         console.error(err);
