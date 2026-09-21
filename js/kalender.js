@@ -1,232 +1,124 @@
-// js/kalender.js
-
 const urlParams = new URLSearchParams(window.location.search);
 const compId = urlParams.get('id');
 
 let alleMatchen = [];
 let alleTeams = [];
-let teamNamen = {};
-
-let huidigeDivisie = "";
-let maxSpeeldag = 1;
-let actieveSpeeldag = 1; 
-
-let vorigeSpeeldagNum = 0;
-let volgendeSpeeldagNum = 0;
-let viewMode = 'DASHBOARD'; // Of 'ALL'
+let mijnPloegId = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
     if (!compId) {
-        document.getElementById('dashboard-view').innerHTML = "<p style='color:red;'>Fout: Geen competitie geselecteerd.</p>";
+        alert("Geen competitie gevonden.");
         return;
     }
-    document.getElementById('btn-back-hub').onclick = () => window.location.href = `competitie.html?id=${compId}`;
     
-    await laadData();
+    document.getElementById('btn-back-hub').onclick = () => window.location.href = `competitie.html?id=${compId}`;
+
+    // Haal het pasje op om te weten voor wie we de actieknoppen moeten tonen
+    const pasjeData = localStorage.getItem(`darts_user_${compId}`);
+    if (pasjeData) {
+        mijnPloegId = JSON.parse(pasjeData).teamId;
+    }
+
+    await laadKalenderData();
 });
 
-async function laadData() {
+async function laadKalenderData() {
     try {
-        const { data: teams } = await supabaseClient.from('teams').select('id, name, division').eq('competition_id', compId).order('name');
+        // 1. Haal alle ploegen op (voor de namen en reeksen)
+        const { data: teams } = await supabaseClient.from('teams').select('id, name, division').eq('competition_id', compId);
         alleTeams = teams || [];
-        teams.forEach(t => teamNamen[t.id] = t.name);
 
+        // 2. Haal alle matchen op
         const { data: matches } = await supabaseClient.from('matches').select('*').eq('competition_id', compId);
         alleMatchen = matches || [];
 
-        if (alleMatchen.length === 0) {
-            document.getElementById('dashboard-view').innerHTML = "<p style='text-align:center; color:#aaa;'>De kalender is nog niet opgemaakt.</p>";
-            return;
+        // 3. Vul de dropdown met alle unieke reeksen
+        const divisies = [...new Set(alleTeams.map(t => t.division))].sort();
+        const select = document.getElementById('select-divisie');
+        select.innerHTML = divisies.map(d => `<option value="${d}">${d}</option>`).join('');
+
+        // Zet de dropdown direct op de reeks van de ingelogde speler (indien bekend)
+        if (mijnPloegId) {
+            const mijnPloeg = alleTeams.find(t => t.id === mijnPloegId);
+            if (mijnPloeg) select.value = mijnPloeg.division;
         }
 
-        const divisies = [...new Set(alleMatchen.map(m => m.division))].sort();
-        document.getElementById('select-divisie').innerHTML = divisies.map(d => `<option value="${d}">${d}</option>`).join('');
-        huidigeDivisie = divisies[0];
-
-        vulPloegenDropdown();
-        veranderDivisie(); // Start de berekeningen
+        renderKalender();
 
     } catch (err) {
-        console.error(err);
+        console.error("Fout bij laden:", err);
+        document.getElementById('kalender-container').innerHTML = `<p style="color:red; text-align:center;">Kon kalender niet laden.</p>`;
     }
 }
 
-function vulPloegenDropdown() {
-    const selectPloeg = document.getElementById('select-ploeg');
-    const ploegenInDiv = alleTeams.filter(t => t.division === huidigeDivisie);
+function renderKalender() {
+    const actieveDivisie = document.getElementById('select-divisie').value;
+    const container = document.getElementById('kalender-container');
     
-    let optionsHtml = `<option value="ALL">Alle ploegen tonen</option>`;
-    ploegenInDiv.forEach(p => optionsHtml += `<option value="${p.id}">${p.name}</option>`);
-    selectPloeg.innerHTML = optionsHtml;
-
-    const opgeslagen = localStorage.getItem(`mijnPloeg_${compId}`);
-    if (opgeslagen && ploegenInDiv.some(p => p.id === opgeslagen)) {
-        selectPloeg.value = opgeslagen;
-    }
-}
-
-function veranderDivisie() {
-    huidigeDivisie = document.getElementById('select-divisie').value;
-    vulPloegenDropdown(); // Update lijst met ploegen voor deze reeks
-    bepaalDashboardSpeeldagen();
-    renderActueleView();
-}
-
-function bepaalDashboardSpeeldagen() {
-    const matchenInDivisie = alleMatchen.filter(m => m.division === huidigeDivisie);
-    const speeldagen = [...new Set(matchenInDivisie.map(m => m.matchday))].sort((a,b) => a - b);
-    if(speeldagen.length === 0) return;
-
-    maxSpeeldag = speeldagen[speeldagen.length - 1];
+    // Filter teams van deze divisie
+    const teamsInDivisie = alleTeams.filter(t => t.division === actieveDivisie).map(t => t.id);
     
-    const vandaag = new Date().toISOString().split('T')[0];
-    let nextDay = null;
+    // Zoek de matchen die bij deze divisie horen (waarbij de thuisploeg in deze reeks zit)
+    const matchenInDivisie = alleMatchen.filter(m => teamsInDivisie.includes(m.home_team_id));
 
-    // Zoek de eerste speeldag in de toekomst (of vandaag)
-    for (let day of speeldagen) {
-        const mDag = matchenInDivisie.filter(m => m.matchday === day);
-        if (mDag[0] && mDag[0].play_date >= vandaag) {
-            nextDay = day;
-            break;
-        }
+    if (matchenInDivisie.length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: #aaa;">Nog geen matchen gepland in deze reeks.</p>`;
+        return;
     }
 
-    if (nextDay === null) {
-        // Alles is al gespeeld
-        volgendeSpeeldagNum = 0;
-        vorigeSpeeldagNum = maxSpeeldag;
-    } else if (nextDay === 1) {
-        // Seizoen moet nog beginnen
-        volgendeSpeeldagNum = 1;
-        vorigeSpeeldagNum = 0;
-    } else {
-        // Midden in het seizoen
-        volgendeSpeeldagNum = nextDay;
-        vorigeSpeeldagNum = nextDay - 1;
-    }
-    
-    actieveSpeeldag = volgendeSpeeldagNum || vorigeSpeeldagNum;
-}
+    container.innerHTML = matchenInDivisie.map(match => {
+        const homeTeam = alleTeams.find(t => t.id === match.home_team_id);
+        const awayTeam = alleTeams.find(t => t.id === match.away_team_id);
+        
+        if (!homeTeam || !awayTeam) return '';
 
-// --- RENDERING FUNCTIES ---
+        const isMyMatch = (match.home_team_id === mijnPloegId || match.away_team_id === mijnPloegId);
+        const cardClass = isMyMatch ? "match-card my-match-border" : "match-card";
+        
+        let actieBlok = '';
 
-function renderMatchRow(match, mijnPloegId) {
-    const homeName = teamNamen[match.home_team_id] || 'Onbekend';
-    const awayName = teamNamen[match.away_team_id] || 'Onbekend';
-    
-    // We laten de achtergrondkleur weg want jouw match is nu de enige op het scherm.
-    const rowClass = "match-row"; 
-
-    const hasScore = match.home_score !== null && match.away_score !== null;
-    let badgeHtml = '';
-    
-    if (hasScore) {
-        badgeHtml = `<div class="score-badge">${match.home_score} - ${match.away_score}</div>`;
-    } else {
-        const time = match.play_time ? match.play_time.substring(0, 5) : 'VS';
-        badgeHtml = `<div class="time-badge">${time}</div>`;
-    }
-
-    return `
-        <div class="${rowClass}">
-            <span class="team-name team-home ${mijnPloegId === match.home_team_id ? 'my-team-text' : ''}">${homeName}</span>
-            <div class="badge-container">${badgeHtml}</div>
-            <span class="team-name team-away ${mijnPloegId === match.away_team_id ? 'my-team-text' : ''}">${awayName}</span>
-        </div>
-    `;
-}
-
-function haalDatumTekst(speeldagNum) {
-    const m = alleMatchen.find(x => x.division === huidigeDivisie && x.matchday === speeldagNum);
-    if (!m || !m.play_date) return '';
-    return m.play_date.split('-').reverse().join('-');
-}
-
-function renderActueleView() {
-    const mijnPloegId = document.getElementById('select-ploeg').value;
-    if (mijnPloegId !== "ALL") localStorage.setItem(`mijnPloeg_${compId}`, mijnPloegId);
-    else localStorage.removeItem(`mijnPloeg_${compId}`);
-
-    if (viewMode === 'DASHBOARD') {
-        // VORIGE SPEELDAG (Uitslagen)
-        const containerVorige = document.getElementById('container-vorige');
-        if (vorigeSpeeldagNum > 0) {
-            document.getElementById('titel-vorige').innerText = `Speeldag ${vorigeSpeeldagNum} (${haalDatumTekst(vorigeSpeeldagNum)})`;
-            let matchen = alleMatchen.filter(m => m.division === huidigeDivisie && m.matchday === vorigeSpeeldagNum);
-            
-            // FILTER: Toon ENKEL de match van de gekozen ploeg
-            if (mijnPloegId !== "ALL") {
-                matchen = matchen.filter(m => m.home_team_id === mijnPloegId || m.away_team_id === mijnPloegId);
-            }
-
-            if (matchen.length > 0) {
-                containerVorige.innerHTML = matchen.map(m => renderMatchRow(m, mijnPloegId)).join('');
+        // LOGICA VOOR DE KNOPPEN EN SCORES
+        if (match.status === 'approved' || (match.home_score !== null && match.status !== 'pending_approval')) {
+            // Match is definitief afgehandeld
+            actieBlok = `<div class="score-display">${match.home_score} - ${match.away_score}</div>`;
+        
+        } else if (match.status === 'pending_approval') {
+            // Score is ingevuld door 1 ploeg, wacht op het vierogenprincipe
+            if (match.submitted_by_team_id === mijnPloegId) {
+                // Jij hebt ingevuld, je wacht op de tegenstander
+                actieBlok = `<div class="status-badge status-waiting">Wachten op bevestiging tegenstander ⏳</div>`;
+            } else if (isMyMatch) {
+                // Tegenstander heeft ingevuld, jij moet bevestigen!
+                actieBlok = `<button class="btn-action btn-confirm" onclick="openWedstrijdblad('${match.id}')">Score Bevestigen ✅</button>`;
             } else {
-                containerVorige.innerHTML = `<p style="text-align:center; padding: 15px; color:#aaa; margin:0;">Ploeg is vrij deze speeldag.</p>`;
+                // Match van een andere ploeg die nog niet is afgerond
+                actieBlok = `<div class="status-badge">Score in verwerking...</div>`;
             }
-            containerVorige.style.display = 'block';
+        
         } else {
-            document.getElementById('titel-vorige').innerText = '';
-            containerVorige.innerHTML = `<p style="text-align:center; padding: 15px; color:#aaa; margin:0;">Het seizoen is nog niet gestart.</p>`;
-        }
-
-        // VOLGENDE SPEELDAG (Programma)
-        const containerVolgende = document.getElementById('container-volgende');
-        if (volgendeSpeeldagNum > 0) {
-            document.getElementById('titel-volgende').innerText = `Speeldag ${volgendeSpeeldagNum} (${haalDatumTekst(volgendeSpeeldagNum)})`;
-            let matchen = alleMatchen.filter(m => m.division === huidigeDivisie && m.matchday === volgendeSpeeldagNum);
-            
-            // FILTER: Toon ENKEL de match van de gekozen ploeg
-            if (mijnPloegId !== "ALL") {
-                matchen = matchen.filter(m => m.home_team_id === mijnPloegId || m.away_team_id === mijnPloegId);
-            }
-
-            if (matchen.length > 0) {
-                containerVolgende.innerHTML = matchen.map(m => renderMatchRow(m, mijnPloegId)).join('');
+            // Nog geen score ingevuld
+            if (isMyMatch) {
+                actieBlok = `<button class="btn-action btn-fill" onclick="openWedstrijdblad('${match.id}')">Score Invullen ✏️</button>`;
             } else {
-                containerVolgende.innerHTML = `<p style="text-align:center; padding: 15px; color:#aaa; margin:0;">Ploeg is vrij deze speeldag.</p>`;
+                actieBlok = `<div class="status-badge">Nog niet gespeeld</div>`;
             }
-            containerVolgende.style.display = 'block';
-        } else {
-            document.getElementById('titel-volgende').innerText = '';
-            containerVolgende.innerHTML = `<p style="text-align:center; padding: 15px; color:#aaa; margin:0;">Het seizoen is afgelopen!</p>`;
         }
-    } else {
-        renderAlleSpeeldagenView();
-    }
+
+        return `
+            <div class="${cardClass}">
+                <div class="match-teams">
+                    <div class="team-name" style="text-align: right;">${homeTeam.name}</div>
+                    <div class="vs-badge">VS</div>
+                    <div class="team-name" style="text-align: left;">${awayTeam.name}</div>
+                </div>
+                <div class="match-action">
+                    ${actieBlok}
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
-// --- VOLLEDIGE KALENDER WEERGAVE ---
-
-function toggleViewMode() {
-    viewMode = viewMode === 'DASHBOARD' ? 'ALL' : 'DASHBOARD';
-    document.getElementById('dashboard-view').style.display = viewMode === 'DASHBOARD' ? 'block' : 'none';
-    document.getElementById('all-view').style.display = viewMode === 'ALL' ? 'block' : 'none';
-    renderActueleView();
-}
-
-function vorigeSpeeldag() { if (actieveSpeeldag > 1) { actieveSpeeldag--; renderAlleSpeeldagenView(); } }
-function volgendeSpeeldag() { if (actieveSpeeldag < maxSpeeldag) { actieveSpeeldag++; renderAlleSpeeldagenView(); } }
-
-function renderAlleSpeeldagenView() {
-    const mijnPloegId = document.getElementById('select-ploeg').value;
-    
-    document.getElementById('btn-prev').disabled = (actieveSpeeldag === 1);
-    document.getElementById('btn-next').disabled = (actieveSpeeldag === maxSpeeldag);
-    document.getElementById('titel-speeldag').innerText = `Speeldag ${actieveSpeeldag}`;
-    document.getElementById('titel-datum').innerText = `📅 ${haalDatumTekst(actieveSpeeldag)}`;
-
-    let matchen = alleMatchen.filter(m => m.division === huidigeDivisie && m.matchday === actieveSpeeldag);
-    
-    // FILTER: Toon ENKEL de match van de gekozen ploeg
-    if (mijnPloegId !== "ALL") {
-        matchen = matchen.filter(m => m.home_team_id === mijnPloegId || m.away_team_id === mijnPloegId);
-    }
-
-    const container = document.getElementById('container-all');
-    if (matchen.length > 0) {
-        container.innerHTML = matchen.map(m => renderMatchRow(m, mijnPloegId)).join('');
-    } else {
-        container.innerHTML = `<p style="text-align:center; padding: 15px; color:#aaa; margin:0;">Ploeg is vrij deze speeldag.</p>`;
-    }
+function openWedstrijdblad(matchId) {
+    window.location.href = `wedstrijdblad.html?compId=${compId}&matchId=${matchId}`;
 }
